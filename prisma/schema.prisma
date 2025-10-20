@@ -13,3 +13,325 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Core Application Models
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // For credentials provider
+  image         String?
+  bio           String?   @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // NextAuth relations
+  accounts Account[]
+  sessions Session[]
+
+  // Debate platform relations
+  debatesCreated     Debate[]           @relation("DebateCreator")
+  debateParticipants DebateParticipant[]
+  arguments          Argument[]
+  votes              Vote[]
+  reports            Report[]
+  concessions        Concession[]       @relation("ConcedingUser")
+
+  @@index([email])
+}
+
+enum DebateStatus {
+  DRAFT       // Creator is setting up
+  OPEN        // Accepting participants
+  IN_PROGRESS // Debate is ongoing
+  COMPLETED   // All turns finished
+  CANCELLED   // Debate was cancelled
+}
+
+enum DebateFormat {
+  ONE_VS_ONE     // Two participants
+  ONE_VS_MANY    // One person vs multiple
+  MULTI_SIDED    // Multiple positions/sides
+}
+
+model Debate {
+  id          String       @id @default(cuid())
+  title       String
+  description String       @db.Text
+  topic       String
+  status      DebateStatus @default(DRAFT)
+  format      DebateFormat @default(ONE_VS_ONE)
+  
+  // Configuration
+  maxParticipants Int      @default(2)
+  turnsPerSide    Int      @default(3) // How many times each side can argue
+  turnTimeLimit   Int?     // Time limit per turn in hours (null = no limit)
+  minReferences   Int      @default(1) // Minimum references required per argument
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  startedAt   DateTime?
+  completedAt DateTime?
+  
+  // Relations
+  creatorId    String
+  creator      User                @relation("DebateCreator", fields: [creatorId], references: [id])
+  participants DebateParticipant[]
+  arguments    Argument[]
+  winCondition WinCondition?
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum ParticipantRole {
+  PROPOSER  // Argues FOR the topic
+  OPPOSER   // Argues AGAINST the topic
+  NEUTRAL   // For multi-sided debates
+}
+
+enum ParticipantStatus {
+  INVITED
+  ACCEPTED
+  DECLINED
+  ACTIVE
+  FORFEITED
+}
+
+model DebateParticipant {
+  id       String            @id @default(cuid())
+  role     ParticipantRole
+  status   ParticipantStatus @default(INVITED)
+  joinedAt DateTime          @default(now())
+  
+  // Relations
+  debateId String
+  debate   Debate @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User   @relation(fields: [userId], references: [id])
+
+  arguments Argument[]
+
+  @@unique([debateId, userId])
+  @@index([debateId])
+  @@index([userId])
+}
+
+model Argument {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  turnNumber Int      // Which turn this argument belongs to
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  
+  // Rebuttal system
+  rebuttalToId String?   // If this is a direct rebuttal to another argument
+  rebuttalTo   Argument? @relation("ArgumentRebuttals", fields: [rebuttalToId], references: [id], onDelete: SetNull)
+  rebuttals    Argument[] @relation("ArgumentRebuttals") // Arguments that rebut this one
+  
+  // Relations
+  debateId      String
+  debate        Debate            @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   DebateParticipant @relation(fields: [participantId], references: [id])
+  authorId      String
+  author        User              @relation(fields: [authorId], references: [id])
+  
+  references  Reference[]
+  votes       Vote[]
+  quotes      ArgumentQuote[]     @relation("QuotedArgument")
+  quotedIn    ArgumentQuote[]     @relation("QuotingArgument")
+  concessions Concession[]        @relation("ConcededArgument")
+
+  @@index([debateId])
+  @@index([participantId])
+  @@index([authorId])
+  @@index([rebuttalToId])
+  @@index([createdAt])
+}
+
+enum ReferenceType {
+  ACADEMIC_PAPER
+  NEWS_ARTICLE
+  BOOK
+  GOVERNMENT_DOCUMENT
+  STATISTICS
+  VIDEO
+  WEBSITE
+  OTHER
+}
+
+model Reference {
+  id          String        @id @default(cuid())
+  type        ReferenceType
+  title       String
+  url         String?
+  author      String?
+  publication String?
+  publishedAt DateTime?
+  accessedAt  DateTime      @default(now())
+  notes       String?       @db.Text
+  
+  // Relations
+  argumentId String
+  argument   Argument @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+
+  @@index([argumentId])
+}
+
+model ArgumentQuote {
+  id            String   @id @default(cuid())
+  quotedText    String   @db.Text // The specific text being quoted
+  context       String?  @db.Text // Additional context about why this is quoted
+  startPosition Int?     // Character position in original argument (optional)
+  endPosition   Int?     // Character position in original argument (optional)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  quotedArgumentId  String   // The argument being quoted from
+  quotedArgument    Argument @relation("QuotedArgument", fields: [quotedArgumentId], references: [id], onDelete: Cascade)
+  quotingArgumentId String   // The argument that contains this quote
+  quotingArgument   Argument @relation("QuotingArgument", fields: [quotingArgumentId], references: [id], onDelete: Cascade)
+
+  @@index([quotedArgumentId])
+  @@index([quotingArgumentId])
+}
+
+model Concession {
+  id          String   @id @default(cuid())
+  reason      String?  @db.Text // Why the user is conceding this point
+  createdAt   DateTime @default(now())
+  
+  // Relations
+  argumentId String   // The argument being conceded as valid
+  argument   Argument @relation("ConcededArgument", fields: [argumentId], references: [id], onDelete: Cascade)
+  userId     String   // The user making the concession
+  user       User     @relation("ConcedingUser", fields: [userId], references: [id])
+
+  @@unique([argumentId, userId]) // One concession per user per argument
+  @@index([argumentId])
+  @@index([userId])
+}
+
+enum VoteType {
+  UPVOTE
+  DOWNVOTE
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  type      VoteType
+  createdAt DateTime @default(now())
+  
+  // Relations
+  argumentId String
+  argument   Argument @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+
+  @@unique([argumentId, userId]) // One vote per user per argument
+  @@index([argumentId])
+  @@index([userId])
+}
+
+enum WinConditionType {
+  VOTE_COUNT      // Most upvotes wins
+  JUDGE_DECISION  // Designated judges decide
+  // TIME_BASED      // First to complete all turns
+  FORFEIT         // Opponent forfeits
+}
+
+model WinCondition {
+  id          String            @id @default(cuid())
+  type        WinConditionType
+  description String?           @db.Text
+  winnerId    String?           // User ID of winner (null if no winner yet)
+  decidedAt   DateTime?
+  
+  // Relations
+  debateId String @unique
+  debate   Debate @relation(fields: [debateId], references: [id], onDelete: Cascade)
+
+  @@index([debateId])
+}
+
+enum ReportReason {
+  SPAM
+  HARASSMENT
+  MISINFORMATION
+  OFFENSIVE_CONTENT
+  INVALID_REFERENCE
+  OFF_TOPIC
+  OTHER
+}
+
+enum ReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+model Report {
+  id          String       @id @default(cuid())
+  reason      ReportReason
+  description String?      @db.Text
+  status      ReportStatus @default(PENDING)
+  createdAt   DateTime     @default(now())
+  resolvedAt  DateTime?
+  
+  // What's being reported (one of these will be set)
+  reportedArgumentId String? // If reporting an argument
+  reportedUserId     String? // If reporting a user
+  
+  // Relations
+  reporterId String
+  reporter   User   @relation(fields: [reporterId], references: [id])
+
+  @@index([reporterId])
+  @@index([status])
+  @@index([createdAt])
+}
