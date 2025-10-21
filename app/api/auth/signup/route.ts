@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { hash } from 'bcryptjs';
 import { prisma } from '@/lib/prisma/client';
 import { z } from 'zod';
+import { sendWelcomeEmail } from '@/lib/email/service';
+import { applyRateLimit } from '@/lib/rate-limit/middleware';
 
 const signinSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -10,6 +12,13 @@ const signinSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Apply rate limiting
+  const rateLimitResponse = await applyRateLimit(req, 'registration');
+  
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await req.json();
     const { name, email, password } = signinSchema.parse(body);
@@ -43,6 +52,13 @@ export async function POST(req: Request) {
         createdAt: true,
       },
     });
+
+    try {
+      await sendWelcomeEmail(user.email, user.name!);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't fail registration if email fails
+    }
 
     return NextResponse.json(
       {

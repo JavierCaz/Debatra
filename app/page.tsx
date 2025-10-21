@@ -14,7 +14,7 @@ export default async function Home() {
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900">
-                Debate Platform
+                Debatra
               </h1>
             </div>
             <UserNav />

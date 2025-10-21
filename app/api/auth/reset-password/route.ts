@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma/client';
 import { hash } from 'bcryptjs';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { applyRateLimit } from '@/lib/rate-limit/middleware';
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, 'Token is required'),
@@ -15,6 +16,13 @@ const resetPasswordSchema = z.object({
 });
 
 export async function POST(req: Request) {
+  // Apply rate limiting
+  const rateLimitResponse = await applyRateLimit(req, 'auth');
+  
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await req.json();
     const { token, password } = resetPasswordSchema.parse(body);

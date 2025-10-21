@@ -2,12 +2,21 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma/client';
 import { z } from 'zod';
 import crypto from 'crypto';
+import { sendPasswordResetEmail } from '@/lib/email/service';
+import { applyRateLimit } from '@/lib/rate-limit/middleware';
 
 const forgotPasswordSchema = z.object({
   email: z.email('Invalid email address'),
 });
 
 export async function POST(req: Request) {
+  // Apply rate limiting
+  const rateLimitResponse = await applyRateLimit(req, 'passwordReset');
+  
+  if (rateLimitResponse) {
+    return rateLimitResponse;
+  }
+
   try {
     const body = await req.json();
     const { email } = forgotPasswordSchema.parse(body);
@@ -54,10 +63,12 @@ export async function POST(req: Request) {
     // Generate reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
 
-    // TODO: Send email with reset link
-    // For now, we'll log it (in production, use a real email service)
-    console.log('Password Reset URL:', resetUrl);
-    console.log('Token expires in 24 hours');
+    try {
+      await sendPasswordResetEmail(user.email, resetUrl, user.name || undefined);
+    } catch (emailError) {
+      console.error('Failed to send email:', emailError);
+      // Don't throw - still return success to prevent email enumeration
+    }
 
     // In development, you can return the URL
     if (process.env.NODE_ENV === 'development') {

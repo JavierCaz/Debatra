@@ -30,7 +30,7 @@ export default async function NewUserPage() {
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Welcome to Debate Platform!
+            Welcome to Debatra!
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
             Your account has been created successfully.
