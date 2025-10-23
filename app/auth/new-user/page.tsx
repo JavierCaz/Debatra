@@ -1,13 +1,13 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '@/lib/auth/options';
-import Link from 'next/link';
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth/options";
 
 export default async function NewUserPage() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
-    redirect('/auth/signin');
+    redirect("/auth/signin");
   }
 
   return (
@@ -21,6 +21,7 @@ export default async function NewUserPage() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
+              <title>Descriptive title</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -41,19 +42,27 @@ export default async function NewUserPage() {
           <h3 className="text-lg font-medium text-gray-900">Get Started</h3>
           <ul className="space-y-3 text-sm text-gray-600">
             <li className="flex items-start">
-              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">✓</span>
+              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">
+                ✓
+              </span>
               <span>Browse ongoing debates and vote on arguments</span>
             </li>
             <li className="flex items-start">
-              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">✓</span>
+              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">
+                ✓
+              </span>
               <span>Create your own debates on topics you care about</span>
             </li>
             <li className="flex items-start">
-              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">✓</span>
+              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">
+                ✓
+              </span>
               <span>Support arguments with credible references</span>
             </li>
             <li className="flex items-start">
-              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">✓</span>
+              <span className="flex-shrink-0 h-5 w-5 text-green-500 mr-2">
+                ✓
+              </span>
               <span>Engage in evidence-based discussions</span>
             </li>
           </ul>

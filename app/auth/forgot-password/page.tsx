@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import Link from 'next/link';
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email('Invalid email address'),
+  email: z.string().email("Invalid email address"),
 });
 
 type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
@@ -15,8 +15,8 @@ type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
 export default function ForgotPasswordPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string>('');
-  const [resetUrl, setResetUrl] = useState<string>(''); // For development only
+  const [error, setError] = useState<string>("");
+  const [resetUrl, setResetUrl] = useState<string>(""); // For development only
 
   const {
     register,
@@ -28,31 +28,31 @@ export default function ForgotPasswordPage() {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     setIsLoading(true);
-    setError('');
-    setResetUrl('');
+    setError("");
+    setResetUrl("");
 
     try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/auth/forgot-password", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || 'Something went wrong');
+        setError(result.error || "Something went wrong");
         return;
       }
 
       setIsSuccess(true);
-      
+
       // In development, show the reset URL
       if (result.resetUrl) {
         setResetUrl(result.resetUrl);
       }
-    } catch (error) {
-      setError('Something went wrong. Please try again.');
+    } catch (_error) {
+      setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -70,6 +70,7 @@ export default function ForgotPasswordPage() {
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
+                <title>Descriptive title</title>
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -82,11 +83,12 @@ export default function ForgotPasswordPage() {
               Check your email
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              If an account exists with that email, we've sent a password reset link.
+              If an account exists with that email, we've sent a password reset
+              link.
             </p>
           </div>
 
-          {resetUrl && process.env.NODE_ENV === 'development' && (
+          {resetUrl && process.env.NODE_ENV === "development" && (
             <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-md p-4">
               <p className="text-sm font-medium text-yellow-800 mb-2">
                 Development Mode - Reset Link:
@@ -121,7 +123,8 @@ export default function ForgotPasswordPage() {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Enter your email address and we'll send you a link to reset your password.
+            Enter your email address and we'll send you a link to reset your
+            password.
           </p>
         </div>
 
@@ -133,11 +136,14 @@ export default function ForgotPasswordPage() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
               Email address
             </label>
             <input
-              {...register('email')}
+              {...register("email")}
               type="email"
               id="email"
               autoComplete="email"
@@ -145,7 +151,9 @@ export default function ForgotPasswordPage() {
               placeholder="you@example.com"
             />
             {errors.email && (
-              <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              <p className="mt-1 text-sm text-red-600">
+                {errors.email.message}
+              </p>
             )}
           </div>
 
@@ -154,7 +162,7 @@ export default function ForgotPasswordPage() {
             disabled={isLoading}
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? 'Sending...' : 'Send reset link'}
+            {isLoading ? "Sending..." : "Send reset link"}
           </button>
 
           <div className="text-center">

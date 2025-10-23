@@ -1,4 +1,4 @@
-import { RateLimiterMemory, RateLimiterRes } from 'rate-limiter-flexible';
+import { RateLimiterMemory, type RateLimiterRes } from "rate-limiter-flexible";
 
 // Different rate limiters for different endpoints
 const rateLimiters = {
@@ -48,7 +48,7 @@ export type RateLimiterType = keyof typeof rateLimiters;
  */
 export async function checkRateLimit(
   identifier: string,
-  type: RateLimiterType = 'api'
+  type: RateLimiterType = "api",
 ): Promise<RateLimiterRes> {
   const limiter = rateLimiters[type];
 
@@ -56,7 +56,7 @@ export async function checkRateLimit(
     const result = await limiter.consume(identifier);
     return result;
   } catch (rateLimiterRes) {
-    // Rate limit exceeded
+    console.warn(`Rate limit exceeded for ${identifier} on ${type} limiter.`);
     throw rateLimiterRes;
   }
 }
@@ -66,7 +66,7 @@ export async function checkRateLimit(
  */
 export async function getRateLimitInfo(
   identifier: string,
-  type: RateLimiterType = 'api'
+  type: RateLimiterType = "api",
 ) {
   const limiter = rateLimiters[type];
   const res = await limiter.get(identifier);
@@ -89,7 +89,7 @@ export async function getRateLimitInfo(
  */
 export async function resetRateLimit(
   identifier: string,
-  type: RateLimiterType = 'api'
+  type: RateLimiterType = "api",
 ) {
   const limiter = rateLimiters[type];
   await limiter.delete(identifier);
