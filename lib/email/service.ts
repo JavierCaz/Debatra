@@ -6,13 +6,20 @@ import {
   WelcomeEmail,
 } from "./templates";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 export async function sendPasswordResetEmail(
   email: string,
   resetUrl: string,
   userName?: string,
 ) {
+  if (!resend) {
+    console.warn("Resend not configured - skipping email send");
+    return null;
+  }
+
   try {
     const emailHtml = await render(PasswordResetEmail({ resetUrl, userName }));
 
@@ -37,6 +44,11 @@ export async function sendPasswordResetEmail(
 }
 
 export async function sendWelcomeEmail(email: string, userName: string) {
+  if (!resend) {
+    console.warn("Resend not configured - skipping email send");
+    return null;
+  }
+
   try {
     const loginUrl = `${process.env.NEXTAUTH_URL}/auth/signin`;
     const emailHtml = await render(WelcomeEmail({ userName, loginUrl }));
@@ -68,6 +80,11 @@ export async function sendDebateInvitationEmail(
   inviterName: string,
   debateId: string,
 ) {
+  if (!resend) {
+    console.warn("Resend not configured - skipping email send");
+    return null;
+  }
+
   try {
     const debateUrl = `${process.env.NEXTAUTH_URL}/debates/${debateId}`;
     const emailHtml = await render(
@@ -109,6 +126,11 @@ export async function sendEmail({
   subject: string;
   html: string;
 }) {
+  if (!resend) {
+    console.warn("Resend not configured - skipping email send");
+    return null;
+  }
+
   try {
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL!,
