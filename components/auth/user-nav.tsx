@@ -1,14 +1,16 @@
-'use client';
+"use client";
 
-import { signOut } from 'next-auth/react';
-import { useAuth } from '@/hooks/use-auth';
-import Link from 'next/link';
+import Link from "next/link";
+import { signOut } from "next-auth/react";
+import { useAuth } from "@/hooks/use-auth";
 
 export function UserNav() {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
-    return <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>;
+    return (
+      <div className="h-8 w-8 rounded-full bg-gray-200 animate-pulse"></div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -32,11 +34,10 @@ export function UserNav() {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="text-sm text-gray-700">
-        {user?.name || user?.email}
-      </span>
+      <span className="text-sm text-gray-700">{user?.name || user?.email}</span>
       <button
-        onClick={() => signOut({ callbackUrl: '/auth/signout' })}
+        type="button"
+        onClick={() => signOut({ callbackUrl: "/auth/signout" })}
         className="text-sm text-gray-700 hover:text-gray-900 font-medium"
       >
         Sign out

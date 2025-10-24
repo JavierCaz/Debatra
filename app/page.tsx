@@ -1,7 +1,7 @@
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth/options';
-import Link from 'next/link';
-import { UserNav } from '@/components/auth/user-nav';
+import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { UserNav } from "@/components/auth/user-nav";
+import { authOptions } from "@/lib/auth/options";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -13,9 +13,7 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">
-                Debatra
-              </h1>
+              <h1 className="text-xl font-bold text-gray-900">Debatra</h1>
             </div>
             <UserNav />
           </div>
@@ -82,7 +80,8 @@ export default async function Home() {
             <div className="text-3xl mb-4">⏱️</div>
             <h3 className="text-lg font-semibold mb-2">Turn-Based</h3>
             <p className="text-gray-600">
-              Asynchronous format allows for thoughtful, well-researched responses.
+              Asynchronous format allows for thoughtful, well-researched
+              responses.
             </p>
           </div>
 

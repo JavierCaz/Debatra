@@ -10,6 +10,7 @@ export default function VerifyRequestPage() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
+              <title>Descriptive title</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -28,7 +29,8 @@ export default function VerifyRequestPage() {
 
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
           <p className="text-sm text-blue-800">
-            Click the link in the email to sign in to your account. The link will expire in 24 hours.
+            Click the link in the email to sign in to your account. The link
+            will expire in 24 hours.
           </p>
         </div>
       </div>
