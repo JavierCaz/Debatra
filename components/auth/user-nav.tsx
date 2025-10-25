@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useAuth } from "@/hooks/use-auth";
 
 export function UserNav() {
   const { user, isAuthenticated, isLoading } = useAuth();
+  const router = useRouter();
 
   if (isLoading) {
     return (
@@ -34,11 +36,17 @@ export function UserNav() {
 
   return (
     <div className="flex items-center gap-4">
-      <span className="text-sm text-gray-700">{user?.name || user?.email}</span>
+      <button
+        type="button"
+        onClick={() => router.push(`/profile/${user?.id}`)}
+        className="text-sm text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 cursor-pointer"
+      >
+        {user?.name || user?.email}
+      </button>
       <button
         type="button"
         onClick={() => signOut({ callbackUrl: "/auth/signout" })}
-        className="text-sm text-gray-700 hover:text-gray-900 font-medium"
+        className="text-sm text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200 cursor-pointer"
       >
         Sign out
       </button>
