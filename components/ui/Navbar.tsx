@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { UserNav } from "../auth/user-nav";
+import { ThemeToggle } from "./theme-toggle";
 
 export function Navbar() {
   return (
@@ -15,6 +16,7 @@ export function Navbar() {
             </Link>
           </div>
           <UserNav />
+          <ThemeToggle />
         </div>
       </div>
     </nav>
