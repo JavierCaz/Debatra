@@ -5,6 +5,17 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "../ui/button";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
@@ -29,6 +40,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const {
     register,
@@ -64,8 +76,9 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/profile/${user.id}`);
         router.refresh();
+        setIsOpen(false);
+        setSuccess(false);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -75,113 +88,140 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Edit Profile</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
 
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-          Profile updated successfully! Redirecting...
-        </div>
-      )}
-
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-2"
+        <form
+          id="edit-profile-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
         >
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={user.email}
-          disabled
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
-        />
-        <p className="mt-1 text-sm text-gray-500">Email cannot be changed</p>
-      </div>
+          {error ? (
+            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
+              {error}
+            </div>
+          ) : success ? (
+            <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
+              Profile updated successfully!
+            </div>
+          ) : (
+            <>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Email
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={user.email}
+                  disabled
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed text-sm"
+                />
+                <p className="mt-1 text-sm text-gray-500">
+                  Email cannot be changed
+                </p>
+              </div>
 
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Name *
-        </label>
-        <input
-          id="name"
-          type="text"
-          {...register("name")}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Your name"
-        />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              <div>
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Name *
+                </label>
+                <input
+                  id="name"
+                  type="text"
+                  {...register("name")}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Your name"
+                />
+                {errors.name && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bio"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Bio
+                </label>
+                <textarea
+                  id="bio"
+                  {...register("bio")}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="Tell us about yourself..."
+                />
+                {errors.bio && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.bio.message}
+                  </p>
+                )}
+                <p className="mt-1 text-sm text-gray-500">
+                  Maximum 500 characters
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="image"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
+                  Profile Image URL
+                </label>
+                <input
+                  id="image"
+                  type="url"
+                  {...register("image")}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  placeholder="https://example.com/your-image.jpg"
+                />
+                {errors.image && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {errors.image.message}
+                  </p>
+                )}
+                <p className="mt-1 text-sm text-gray-500">
+                  Enter a URL to your profile image
+                </p>
+              </div>
+            </>
+          )}
+        </form>
+        {!success && (
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              type="submit"
+              form="edit-profile-form"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
         )}
-      </div>
-
-      <div>
-        <label
-          htmlFor="bio"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Bio
-        </label>
-        <textarea
-          id="bio"
-          {...register("bio")}
-          rows={4}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Tell us about yourself..."
-        />
-        {errors.bio && (
-          <p className="mt-1 text-sm text-red-600">{errors.bio.message}</p>
-        )}
-        <p className="mt-1 text-sm text-gray-500">Maximum 500 characters</p>
-      </div>
-
-      <div>
-        <label
-          htmlFor="image"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Profile Image URL
-        </label>
-        <input
-          id="image"
-          type="url"
-          {...register("image")}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="https://example.com/your-image.jpg"
-        />
-        {errors.image && (
-          <p className="mt-1 text-sm text-red-600">{errors.image.message}</p>
-        )}
-        <p className="mt-1 text-sm text-gray-500">
-          Enter a URL to your profile image
-        </p>
-      </div>
-
-      <div className="flex gap-4">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition-colors"
-        >
-          {isSubmitting ? "Saving..." : "Save Changes"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+      </DialogContent>
+    </Dialog>
   );
 }

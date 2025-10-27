@@ -1,83 +1,85 @@
 import Link from "next/link";
 import { getServerSession } from "next-auth";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { authOptions } from "@/lib/auth/options";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
             Evidence-Based Debates
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
             Engage in structured, asynchronous debates with mandatory references
             and clear win conditions. Quality over speed.
           </p>
 
-          <div className="flex justify-center gap-4">
+          <div className="flex flex-col sm:flex-row justify-center gap-4">
             {session ? (
               <>
-                <Link
-                  href="/dashboard"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium text-lg"
-                >
-                  Go to Dashboard
-                </Link>
-                <Link
-                  href="/debates"
-                  className="bg-white text-blue-600 border-2 border-blue-600 px-6 py-3 rounded-md hover:bg-blue-50 font-medium text-lg"
-                >
-                  Browse Debates
-                </Link>
+                <Button asChild size="lg">
+                  <Link href="/dashboard">Go to Dashboard</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link href="/debates">Browse Debates</Link>
+                </Button>
               </>
             ) : (
               <>
-                <Link
-                  href="/auth/signup"
-                  className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 font-medium text-lg"
-                >
-                  Get Started
-                </Link>
-                <Link
-                  href="/auth/signin"
-                  className="bg-white text-blue-600 border-2 border-blue-600 px-6 py-3 rounded-md hover:bg-blue-50 font-medium text-lg"
-                >
-                  Sign In
-                </Link>
+                <Button asChild size="lg">
+                  <Link href="/auth/signup">Get Started</Link>
+                </Button>
+                <Button asChild variant="outline" size="lg">
+                  <Link href="/auth/signin">Sign In</Link>
+                </Button>
               </>
             )}
           </div>
         </div>
 
         {/* Features */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="text-3xl mb-4">📚</div>
-            <h3 className="text-lg font-semibold mb-2">Evidence-Based</h3>
-            <p className="text-gray-600">
-              All arguments must be backed by credible references and sources.
-            </p>
-          </div>
+        <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Card className="text-center">
+            <CardHeader>
+              <div className="text-3xl mb-2">📚</div>
+              <CardTitle className="text-lg">Evidence-Based</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                All arguments must be backed by credible references and sources.
+              </p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="text-3xl mb-4">⏱️</div>
-            <h3 className="text-lg font-semibold mb-2">Turn-Based</h3>
-            <p className="text-gray-600">
-              Asynchronous format allows for thoughtful, well-researched
-              responses.
-            </p>
-          </div>
+          <Card className="text-center">
+            <CardHeader>
+              <div className="text-3xl mb-2">⏱️</div>
+              <CardTitle className="text-lg">Turn-Based</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Asynchronous format allows for thoughtful, well-researched
+                responses.
+              </p>
+            </CardContent>
+          </Card>
 
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <div className="text-3xl mb-4">🏆</div>
-            <h3 className="text-lg font-semibold mb-2">Clear Outcomes</h3>
-            <p className="text-gray-600">
-              Defined win conditions and community voting determine winners.
-            </p>
-          </div>
+          <Card className="text-center">
+            <CardHeader>
+              <div className="text-3xl mb-2">🏆</div>
+              <CardTitle className="text-lg">Clear Outcomes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Defined win conditions and community voting determine winners.
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>
