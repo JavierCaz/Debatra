@@ -38,7 +38,7 @@ export function UserNav() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2">
         <Skeleton className="h-8 w-20" />
         <Skeleton className="h-8 w-8 rounded-full" />
       </div>
@@ -47,11 +47,11 @@ export function UserNav() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center gap-2">
-        <Button asChild variant="ghost" size="sm">
+      <div className="flex items-center gap-1">
+        <Button asChild variant="ghost" size="sm" className="h-9 px-2 text-xs">
           <Link href="/auth/signin">Sign in</Link>
         </Button>
-        <Button asChild size="sm">
+        <Button asChild size="sm" className="h-9 px-2 text-xs">
           <Link href="/auth/signup">Sign up</Link>
         </Button>
       </div>
@@ -59,15 +59,28 @@ export function UserNav() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1">
+      {/* Profile button - hidden on mobile, show on desktop */}
       <Button
         variant="ghost"
         size="sm"
         onClick={() => router.push(`/profile/${user?.id}`)}
-        className="text-sm font-medium flex items-center gap-2"
+        className="hidden sm:flex text-sm font-medium items-center gap-1 h-9 px-2"
       >
         <User className="h-4 w-4" />
-        {user?.name || user?.email}
+        <span className="hidden lg:inline truncate max-w-[100px]">
+          {user?.name || user?.email}
+        </span>
+      </Button>
+
+      {/* Mobile profile icon */}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={() => router.push(`/profile/${user?.id}`)}
+        className="sm:hidden h-9 w-9"
+      >
+        <User className="h-4 w-4" />
       </Button>
 
       <Dialog open={isSignOutDialogOpen} onOpenChange={setIsSignOutDialogOpen}>
@@ -75,10 +88,10 @@ export function UserNav() {
           <Button
             variant="ghost"
             size="sm"
-            className="text-sm font-medium flex items-center gap-2"
+            className="text-sm font-medium flex items-center gap-1 h-9 px-2"
           >
             <LogOut className="h-4 w-4" />
-            Sign out
+            <span className="hidden sm:inline">Sign out</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
@@ -89,13 +102,12 @@ export function UserNav() {
               access your account.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex flex-col sm:flex-row gap-4">
+          <DialogFooter className="flex flex-col sm:flex-row gap-3">
             <Button
               type="button"
               variant="outline"
               onClick={() => setIsSignOutDialogOpen(false)}
               disabled={isSigningOut}
-              className="sm:flex-1"
             >
               Cancel
             </Button>
@@ -104,7 +116,6 @@ export function UserNav() {
               variant="destructive"
               onClick={handleSignOut}
               disabled={isSigningOut}
-              className="sm:flex-1"
             >
               {isSigningOut ? (
                 <>
