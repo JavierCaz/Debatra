@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -15,12 +16,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "../ui/alert";
 import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image: z.url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -105,106 +110,95 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
           onSubmit={handleSubmit(onSubmit)}
           className="space-y-4"
         >
-          {error ? (
-            <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
-              {error}
-            </div>
-          ) : success ? (
-            <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
-              Profile updated successfully!
-            </div>
-          ) : (
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
+
+          {success && (
+            <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <AlertDescription className="text-green-800 dark:text-green-300">
+                Profile updated successfully!
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!success && (
             <>
-              <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Email
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
                   id="email"
                   type="email"
                   value={user.email}
                   disabled
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed text-sm"
+                  className="bg-muted text-muted-foreground cursor-not-allowed"
                 />
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Email cannot be changed
                 </p>
               </div>
 
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Name *
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="name">Name *</Label>
+                <Input
                   id="name"
                   type="text"
                   {...register("name")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="Your name"
+                  className={errors.name ? "border-destructive" : ""}
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="text-sm text-destructive">
                     {errors.name.message}
                   </p>
                 )}
               </div>
 
-              <div>
-                <label
-                  htmlFor="bio"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Bio
-                </label>
-                <textarea
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
                   id="bio"
                   {...register("bio")}
-                  rows={4}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="Tell us about yourself..."
+                  className={errors.bio ? "border-destructive" : ""}
+                  rows={4}
                 />
                 {errors.bio && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="text-sm text-destructive">
                     {errors.bio.message}
                   </p>
                 )}
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Maximum 500 characters
                 </p>
               </div>
 
-              <div>
-                <label
-                  htmlFor="image"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Profile Image URL
-                </label>
-                <input
+              <div className="space-y-2">
+                <Label htmlFor="image">Profile Image URL</Label>
+                <Input
                   id="image"
                   type="url"
                   {...register("image")}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
                   placeholder="https://example.com/your-image.jpg"
+                  className={errors.image ? "border-destructive" : ""}
                 />
                 {errors.image && (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="text-sm text-destructive">
                     {errors.image.message}
                   </p>
                 )}
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Enter a URL to your profile image
                 </p>
               </div>
             </>
           )}
         </form>
+
         {!success && (
           <DialogFooter>
             <DialogClose asChild>
