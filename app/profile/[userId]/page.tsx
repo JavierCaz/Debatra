@@ -18,9 +18,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { prisma } from "@/lib/prisma/client";
 
 interface ProfilePageProps {
-  params: {
+  params: Promise<{
     userId: string;
-  };
+  }>;
 }
 
 async function getUserProfile(userId: string) {
@@ -87,8 +87,9 @@ async function getUserProfile(userId: string) {
 }
 
 export default async function ProfilePage({ params }: ProfilePageProps) {
+  const userId = (await params).userId;
   const session = await getServerSession();
-  const user = await getUserProfile(params.userId);
+  const user = await getUserProfile(userId);
 
   if (!user) {
     notFound();
