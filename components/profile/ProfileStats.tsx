@@ -1,10 +1,13 @@
+import { Handshake, MessageSquare, ThumbsUp, Trophy } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader } from "../ui/card";
+
 interface ProfileStatsProps {
   stats: {
     debatesCreated: number;
-    debatesParticipated: number;
-    totalArguments: number;
-    upvotesReceived: number;
-    concessionsMade: number;
+    debateParticipants: number;
+    arguments: number;
+    votes: number;
+    concessions: number;
   };
 }
 
@@ -13,47 +16,48 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
     {
       label: "Debates Created",
       value: stats.debatesCreated,
-      icon: "🎯",
-      color: "blue",
+      icon: Trophy,
     },
     {
       label: "Participated In",
-      value: stats.debatesParticipated,
-      icon: "💬",
-      color: "green",
+      value: stats.debateParticipants,
+      icon: MessageSquare,
     },
     {
       label: "Arguments Made",
-      value: stats.totalArguments,
-      icon: "📝",
-      color: "purple",
+      value: stats.arguments,
+      icon: MessageSquare,
     },
     {
       label: "Upvotes Received",
-      value: stats.upvotesReceived,
-      icon: "👍",
-      color: "orange",
+      value: stats.votes,
+      icon: ThumbsUp,
     },
     {
       label: "Concessions Made",
-      value: stats.concessionsMade,
-      icon: "🤝",
-      color: "pink",
+      value: stats.concessions,
+      icon: Handshake,
     },
   ];
 
   return (
-    <div className="mt-8 grid grid-cols-2 md:grid-cols-5 gap-4">
-      {statItems.map((stat) => (
-        <div
-          key={stat.label}
-          className="bg-white shadow rounded-lg p-6 text-center"
-        >
-          <div className="text-3xl mb-2">{stat.icon}</div>
-          <div className="text-3xl font-bold text-gray-900">{stat.value}</div>
-          <div className="text-sm text-gray-600 mt-1">{stat.label}</div>
-        </div>
-      ))}
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      {statItems.map((stat) => {
+        const IconComponent = stat.icon;
+        return (
+          <Card key={stat.label}>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center">
+                <IconComponent className="mr-2 h-4 w-4" />
+                {stat.label}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{stat.value}</div>
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 }

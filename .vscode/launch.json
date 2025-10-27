@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Next.js: Debug Server",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [
+        "--inspect",
+        "${workspaceFolder}/node_modules/next/dist/bin/next"
+      ],
+      "args": ["dev"],
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "skipFiles": ["<node_internals>/**"],
+      "sourceMaps": true
+    },
+    {
+      "name": "Next.js: Debug Client (LibreWolf)",
+      "type": "firefox",
+      "request": "launch",
+      "reAttach": true,
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}",
+      "pathMappings": [
+        {
+          "url": "webpack://_N_E/./",
+          "path": "${webRoot}/"
+        },
+        {
+          "url": "webpack://_N_E/",
+          "path": "${webRoot}/"
+        },
+        {
+          "url": "webpack://(.*)/./",
+          "path": "${webRoot}/"
+        }
+      ],
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

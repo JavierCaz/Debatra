@@ -20,5 +20,9 @@
   "[json]": {
     "editor.defaultFormatter": "biomejs.biome"
   },
-  "biome.lspBin": "./node_modules/@biomejs/biome/bin/biome"
+  "biome.lsp.bin": "./node_modules/@biomejs/biome/bin/biome",
+  "javascript.suggest.autoImports": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "debug.node.autoAttach": "off",
+  "debug.javascript.usePreview": false
 }

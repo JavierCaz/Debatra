@@ -1,15 +1,31 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { AlertCircle, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "../ui/alert";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Textarea } from "../ui/textarea";
 
 const profileSchema = z.object({
   name: z.string().min(1, "Name is required").max(100),
   bio: z.string().max(500, "Bio must be less than 500 characters").optional(),
-  image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  image: z.url("Must be a valid URL").optional().or(z.literal("")),
 });
 
 type ProfileFormData = z.infer<typeof profileSchema>;
@@ -29,6 +45,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const {
     register,
@@ -64,8 +81,9 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
       setSuccess(true);
       setTimeout(() => {
-        router.push(`/profile/${user.id}`);
         router.refresh();
+        setIsOpen(false);
+        setSuccess(false);
       }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -75,113 +93,129 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg">
-          {error}
-        </div>
-      )}
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline">Edit Profile</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Edit profile</DialogTitle>
+          <DialogDescription>
+            Make changes to your profile here. Click save when you&apos;re done.
+          </DialogDescription>
+        </DialogHeader>
 
-      {success && (
-        <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg">
-          Profile updated successfully! Redirecting...
-        </div>
-      )}
-
-      <div>
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-2"
+        <form
+          id="edit-profile-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-4"
         >
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          value={user.email}
-          disabled
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
-        />
-        <p className="mt-1 text-sm text-gray-500">Email cannot be changed</p>
-      </div>
+          {error && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          )}
 
-      <div>
-        <label
-          htmlFor="name"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Name *
-        </label>
-        <input
-          id="name"
-          type="text"
-          {...register("name")}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Your name"
-        />
-        {errors.name && (
-          <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+          {success && (
+            <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+              <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <AlertDescription className="text-green-800 dark:text-green-300">
+                Profile updated successfully!
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {!success && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={user.email}
+                  disabled
+                  className="bg-muted text-muted-foreground cursor-not-allowed"
+                />
+                <p className="text-sm text-muted-foreground">
+                  Email cannot be changed
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  {...register("name")}
+                  placeholder="Your name"
+                  className={errors.name ? "border-destructive" : ""}
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="bio">Bio</Label>
+                <Textarea
+                  id="bio"
+                  {...register("bio")}
+                  placeholder="Tell us about yourself..."
+                  className={errors.bio ? "border-destructive" : ""}
+                  rows={4}
+                />
+                {errors.bio && (
+                  <p className="text-sm text-destructive">
+                    {errors.bio.message}
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Maximum 500 characters
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="image">Profile Image URL</Label>
+                <Input
+                  id="image"
+                  type="url"
+                  {...register("image")}
+                  placeholder="https://example.com/your-image.jpg"
+                  className={errors.image ? "border-destructive" : ""}
+                />
+                {errors.image && (
+                  <p className="text-sm text-destructive">
+                    {errors.image.message}
+                  </p>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Enter a URL to your profile image
+                </p>
+              </div>
+            </>
+          )}
+        </form>
+
+        {!success && (
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button
+              type="submit"
+              form="edit-profile-form"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
         )}
-      </div>
-
-      <div>
-        <label
-          htmlFor="bio"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Bio
-        </label>
-        <textarea
-          id="bio"
-          {...register("bio")}
-          rows={4}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="Tell us about yourself..."
-        />
-        {errors.bio && (
-          <p className="mt-1 text-sm text-red-600">{errors.bio.message}</p>
-        )}
-        <p className="mt-1 text-sm text-gray-500">Maximum 500 characters</p>
-      </div>
-
-      <div>
-        <label
-          htmlFor="image"
-          className="block text-sm font-medium text-gray-700 mb-2"
-        >
-          Profile Image URL
-        </label>
-        <input
-          id="image"
-          type="url"
-          {...register("image")}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          placeholder="https://example.com/your-image.jpg"
-        />
-        {errors.image && (
-          <p className="mt-1 text-sm text-red-600">{errors.image.message}</p>
-        )}
-        <p className="mt-1 text-sm text-gray-500">
-          Enter a URL to your profile image
-        </p>
-      </div>
-
-      <div className="flex gap-4">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed font-medium transition-colors"
-        >
-          {isSubmitting ? "Saving..." : "Save Changes"}
-        </button>
-        <button
-          type="button"
-          onClick={() => router.back()}
-          className="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 font-medium transition-colors"
-        >
-          Cancel
-        </button>
-      </div>
-    </form>
+      </DialogContent>
+    </Dialog>
   );
 }
