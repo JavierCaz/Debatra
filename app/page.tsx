@@ -1,3 +1,4 @@
+import { BookCheck, Clock, Trophy } from "lucide-react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { Button } from "@/components/ui/button";
@@ -46,7 +47,9 @@ export default async function Home() {
         <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-6">
           <Card className="text-center">
             <CardHeader>
-              <div className="text-3xl mb-2">📚</div>
+              <div className="flex justify-center mb-2">
+                <BookCheck className="h-8 w-8 text-blue-600" />
+              </div>
               <CardTitle className="text-lg">Evidence-Based</CardTitle>
             </CardHeader>
             <CardContent>
@@ -58,7 +61,9 @@ export default async function Home() {
 
           <Card className="text-center">
             <CardHeader>
-              <div className="text-3xl mb-2">⏱️</div>
+              <div className="flex justify-center mb-2">
+                <Clock className="h-8 w-8 text-green-600" />
+              </div>
               <CardTitle className="text-lg">Turn-Based</CardTitle>
             </CardHeader>
             <CardContent>
@@ -71,7 +76,9 @@ export default async function Home() {
 
           <Card className="text-center">
             <CardHeader>
-              <div className="text-3xl mb-2">🏆</div>
+              <div className="flex justify-center mb-2">
+                <Trophy className="h-8 w-8 text-amber-600" />
+              </div>
               <CardTitle className="text-lg">Clear Outcomes</CardTitle>
             </CardHeader>
             <CardContent>
