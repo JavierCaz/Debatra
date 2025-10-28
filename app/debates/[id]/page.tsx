@@ -12,6 +12,20 @@ interface DebateDetailPageProps {
   }>;
 }
 
+function calculateDebateProgress(debate: any) {
+  const allTurnNumbers = debate.participants.flatMap((participant: any) =>
+    participant.arguments.map((argument: any) => argument.turnNumber),
+  );
+
+  const currentTurn =
+    allTurnNumbers.length > 0 ? Math.max(...allTurnNumbers) : 0;
+  const totalPossibleTurns = debate.turnsPerSide * debate.maxParticipants;
+  const debateProgress =
+    totalPossibleTurns > 0 ? (currentTurn / totalPossibleTurns) * 100 : 0;
+
+  return { currentTurn, debateProgress, totalPossibleTurns };
+}
+
 export default async function DebateDetailPage({
   params,
 }: DebateDetailPageProps) {
@@ -22,8 +36,11 @@ export default async function DebateDetailPage({
     notFound();
   }
 
+  const { currentTurn, debateProgress, totalPossibleTurns } =
+    calculateDebateProgress(debate);
+
   return (
-    <div className="container mx-auto py-8 px-4 max-w-6xl">
+    <div className="container mx-auto py-8 px-4 max-w-7xl">
       {/* Back Button */}
       <div className="mb-6">
         <Link href="/debates">
@@ -34,16 +51,31 @@ export default async function DebateDetailPage({
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sidebar - Metadata */}
-        <div className="lg:col-span-1">
-          <DebateMetadata debate={debate} />
+      {/* Horizontal Layout */}
+      <div className="flex flex-col lg:flex-row gap-6">
+        {/* Metadata - Compact Sidebar */}
+        <div className="lg:w-80 lg:flex-shrink-0">
+          <DebateMetadata
+            debate={debate}
+            currentTurn={currentTurn}
+            debateProgress={debateProgress}
+            totalPossibleTurns={totalPossibleTurns}
+          />
         </div>
 
-        {/* Main Content - Arguments */}
-        <div className="lg:col-span-2">
-          <h2 className="text-2xl font-bold mb-6">Arguments</h2>
-          <ArgumentsList debate={debate} />
+        {/* Arguments - Main Content */}
+        <div className="flex-1 min-w-0">
+          {" "}
+          {/* min-w-0 prevents flex overflow */}
+          <div className="mb-6">
+            <h1 className="text-3xl font-bold">{debate.title}</h1>
+            <p className="text-muted-foreground mt-2">{debate.description}</p>
+          </div>
+          <ArgumentsList
+            debate={debate}
+            currentTurn={currentTurn}
+            totalPossibleTurns={totalPossibleTurns}
+          />
         </div>
       </div>
     </div>

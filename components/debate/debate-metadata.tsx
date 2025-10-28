@@ -7,9 +7,17 @@ import type { DebateWithDetails } from "@/types/debate";
 
 interface DebateMetadataProps {
   debate: DebateWithDetails;
+  currentTurn: number;
+  debateProgress: number;
+  totalPossibleTurns: number;
 }
 
-export function DebateMetadata({ debate }: DebateMetadataProps) {
+export function DebateMetadata({
+  debate,
+  currentTurn,
+  debateProgress,
+  totalPossibleTurns,
+}: DebateMetadataProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "DRAFT":
@@ -53,6 +61,25 @@ export function DebateMetadata({ debate }: DebateMetadataProps) {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Debate Progress */}
+        <div className="p-4 bg-muted rounded-lg">
+          <h3 className="font-medium mb-2">Debate Progress</h3>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm text-muted-foreground">
+              Turn {currentTurn} of {totalPossibleTurns}
+            </p>
+            <span className="text-sm font-medium">
+              {Math.round(debateProgress)}%
+            </span>
+          </div>
+          <div className="w-full bg-secondary rounded-full h-2">
+            <div
+              className="bg-primary h-2 rounded-full transition-all duration-300"
+              style={{ width: `${Math.min(debateProgress, 100)}%` }}
+            />
+          </div>
+        </div>
+
         {/* Creator Info */}
         <div className="flex items-center space-x-3">
           <Avatar>

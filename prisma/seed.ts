@@ -23,7 +23,7 @@ async function main() {
 
   console.log("✨ Cleared existing data");
 
-  // Create Users
+  // Create Users (same as before)
   const hashedPassword = await hash("password123", 12);
 
   const alice = await prisma.user.create({
@@ -70,504 +70,338 @@ async function main() {
     },
   });
 
-  const eve = await prisma.user.create({
-    data: {
-      name: "Eve Chen",
-      email: "eve@example.com",
-      password: hashedPassword,
-      bio: "Energy policy analyst with expertise in renewable transitions.",
-      image:
-        "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
-    },
-  });
+  console.log("👥 Created 4 users");
 
-  const frank = await prisma.user.create({
+  // Create a new debate focused on Universal Basic Income
+  const ubiDebate = await prisma.debate.create({
     data: {
-      name: "Frank Williams",
-      email: "frank@example.com",
-      password: hashedPassword,
-      bio: "Industrial engineer skeptical of rapid decarbonization timelines.",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
-    },
-  });
-
-  console.log("👥 Created 6 users");
-
-  // Create Debate 1: Comprehensive Climate Policy Debate (In Progress)
-  const climateDebate = await prisma.debate.create({
-    data: {
-      title: "Should carbon taxes be the primary tool for reducing emissions?",
+      title: "Should governments implement Universal Basic Income (UBI)?",
       description:
-        "A structured debate on whether carbon taxation is the most effective policy mechanism for achieving significant reductions in greenhouse gas emissions. This debate examines economic efficiency, political feasibility, and equity considerations.",
-      topic: "Climate Policy",
+        "A comprehensive debate examining the economic, social, and practical implications of implementing a universal basic income program. This debate will explore evidence from pilot programs, economic theory, and implementation challenges.",
+      topic: "Economic Policy",
       status: "IN_PROGRESS",
       format: "ONE_VS_ONE",
       maxParticipants: 2,
-      turnsPerSide: 4,
-      turnTimeLimit: 48,
-      minReferences: 2,
+      turnsPerSide: 3,
+      turnTimeLimit: 72,
+      minReferences: 1,
       creatorId: alice.id,
-      startedAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000), // Started 14 days ago
+      startedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Started 7 days ago
     },
   });
 
-  // Add participants to climate debate
+  // Add participants to UBI debate
   const aliceParticipant = await prisma.debateParticipant.create({
     data: {
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       userId: alice.id,
-      role: "PROPOSER",
+      role: "PROPOSER", // Alice supports UBI
       status: "ACTIVE",
     },
   });
 
   const bobParticipant = await prisma.debateParticipant.create({
     data: {
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       userId: bob.id,
-      role: "OPPOSER",
+      role: "OPPOSER", // Bob opposes UBI
       status: "ACTIVE",
     },
   });
 
-  // === TURN 1 ===
+  // === TURN 1: OPENING ARGUMENTS (Multiple arguments per user) ===
 
-  // Alice's opening argument (Multiple arguments in turn 1)
-  const aliceArg1 = await prisma.argument.create({
+  // Alice's Turn 1 - Multiple opening arguments
+  const aliceTurn1Arg1 = await prisma.argument.create({
     data: {
-      content: `<p>Carbon taxes represent the most economically efficient mechanism for reducing emissions for three key reasons:</p>
-        
-        <ol>
-          <li><strong>Market-based efficiency:</strong> By directly pricing carbon externalities, they create market-based incentives that encourage innovation and allow businesses to find the most cost-effective reduction strategies.</li>
-          <li><strong>Revenue generation:</strong> The collected revenue can be used to fund clean energy research, support vulnerable communities, or be returned to citizens through dividend programs.</li>
-          <li><strong>Proven effectiveness:</strong> Multiple jurisdictions have demonstrated significant emission reductions without economic harm.</li>
-        </ol>
-        
-        <p>The evidence from British Columbia shows a 5-15% reduction in emissions while maintaining economic growth, proving that well-designed carbon pricing works.</p>`,
+      content: `<p><strong>Economic Efficiency Argument:</strong> UBI eliminates bureaucratic overhead associated with means-tested welfare programs. Studies show that administrative costs for traditional welfare can consume 10-20% of total budgets, while UBI's universal approach reduces this to 1-2%.</p>`,
       turnNumber: 1,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
       references: {
         create: [
           {
             type: "ACADEMIC_PAPER",
-            title:
-              'The British Columbia Carbon Tax: A Review of the Latest "Grand Experiment" in Environmental Policy',
-            author: "Stewart Elgie and Jessica McClay",
-            publication:
-              "McGill International Journal of Sustainable Development Law and Policy",
-            url: "https://doi.org/10.2139/ssrn.2261857",
-            publishedAt: new Date("2013-01-15"),
+            title: "The Cost of Welfare Administration",
+            author: "Institute for Economic Affairs",
+            publication: "Economic Affairs Journal",
+            url: "https://example.com/welfare-costs",
+            publishedAt: new Date("2020-03-15"),
             notes:
-              "Comprehensive analysis showing 5-15% emission reductions in BC from 2008-2012",
-          },
-          {
-            type: "STATISTICS",
-            title: "World Bank Carbon Pricing Dashboard 2023",
-            author: "World Bank Group",
-            url: "https://carbonpricingdashboard.worldbank.org/",
-            publishedAt: new Date("2023-06-01"),
-            notes:
-              "Shows 70+ jurisdictions implementing carbon pricing mechanisms covering 23% of global emissions",
-          },
-          {
-            type: "GOVERNMENT_DOCUMENT",
-            title:
-              "OECD Environmental Performance Reviews: Carbon Pricing Effectiveness",
-            author: "Organisation for Economic Co-operation and Development",
-            url: "https://www.oecd.org/environment/carbon-pricing-effectiveness/",
-            publishedAt: new Date("2021-09-15"),
-            notes:
-              "Analysis showing carbon pricing as most cost-effective policy tool",
+              "Shows 10-20% administrative costs in traditional welfare systems",
           },
         ],
       },
     },
   });
 
-  // Bob's opening argument with multiple points
-  const bobArg1 = await prisma.argument.create({
+  const aliceTurn1Arg2 = await prisma.argument.create({
     data: {
-      content: `<p>While carbon taxes have theoretical appeal, they face three fundamental challenges that limit their effectiveness as a primary policy tool:</p>
-        
-        <ol>
-          <li><strong>Political viability:</strong> Carbon taxes consistently face strong public resistance, as demonstrated by the "Yellow Vest" protests in France and failed ballot initiatives in multiple U.S. states.</li>
-          <li><strong>Regressive impacts:</strong> Without careful design, carbon taxes disproportionately burden low-income households who spend a larger percentage of their income on energy and transportation.</li>
-          <li><strong>Insufficient scope:</strong> Direct regulations and subsidies have proven more effective at driving technological innovation and infrastructure transformation in key sectors like renewable energy and electric vehicles.</li>
-        </ol>
-        
-        <p>The dramatic cost reductions in solar and wind energy were achieved primarily through targeted subsidies and mandates, not carbon pricing.</p>`,
+      content: `<p><strong>Poverty Reduction Evidence:</strong> Pilot programs in Finland and Canada demonstrated significant improvements in mental health, well-being, and trust in institutions. The Finland experiment showed reduced stress and increased confidence among recipients.</p>`,
       turnNumber: 1,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      references: {
+        create: [
+          {
+            type: "GOVERNMENT_DOCUMENT",
+            title: "Finnish Basic Income Experiment Results",
+            author: "Finnish Social Security Institute",
+            url: "https://example.com/finland-ubi",
+            publishedAt: new Date("2019-02-28"),
+            notes: "Documents mental health improvements and reduced stress",
+          },
+        ],
+      },
+    },
+  });
+
+  const aliceTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Automation Preparedness:</strong> With AI and automation projected to displace 20-30% of current jobs by 2030, UBI provides a necessary safety net that allows workers to retrain and adapt to the changing economy without facing destitution.</p>`,
+      turnNumber: 1,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+    },
+  });
+
+  // Bob's Turn 1 - Multiple opening arguments with SAME-TURN counterarguments
+  const bobTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Fiscal Impossibility:</strong> A meaningful UBI of $1,000/month for all US adults would cost approximately $3 trillion annually, nearly equaling the entire current federal budget. This level of taxation would cripple economic growth.</p>`,
+      turnNumber: 1,
+      debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
+      references: {
+        create: [
+          {
+            type: "STATISTICS",
+            title: "Federal Budget Analysis 2023",
+            author: "Congressional Budget Office",
+            url: "https://example.com/cbo-budget",
+            publishedAt: new Date("2023-01-15"),
+            notes: "Shows total federal budget of $4.1 trillion for 2023",
+          },
+        ],
+      },
+    },
+  });
+
+  const bobTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Inflationary Pressures:</strong> Injecting massive amounts of cash into the economy without corresponding production increases would lead to significant inflation, effectively eroding the purchasing power of the UBI payments themselves.</p>`,
+      turnNumber: 1,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+    },
+  });
+
+  // Bob's SAME-TURN counterargument to Alice's bureaucracy argument
+  const bobTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Immediate Counter to Bureaucracy Savings:</strong> While UBI reduces administrative costs for <em>existing</em> programs, it creates massive new bureaucracy for tax collection and distribution. The IRS would need to double in size to handle the required taxation, offsetting any administrative savings you mentioned.</p>`,
+      turnNumber: 1,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn1Arg1.id, // SAME-TURN counter to Alice's bureaucracy argument
+    },
+  });
+
+  // === TURN 2: COUNTERARGUMENTS (Multiple counterarguments pointing to specific opposing arguments) ===
+
+  // Alice's Turn 2 - Multiple counterarguments targeting Bob's Turn 1 arguments
+  const aliceTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Fiscal Argument:</strong> Your $3 trillion figure ignores that UBI would <em>replace</em> most existing welfare programs ($1.2 trillion), and could be funded through progressive taxation, carbon taxes, and technology dividends that wouldn't harm most households.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn1Arg1.id, // Direct counter to Bob's fiscal argument
+    },
+  });
+
+  const aliceTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Inflation Concerns:</strong> Historical evidence from Alaska's Permanent Fund (which provides universal oil revenue dividends) shows no significant inflationary effects. When money is distributed broadly rather than concentrated, it stimulates real economic activity rather than just raising prices.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn1Arg2.id, // Direct counter to Bob's inflation argument
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "Economic Impacts of Alaska Permanent Fund",
+            author: "University of Alaska Economic Research",
+            publication: "Journal of Economic Equality",
+            url: "https://example.com/alaska-fund",
+            publishedAt: new Date("2018-07-20"),
+            notes:
+              "Shows no correlation between dividend payments and inflation in Alaska",
+          },
+        ],
+      },
+    },
+  });
+
+  const aliceTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Work Disincentive:</strong> The Finland experiment actually showed no significant reduction in employment. Participants used the financial security to find better-matched jobs, start businesses, or pursue education - all economically productive activities that aren't captured in simple employment metrics.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn1Arg3.id, // Direct counter to Bob's work disincentive argument
+    },
+  });
+
+  // Bob's Turn 2 - Multiple counterarguments with SAME-TURN responses
+  const bobTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Bureaucracy Savings:</strong> Your digital governance examples like Estonia work for small homogeneous populations. Scaling to diverse nations like the US with complex tax systems and enforcement needs creates entirely different bureaucratic challenges that your examples don't address.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn1Arg1.id, // Direct counter to Alice's bureaucracy argument
+    },
+  });
+
+  const bobTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Pilot Program Evidence:</strong> The Finland experiment involved only 2,000 people for two years - too small and short-term to draw meaningful conclusions. When Ontario cancelled its larger UBI pilot, they found participants weren't transitioning to self-sufficiency as predicted.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn1Arg2.id, // Direct counter to Alice's pilot evidence
       references: {
         create: [
           {
             type: "NEWS_ARTICLE",
-            title:
-              "France's 'Yellow Vest' Protesters Reject Macron's Climate Tax",
-            author: "Le Monde Editorial Board",
-            publication: "Le Monde",
-            url: "https://www.lemonde.fr/france/article/2018/12/05/gilets-jaunes-la-colere-contre-la-fiscalite-ecologique_5392715_3214.html",
-            publishedAt: new Date("2018-12-05"),
-            notes:
-              "Documents widespread public resistance to carbon tax implementation in France",
-          },
-          {
-            type: "ACADEMIC_PAPER",
-            title:
-              "The Distributional Impacts of a Carbon Tax: Evidence from British Columbia",
-            author: "Nicholas Rivers and Brandon Schaufele",
-            publication: "Canadian Public Policy",
-            url: "https://doi.org/10.3138/cpp.2015-069",
-            publishedAt: new Date("2015-12-01"),
-            notes:
-              "Shows initial regressive impacts before revenue recycling measures",
-          },
-          {
-            type: "STATISTICS",
-            title: "Levelized Cost of Energy Analysis Version 16.0",
-            author: "Lazard",
-            url: "https://www.lazard.com/research-insights/2023-levelized-cost-of-energyplus/",
-            publishedAt: new Date("2023-04-01"),
-            notes:
-              "Documents 90% cost reduction in solar and 70% in wind since 2010, driven by policy support",
+            title: "Ontario Cancels Basic Income Pilot Project",
+            author: "Canadian Press",
+            publication: "The Globe and Mail",
+            url: "https://example.com/ontario-cancelled",
+            publishedAt: new Date("2018-08-31"),
+            notes: "Reports on cancellation and preliminary findings",
           },
         ],
       },
     },
   });
 
-  // === TURN 2 ===
-
-  // Alice's rebuttal addressing Bob's points
-  const aliceArg2 = await prisma.argument.create({
+  // Bob's SAME-TURN counterargument to Alice's Turn 2 funding argument
+  const bobTurn2Arg3 = await prisma.argument.create({
     data: {
-      content: `<p>You raise valid concerns about political viability and equity, but these are design challenges rather than fundamental flaws with carbon pricing itself.</p>
-        
-        <h4>Addressing Political Viability</h4>
-        <p>The success of carbon pricing in British Columbia, Sweden, and the EU Emissions Trading System shows that political acceptance is achievable with proper design. Key factors include:</p>
-        <ul>
-          <li>Revenue recycling that makes most households financially better off</li>
-          <li>Gradual implementation with clear communication</li>
-          <li>Protections for trade-exposed industries</li>
-        </ul>
-        
-        <h4>Solving Equity Concerns</h4>
-        <p>British Columbia addressed regressivity by returning all revenue through tax cuts and direct credits, with low-income households receiving <em>more</em> in rebates than they paid in carbon taxes. This demonstrates that equity concerns are solvable through policy design.</p>
-        
-        <h4>Complementary, Not Exclusive</h4>
-        <p>Carbon pricing works best as part of a comprehensive policy package that includes regulations and subsidies. However, it should be the <strong>centerpiece</strong> because it efficiently coordinates emission reductions across the entire economy.</p>`,
+      content: `<p><strong>Immediate Counter to Funding Proposal:</strong> Your proposed funding sources like carbon taxes are already allocated to climate initiatives in most serious proposals. Redirecting them to UBI would mean defunding essential environmental programs, creating a zero-sum game between social welfare and environmental protection.</p>`,
       turnNumber: 2,
-      debateId: climateDebate.id,
-      participantId: aliceParticipant.id,
-      authorId: alice.id,
-      rebuttalToId: bobArg1.id,
-      references: {
-        create: [
-          {
-            type: "GOVERNMENT_DOCUMENT",
-            title: "British Columbia Carbon Tax Review and Update 2022",
-            author: "BC Ministry of Finance",
-            url: "https://www2.gov.bc.ca/gov/content/environment/climate-change/planning-and-action/carbon-tax",
-            publishedAt: new Date("2022-03-20"),
-            notes:
-              "Details revenue recycling mechanisms and distributional analysis showing net benefits for low-income households",
-          },
-          {
-            type: "ACADEMIC_PAPER",
-            title:
-              "Why Do People Accept Environmental Policies? The Case of the Swedish Carbon Tax",
-            author: "Andersson, S. ",
-            publication: "Journal of Environmental Policy & Planning",
-            url: "https://doi.org/10.1080/1523908X.2020.1841588",
-            publishedAt: new Date("2020-11-01"),
-            notes:
-              "Analyzes factors contributing to high public acceptance of carbon tax in Sweden",
-          },
-        ],
-      },
-    },
-  });
-
-  // Create quotes from Bob's argument that Alice is addressing
-  await prisma.argumentQuote.create({
-    data: {
-      quotedText:
-        "carbon taxes disproportionately burden low-income households",
-      context: "Addressing the equity concerns raised about carbon pricing",
-      startPosition: 250,
-      endPosition: 310,
-      quotedArgumentId: bobArg1.id,
-      quotingArgumentId: aliceArg2.id,
-    },
-  });
-
-  await prisma.argumentQuote.create({
-    data: {
-      quotedText: "face strong public resistance",
-      context: "Responding to political viability concerns",
-      startPosition: 120,
-      endPosition: 150,
-      quotedArgumentId: bobArg1.id,
-      quotingArgumentId: aliceArg2.id,
-    },
-  });
-
-  // Bob's counter-rebuttal with additional evidence
-  const bobArg2 = await prisma.argument.create({
-    data: {
-      content: `<p>While I appreciate your acknowledgment of the challenges, I remain skeptical that carbon taxes can serve as the <em>primary</em> tool. Let me explain why:</p>
-        
-        <h4>Political Reality vs. Theoretical Design</h4>
-        <p>Even well-designed carbon taxes face implementation hurdles. The Australian carbon tax was repealed after just two years despite good design principles. This suggests that political volatility remains a fundamental constraint.</p>
-        
-        <h4>Evidence from Successful Alternatives</h4>
-        <p>Consider Germany's Energiewende: through feed-in tariffs and renewable mandates (not carbon pricing), they achieved 46% renewable electricity by 2020. Similarly, California's clean vehicle standards have driven electric vehicle adoption more effectively than carbon pricing alone.</p>
-        
-        <h4>The Innovation Argument</h4>
-        <p>While carbon prices create marginal incentives, they don't drive the kind of transformative innovation needed. Targeted R&D funding and deployment subsidies have proven more effective at creating new clean technology industries.</p>`,
-      turnNumber: 2,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceArg2.id,
-      references: {
-        create: [
-          {
-            type: "ACADEMIC_PAPER",
-            title: "The Rise and Fall of the Australian Carbon Tax",
-            author: "David I. Stern and Frank Jotzo",
-            publication: "Climate Policy",
-            url: "https://doi.org/10.1080/14693062.2021.1993776",
-            publishedAt: new Date("2021-10-15"),
-            notes:
-              "Analysis of political factors leading to repeal of Australian carbon pricing",
-          },
-          {
-            type: "GOVERNMENT_DOCUMENT",
-            title: "Germany's Energy Transition - Key Findings 2021",
-            author: "Federal Ministry for Economic Affairs and Energy",
-            url: "https://www.bmwi.de/Redaktion/EN/Publikationen/energy-transition-key-findings.html",
-            publishedAt: new Date("2021-12-01"),
-            notes: "Documents success of renewable energy policies in Germany",
-          },
-          {
-            type: "STATISTICS",
-            title: "California Zero Emission Vehicle Program Assessment",
-            author: "California Air Resources Board",
-            url: "https://ww2.arb.ca.gov/resources/documents/california-zero-emission-vehicle-program-assessment",
-            publishedAt: new Date("2022-08-15"),
-            notes:
-              "Shows effectiveness of regulatory approach for transportation decarbonization",
-          },
-        ],
-      },
+      rebuttalToId: aliceTurn2Arg1.id, // SAME-TURN counter to Alice's Turn 2 funding argument
     },
   });
 
-  // === TURN 3 ===
+  // === TURN 3: FINAL ARGUMENTS WITH NESTED COUNTERARGUMENTS ===
 
-  // Alice's third argument with concession and refined position
-  const aliceArg3 = await prisma.argument.create({
+  // Alice's Turn 3 - Countering Bob's Turn 2 arguments
+  const aliceTurn3Arg1 = await prisma.argument.create({
     data: {
-      content: `<p>You make compelling points about political volatility and the success of alternative policies. Let me refine my position:</p>
-        
-        <h4>Concession on Political Challenges</h4>
-        <p>I concede that political viability remains a significant challenge, particularly in polarized political environments. The Australian example is indeed instructive.</p>
-        
-        <h4>Refined Position: Carbon Pricing as Coordination Mechanism</h4>
-        <p>Rather than abandoning carbon pricing, we should view it as the essential <strong>coordination mechanism</strong> that makes other policies more effective. For example:</p>
-        <ul>
-          <li>Carbon pricing ensures that renewable subsidies don't simply increase overall energy consumption</li>
-          <li>It provides a clear price signal for private sector innovation</li>
-          <li>It generates revenue to fund the very transition programs you rightly champion</li>
-        </ul>
-        
-        <h4>International Dimension</h4>
-        <p>Carbon pricing becomes increasingly important for international coordination. Border carbon adjustments and linking carbon markets require price signals that regulations cannot provide.</p>`,
+      content: `<p><strong>Final Counter on Implementation:</strong> Modern digital systems make UBI distribution remarkably efficient. Countries like Estonia demonstrate that digital governance can administer universal programs at minimal cost - the technology argument actually supports UBI, not undermines it.</p>`,
       turnNumber: 3,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobArg2.id,
-      references: {
-        create: [
-          {
-            type: "ACADEMIC_PAPER",
-            title:
-              "The Complementary Role of Carbon Pricing and Technology Policies in Climate Mitigation",
-            author: "Goulder, L. H., & Hafstead, M. A.",
-            publication: "Journal of Environmental Economics and Management",
-            url: "https://doi.org/10.1016/j.jeem.2020.102394",
-            publishedAt: new Date("2020-09-01"),
-            notes:
-              "Shows how carbon pricing and technology policies work best in combination",
-          },
-          {
-            type: "GOVERNMENT_DOCUMENT",
-            title: "EU Carbon Border Adjustment Mechanism Proposal",
-            author: "European Commission",
-            url: "https://ec.europa.eu/taxation_customs/green-taxation-0/carbon-border-adjustment-mechanism_en",
-            publishedAt: new Date("2021-07-14"),
-            notes:
-              "Demonstrates international coordination role of carbon pricing",
-          },
-        ],
-      },
+      rebuttalToId: bobTurn2Arg1.id, // Countering Bob's bureaucracy counterargument
     },
   });
 
-  // Bob concedes a point about coordination
-  await prisma.concession.create({
+  const aliceTurn3Arg2 = await prisma.argument.create({
     data: {
-      argumentId: aliceArg3.id,
-      userId: bob.id,
-      reason:
-        "You make a valid point about carbon pricing serving as a coordination mechanism for international climate policy. The EU's border adjustment mechanism does illustrate this function.",
-    },
-  });
-
-  // Bob's third argument focusing on implementation reality
-  const bobArg3 = await prisma.argument.create({
-    data: {
-      content: `<p>I appreciate your refined position, and I agree that carbon pricing has a role to play. However, I maintain that it shouldn't be the <em>primary</em> tool. Here's why:</p>
-        
-        <h4>Implementation Reality</h4>
-        <p>Even in jurisdictions with carbon pricing, the political pressure to keep prices low has resulted in levels far below what economists estimate is needed. The EU ETS spent years with prices below €10/ton when models suggest €50-100/ton is needed.</p>
-        
-        <h4>Alternative Primary Strategy</h4>
-        <p>I propose that industrial policy and public investment should be the primary tools. The U.S. Inflation Reduction Act demonstrates this approach: $369 billion in clean energy investments that are already transforming markets without the political baggage of carbon taxes.</p>
-        
-        <h4>Pragmatic Path Forward</h4>
-        <p>Given political constraints, we should prioritize policies that:</p>
-        <ol>
-          <li>Directly fund clean technology deployment</li>
-          <li>Implement sector-specific regulations</li>
-          <li>Use carbon pricing as a complementary, not primary, tool</li>
-        </ol>`,
+      content: `<p><strong>Final Counter on Evidence:</strong> While individual pilots have limitations, the <em>consistency</em> of positive outcomes across dozens of experiments worldwide creates a compelling pattern. From Namibia to India to Alaska, the results consistently show benefits that outweigh costs.</p>`,
       turnNumber: 3,
-      debateId: climateDebate.id,
-      participantId: bobParticipant.id,
-      authorId: bob.id,
-      rebuttalToId: aliceArg3.id,
-      references: {
-        create: [
-          {
-            type: "STATISTICS",
-            title: "EU Emissions Trading System Price Evolution 2008-2023",
-            author: "European Energy Exchange",
-            url: "https://www.eex.com/en/market-data/environmental-markets/spot-market/european-emission-allowances",
-            publishedAt: new Date("2023-11-01"),
-            notes:
-              "Shows historical price volatility and periods of very low carbon prices",
-          },
-          {
-            type: "GOVERNMENT_DOCUMENT",
-            title: "Inflation Reduction Act Guidebook",
-            author: "The White House",
-            url: "https://www.whitehouse.gov/cleanenergy/inflation-reduction-act-guidebook/",
-            publishedAt: new Date("2022-08-16"),
-            notes:
-              "Details $369 billion in clean energy investments and expected emissions impacts",
-          },
-          {
-            type: "ACADEMIC_PAPER",
-            title: "The Political Economy of Carbon Pricing",
-            author: "Mildenberger, M.",
-            publication: "Oxford Research Encyclopedia of Politics",
-            url: "https://doi.org/10.1093/acrefore/9780190228637.013.1773",
-            publishedAt: new Date("2020-12-22"),
-            notes:
-              "Analyzes political constraints on carbon pricing implementation",
-          },
-        ],
-      },
-    },
-  });
-
-  // === TURN 4 (Final Turn) ===
-
-  // Alice's final summary argument
-  const aliceArg4 = await prisma.argument.create({
-    data: {
-      content: `<p>We've reached substantial agreement on many points. Let me conclude by summarizing why carbon pricing, while imperfect, remains essential as a primary coordination tool:</p>
-        
-        <h4>Key Points of Agreement</h4>
-        <ul>
-          <li>Both carbon pricing and direct investment/regulation are necessary</li>
-          <li>Political implementation challenges are real and significant</li>
-          <li>Equity concerns must be addressed through policy design</li>
-        </ul>
-        
-        <h4>Why Carbon Pricing as Primary Tool</h4>
-        <p>Even with its challenges, carbon pricing provides the only mechanism that:</p>
-        <ol>
-          <li>Efficiently allocates reduction efforts across the entire economy</li>
-          <li>Generates sustainable funding for the transition</li>
-          <li>Enables international policy coordination</li>
-          <li>Creates continuous innovation incentives without picking winners</li>
-        </ol>
-        
-        <p>The perfect should not be the enemy of the good. While we work to improve carbon pricing design and build political support, it must remain central to our climate strategy.</p>`,
-      turnNumber: 4,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobArg3.id,
+      rebuttalToId: bobTurn2Arg2.id, // Countering Bob's pilot evidence counter
     },
   });
 
-  // Bob's final summary argument
-  const bobArg4 = await prisma.argument.create({
+  // Alice's SAME-TURN counter to Bob's Turn 2 environmental argument
+  const aliceTurn3Arg3 = await prisma.argument.create({
     data: {
-      content: `<p>This has been a productive discussion that highlights the complexity of climate policy. My concluding position:</p>
-        
-        <h4>Areas of Convergence</h4>
-        <p>We agree that carbon pricing has a role to play and that a comprehensive policy portfolio is essential. The debate has helped clarify where carbon pricing adds value.</p>
-        
-        <h4>Why Investment-Led Strategy Should Be Primary</h4>
-        <p>Given political realities and implementation speed, I believe public investment and industrial policy should lead because:</p>
-        <ol>
-          <li>They face less political resistance and can be implemented faster</li>
-          <li>They directly build the clean energy infrastructure we need</li>
-          <li>They have demonstrated success in transforming key sectors</li>
-          <li>They can be designed to maximize co-benefits like job creation</li>
-        </ol>
-        
-        <p>Carbon pricing should complement this investment-led strategy, not lead it. This pragmatic approach offers the best path to rapid decarbonization given real-world constraints.</p>`,
-      turnNumber: 4,
-      debateId: climateDebate.id,
+      content: `<p><strong>Immediate Counter to Environmental Trade-off:</strong> Carbon taxes can be designed to fund multiple priorities simultaneously through revenue allocation. Moreover, UBI itself supports environmental goals by enabling people to make sustainable choices without economic desperation forcing environmentally harmful decisions.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn2Arg3.id, // SAME-TURN counter to Bob's environmental trade-off argument
+    },
+  });
+
+  // Bob's Turn 3 - Final counterarguments with SAME-TURN responses
+  const bobTurn3Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Final Reality Check:</strong> The political feasibility remains the ultimate obstacle. No major country has implemented nationwide UBI because voters consistently reject the required tax increases when presented with concrete numbers rather than abstract principles.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceArg4.id,
+      rebuttalToId: aliceTurn2Arg1.id, // Countering Alice's funding counterargument
     },
   });
 
-  // Add comprehensive voting from other users
+  const bobTurn3Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Final Economic Principle:</strong> Basic economics teaches that when you subsidize something, you get more of it. By subsidizing non-work, we'd get more non-work. This fundamental principle has held true across centuries and cannot be wished away with optimistic pilot studies.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn2Arg3.id, // Countering Alice's work disincentive counter
+    },
+  });
+
+  // Bob's SAME-TURN counter to Alice's Turn 3 environmental synergy argument
+  const bobTurn3Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Immediate Counter to Environmental Synergy:</strong> There's no evidence that UBI recipients make more environmentally conscious choices. In fact, increased disposable income often leads to higher consumption and carbon footprints. Your environmental synergy claim is speculative at best.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn3Arg3.id, // SAME-TURN counter to Alice's environmental synergy argument
+    },
+  });
+
+  // Add some votes from other users
   const votes = [
     // Votes for Alice's arguments
-    { argumentId: aliceArg1.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: aliceArg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: aliceArg1.id, userId: eve.id, type: "UPVOTE" },
-    { argumentId: aliceArg2.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: aliceArg2.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: aliceArg3.id, userId: eve.id, type: "UPVOTE" },
-    { argumentId: aliceArg3.id, userId: frank.id, type: "DOWNVOTE" },
-    { argumentId: aliceArg4.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn1Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn1Arg2.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceTurn2Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn2Arg2.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceTurn3Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn3Arg3.id, userId: diana.id, type: "UPVOTE" },
 
     // Votes for Bob's arguments
-    { argumentId: bobArg1.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: bobArg1.id, userId: frank.id, type: "UPVOTE" },
-    { argumentId: bobArg2.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobArg2.id, userId: eve.id, type: "DOWNVOTE" },
-    { argumentId: bobArg3.id, userId: frank.id, type: "UPVOTE" },
-    { argumentId: bobArg3.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: bobArg4.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobArg4.id, userId: eve.id, type: "UPVOTE" },
+    { argumentId: bobTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn2Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn2Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobTurn2Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn3Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn3Arg3.id, userId: charlie.id, type: "UPVOTE" },
   ];
 
   for (const vote of votes) {
@@ -580,123 +414,68 @@ async function main() {
     });
   }
 
-  // Additional concessions
+  // Add some concessions to show intellectual honesty
   await prisma.concession.create({
     data: {
-      argumentId: bobArg2.id,
+      argumentId: bobTurn1Arg1.id,
       userId: alice.id,
       reason:
-        "You're correct that Germany's Energiewende achieved remarkable renewable energy growth through feed-in tariffs rather than carbon pricing alone.",
+        "I concede that the scale of funding required is substantial and requires careful consideration of tax policy.",
+    },
+  });
+
+  await prisma.concession.create({
+    data: {
+      argumentId: aliceTurn2Arg2.id,
+      userId: bob.id,
+      reason:
+        "The Alaska Permanent Fund example is a valid point about inflation management in resource-rich economies.",
+    },
+  });
+
+  // Add a concession for a same-turn counterargument
+  await prisma.concession.create({
+    data: {
+      argumentId: bobTurn2Arg3.id,
+      userId: alice.id,
+      reason:
+        "You raise a valid concern about potential trade-offs between environmental funding and UBI that requires careful policy design.",
     },
   });
 
   console.log(
-    "🔥 Created comprehensive climate debate with 8 arguments across 4 turns",
+    "💰 Created comprehensive UBI debate with multiple arguments per turn including SAME-TURN counterarguments",
   );
-
-  // Create Debate 2: Multi-sided AI Regulation Debate
-  const aiDebate = await prisma.debate.create({
-    data: {
-      title:
-        "What regulatory approach best balances AI innovation with safety concerns?",
-      description:
-        "A multi-sided debate examining different regulatory frameworks for artificial intelligence, including licensing, liability rules, and self-regulation approaches.",
-      topic: "Technology Policy",
-      status: "IN_PROGRESS",
-      format: "MULTI_SIDED",
-      maxParticipants: 4,
-      turnsPerSide: 3,
-      turnTimeLimit: 72,
-      minReferences: 1,
-      creatorId: charlie.id,
-      startedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-    },
-  });
-
-  // Multiple participants with different roles
-  const charlieAIParticipant = await prisma.debateParticipant.create({
-    data: {
-      debateId: aiDebate.id,
-      userId: charlie.id,
-      role: "PROPOSER", // Proposing strict licensing
-      status: "ACTIVE",
-    },
-  });
-
-  const dianaAIParticipant = await prisma.debateParticipant.create({
-    data: {
-      debateId: aiDebate.id,
-      userId: diana.id,
-      role: "OPPOSER", // Opposing strict regulation
-      status: "ACTIVE",
-    },
-  });
-
-  const eveAIParticipant = await prisma.debateParticipant.create({
-    data: {
-      debateId: aiDebate.id,
-      userId: eve.id,
-      role: "NEUTRAL", // Proposing alternative approach
-      status: "ACTIVE",
-    },
-  });
-
-  // Add arguments from all three perspectives
-  const charlieAIArg = await prisma.argument.create({
-    data: {
-      content: `<p>AI systems with significant potential for harm should require government licensing similar to pharmaceuticals or aviation. This would ensure safety testing, transparency requirements, and accountability mechanisms are in place before deployment.</p>`,
-      turnNumber: 1,
-      debateId: aiDebate.id,
-      participantId: charlieAIParticipant.id,
-      authorId: charlie.id,
-    },
-  });
-
-  const dianaAIArg = await prisma.argument.create({
-    data: {
-      content: `<p>Strict licensing would stifle innovation and concentrate AI development in large corporations. A liability-based approach that holds companies accountable for harms while allowing open development would be more effective.</p>`,
-      turnNumber: 1,
-      debateId: aiDebate.id,
-      participantId: dianaAIParticipant.id,
-      authorId: diana.id,
-      rebuttalToId: charlieAIArg.id,
-    },
-  });
-
-  const eveAIArg = await prisma.argument.create({
-    data: {
-      content: `<p>Both approaches have merits. I propose a tiered regulatory framework where only high-risk AI applications require licensing, while most AI development operates under flexible safety standards with post-market monitoring.</p>`,
-      turnNumber: 1,
-      debateId: aiDebate.id,
-      participantId: eveAIParticipant.id,
-      authorId: eve.id,
-    },
-  });
-
-  console.log("🤖 Created multi-sided AI regulation debate");
-
-  // Create additional debates with various statuses...
-
-  console.log("✅ Enhanced seed completed successfully!");
-  console.log("\n📊 Comprehensive Summary:");
-  console.log(`- Users: 6 (alice, bob, charlie, diana, eve, frank)`);
-  console.log(`- Debates: 2 (both in progress with rich content)`);
-  console.log(`- Arguments: 11 total across debates`);
+  console.log("\n📊 Debate Structure Summary:");
+  console.log("TURN 1:");
   console.log(
-    `- Climate Debate: 8 arguments across 4 turns with multiple rebuttals`,
+    "   - Alice: 3 opening arguments (efficiency, evidence, automation)",
   );
-  console.log(`- AI Debate: 3 arguments from different perspectives`);
-  console.log(`- Quotes: 2 direct quotes with context`);
-  console.log(`- Concessions: 3 concessions showing intellectual honesty`);
-  console.log(`- Votes: 16 votes from multiple users`);
-  console.log(`- References: 15+ high-quality references with varied types`);
-  console.log('\n🔐 All users have password: "password123"\n');
-  console.log("💡 The climate debate demonstrates:");
-  console.log("   - Multiple arguments per turn");
-  console.log("   - Progressive refinement of positions");
-  console.log("   - Direct quotes and concessions");
-  console.log("   - Rich HTML content formatting");
-  console.log("   - Comprehensive reference integration");
+  console.log(
+    "   - Bob: 3 arguments (fiscal, inflation, SAME-TURN counter to bureaucracy)",
+  );
+  console.log("TURN 2:");
+  console.log(
+    "   - Alice: 3 counterarguments (targeting each of Bob's Turn 1 arguments)",
+  );
+  console.log(
+    "   - Bob: 3 arguments (2 counters to Alice's Turn 1, 1 SAME-TURN counter to Alice's Turn 2 funding argument)",
+  );
+  console.log("TURN 3:");
+  console.log(
+    "   - Alice: 3 arguments (2 counters to Bob's Turn 2, 1 SAME-TURN counter to Bob's Turn 2 environmental argument)",
+  );
+  console.log(
+    "   - Bob: 3 arguments (2 final counters, 1 SAME-TURN counter to Alice's Turn 3 environmental argument)",
+  );
+  console.log("\n🎯 Key Features Demonstrated:");
+  console.log("   - Multiple arguments per user per turn (3 in each turn)");
+  console.log("   - Cross-turn counterarguments using rebuttalToId");
+  console.log("   - SAME-TURN counterarguments within the same turn number");
+  console.log(
+    "   - Complex argument-rebuttal relationships throughout the debate",
+  );
+  console.log("   - Real-time responses creating more dynamic debate flow");
 }
 
 main()
