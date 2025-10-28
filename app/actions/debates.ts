@@ -29,16 +29,33 @@ export async function getDebateById(id: string) {
               include: {
                 references: true,
                 votes: true,
+                rebuttalTo: {
+                  include: {
+                    participant: {
+                      include: {
+                        user: {
+                          select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            image: true,
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
                 _count: {
                   select: {
                     rebuttals: true,
                   },
                 },
               },
-              orderBy: {
-                createdAt: "asc",
-              },
+              orderBy: [{ turnNumber: "asc" }, { createdAt: "asc" }],
             },
+          },
+          orderBy: {
+            joinedAt: "asc",
           },
         },
         winCondition: true,
