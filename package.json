@@ -16,7 +16,8 @@
     "prisma:push": "prisma db push",
     "prisma:seed": "tsx prisma/seed.ts",
     "db:reset": "prisma migrate reset",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "structure": "tree -I 'node_modules|.next|.git|dist|build|coverage|.cache|.vscode|.idea' --dirsfirst -a -L 6 > STRUCTURE.md"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.0",
