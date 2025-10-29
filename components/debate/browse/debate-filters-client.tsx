@@ -9,11 +9,13 @@ import { DebateFilters } from "./debate-filters";
 interface DebateFiltersClientProps {
   initialStatus: string;
   initialSearch: string;
+  initialTopic?: string;
 }
 
 export function DebateFiltersClient({
   initialStatus,
   initialSearch,
+  initialTopic = "ALL",
 }: DebateFiltersClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -22,7 +24,7 @@ export function DebateFiltersClient({
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
   const updateFilters = useCallback(
-    (updates: { status?: string; search?: string }) => {
+    (updates: { status?: string; search?: string; topic?: string }) => {
       const params = new URLSearchParams(searchParams.toString());
 
       Object.entries(updates).forEach(([key, value]) => {
@@ -36,6 +38,8 @@ export function DebateFiltersClient({
           value.trim() === ""
             ? params.delete("search")
             : params.set("search", value.trim());
+        } else if (key === "topic") {
+          value === "ALL" ? params.delete("topic") : params.set("topic", value);
         }
       });
 
@@ -57,6 +61,7 @@ export function DebateFiltersClient({
         setSearchTerm(value);
         debouncedUpdateSearch(value);
       },
+      onTopicChange: (topic: string) => updateFilters({ topic }),
     }),
     [updateFilters, debouncedUpdateSearch],
   );
@@ -66,8 +71,10 @@ export function DebateFiltersClient({
       <DebateFilters
         status={initialStatus}
         search={searchTerm}
+        topic={initialTopic}
         onStatusChange={handlers.onStatusChange}
         onSearchChange={handlers.onSearchChange}
+        onTopicChange={handlers.onTopicChange}
       />
 
       {isPending && (

@@ -4,19 +4,24 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ALL_DEBATE_TOPICS, getTopicDisplayName } from "@/types/debate";
 
 interface DebateFiltersProps {
   status: string;
   search: string;
+  topic: string;
   onStatusChange: (status: string) => void;
   onSearchChange: (search: string) => void;
+  onTopicChange: (topic: string) => void;
 }
 
 export function DebateFilters({
   status,
   search,
+  topic,
   onStatusChange,
   onSearchChange,
+  onTopicChange,
 }: DebateFiltersProps) {
   return (
     <div className="space-y-6">
@@ -28,7 +33,7 @@ export function DebateFilters({
           <Input
             id="search"
             type="text"
-            placeholder="Search by title or topic..."
+            placeholder="Search by title or description..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
@@ -64,6 +69,30 @@ export function DebateFilters({
               Concluded Debates
             </Label>
           </div>
+        </RadioGroup>
+      </div>
+
+      {/* Topic Filter */}
+      <div className="space-y-2">
+        <Label>Topic</Label>
+        <RadioGroup value={topic} onValueChange={onTopicChange}>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="ALL" id="all-topics" />
+            <Label htmlFor="all-topics" className="font-normal cursor-pointer">
+              All Topics
+            </Label>
+          </div>
+          {ALL_DEBATE_TOPICS.map((topicValue) => (
+            <div key={topicValue} className="flex items-center space-x-2">
+              <RadioGroupItem value={topicValue} id={topicValue} />
+              <Label
+                htmlFor={topicValue}
+                className="font-normal cursor-pointer"
+              >
+                {getTopicDisplayName(topicValue)}
+              </Label>
+            </div>
+          ))}
         </RadioGroup>
       </div>
     </div>

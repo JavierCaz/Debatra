@@ -4,21 +4,25 @@ import { getDebates } from "@/app/actions/debates";
 import { DebateCard } from "@/components/debate/browse/debate-card";
 import { DebateFiltersClient } from "@/components/debate/browse/debate-filters-client";
 import { Button } from "@/components/ui/button";
-import type { DebateStatus } from "@/types/debate";
+import type { DebateStatus, DebateTopic } from "@/types/debate";
 
 interface PageProps {
-  searchParams: Promise<{ status?: string; search?: string }>;
+  searchParams: Promise<{ status?: string; search?: string; topic?: string }>;
 }
 
 export default async function DebatesPage({ searchParams }: PageProps) {
   const params = await searchParams;
   const status = (params.status || "ALL") as DebateStatus | "ALL";
   const search = params.search || "";
-
-  const result = await getDebates({ status, search });
+  const topic = params.topic || "ALL";
+  const result = await getDebates({
+    status,
+    search,
+    topic: topic !== "ALL" ? (topic as DebateTopic) : undefined,
+  });
 
   // Create a unique key based on search params to force re-render when filters change
-  const debatesKey = `${status}-${search}`;
+  const debatesKey = `${status}-${search}-${topic}`;
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -44,6 +48,7 @@ export default async function DebatesPage({ searchParams }: PageProps) {
             <DebateFiltersClient
               initialStatus={status}
               initialSearch={search}
+              initialTopic={topic}
             />
           </div>
         </aside>

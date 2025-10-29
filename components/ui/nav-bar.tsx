@@ -49,17 +49,14 @@ export function Navbar() {
               >
                 Debatra
               </Link>
-              {/* Desktop Menu - Only show for authenticated users */}
-              {isAuthenticated && (
-                <div className="hidden md:flex items-center gap-6 mx-8 flex-shrink-0">
-                  <Link
-                    href="/debates"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-                  >
-                    Debates
-                  </Link>
-                </div>
-              )}
+              <div className="hidden md:flex items-center gap-6 mx-8 flex-shrink-0">
+                <Link
+                  href="/debates"
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
+                >
+                  Debates
+                </Link>
+              </div>
               {/* Mobile Menu - Only show for authenticated users */}
               {isAuthenticated && (
                 <div className="flex md:hidden mx-8">
