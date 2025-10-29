@@ -1,4 +1,3 @@
-// components/debate/browse/debate-card.tsx
 import { formatDistanceToNow } from "date-fns";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
@@ -63,7 +62,7 @@ export function DebateCard({ debate }: DebateCardProps) {
             <div className="flex-1">
               <CardTitle className="text-xl mb-3 line-clamp-2">
                 {debate.title}
-              </CardTitle>{" "}
+              </CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-2">
                 {/* Status Badge */}
                 <Badge
@@ -96,31 +95,45 @@ export function DebateCard({ debate }: DebateCardProps) {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between text-sm text-muted-foreground">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-muted-foreground">
+            {/* Left side - User info and stats */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-1">
-                <Avatar className="h-6 w-6">
+                <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
                   <AvatarImage src={debate.creator.image || undefined} />
-                  <AvatarFallback>
+                  <AvatarFallback className="text-xs">
                     {debate.creator.name?.[0]?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
-                <span>{debate.creator.name || "Anonymous"}</span>
+                <span className="text-xs sm:text-sm">
+                  {debate.creator.name || "Anonymous"}
+                </span>
               </div>
-              <div className="flex items-center gap-1">
-                <Users className="h-4 w-4" />
-                <span>{debate._count.participants} participants</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <MessageSquare className="h-4 w-4" />
-                <span>{debate._count.arguments} arguments</span>
+
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-1">
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm">
+                    {debate._count.participants}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
+                  <span className="text-xs sm:text-sm">
+                    {debate._count.arguments}
+                  </span>
+                </div>
               </div>
             </div>
-            <span>
-              {formatDistanceToNow(new Date(debate.createdAt), {
-                addSuffix: true,
-              })}
-            </span>
+
+            {/* Right side - Timestamp */}
+            <div className="flex justify-end">
+              <span className="text-xs sm:text-sm bg-muted px-2 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0">
+                {formatDistanceToNow(new Date(debate.createdAt), {
+                  addSuffix: true,
+                })}
+              </span>
+            </div>
           </div>
         </CardContent>
       </Card>
