@@ -2,28 +2,18 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDebateById } from "@/app/actions/debates";
-import { ArgumentsList } from "@/components/debate/arguments-list";
+import { ArgumentsList } from "@/components/debate/argument-list";
 import { DebateMetadata } from "@/components/debate/debate-metadata";
 import { Button } from "@/components/ui/button";
+import {
+  calculateDebateProgress,
+  groupArgumentsByTurn,
+} from "@/lib/debate/stats";
 
 interface DebateDetailPageProps {
   params: Promise<{
     id: string;
   }>;
-}
-
-function calculateDebateProgress(debate: any) {
-  const allTurnNumbers = debate.participants.flatMap((participant: any) =>
-    participant.arguments.map((argument: any) => argument.turnNumber),
-  );
-
-  const currentTurn =
-    allTurnNumbers.length > 0 ? Math.max(...allTurnNumbers) : 0;
-  const totalPossibleTurns = debate.turnsPerSide * debate.maxParticipants;
-  const debateProgress =
-    totalPossibleTurns > 0 ? (currentTurn / totalPossibleTurns) * 100 : 0;
-
-  return { currentTurn, debateProgress, totalPossibleTurns };
 }
 
 export default async function DebateDetailPage({
@@ -36,8 +26,13 @@ export default async function DebateDetailPage({
     notFound();
   }
 
+  // Calculate all data once in the parent
   const { currentTurn, debateProgress, totalPossibleTurns } =
     calculateDebateProgress(debate);
+  const argumentsByTurn = groupArgumentsByTurn(debate);
+  const turnNumbers = Object.keys(argumentsByTurn)
+    .map(Number)
+    .sort((a, b) => a - b);
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
@@ -65,16 +60,9 @@ export default async function DebateDetailPage({
 
         {/* Arguments - Main Content */}
         <div className="flex-1 min-w-0">
-          {" "}
-          {/* min-w-0 prevents flex overflow */}
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">{debate.title}</h1>
-            <p className="text-muted-foreground mt-2">{debate.description}</p>
-          </div>
           <ArgumentsList
-            debate={debate}
-            currentTurn={currentTurn}
-            totalPossibleTurns={totalPossibleTurns}
+            argumentsByTurn={argumentsByTurn}
+            turnNumbers={turnNumbers}
           />
         </div>
       </div>
