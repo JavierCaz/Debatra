@@ -1,32 +1,37 @@
-// components/debates/create/debate-parameters-section.tsx
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import type { DebateFormat, DebateFormData } from "@/types/debate";
+import { DebateFormat, type DebateFormData } from "@/types/debate";
 
 interface DebateParametersSectionProps {
   formData: DebateFormData;
   onUpdate: (updates: Partial<DebateFormData>) => void;
 }
 
+interface DebateFormatType {
+  value: DebateFormData["format"];
+  label: string;
+  description: string;
+}
+
 export function DebateParametersSection({
   formData,
   onUpdate,
 }: DebateParametersSectionProps) {
-  const debateFormats: DebateFormat[] = [
+  const debateFormats: DebateFormatType[] = [
     {
-      value: "ONE_VS_ONE",
+      value: DebateFormat.ONE_VS_ONE,
       label: "One vs One",
       description: "Two participants",
     },
     {
-      value: "ONE_VS_MANY",
+      value: DebateFormat.ONE_VS_MANY,
       label: "One vs Many",
       description: "One person vs multiple",
     },
     {
-      value: "MULTI_SIDED",
+      value: DebateFormat.MULTI_SIDED,
       label: "Multi-sided",
       description: "Multiple positions",
     },

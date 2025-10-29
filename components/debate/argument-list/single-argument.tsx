@@ -1,9 +1,6 @@
-// components/debate/single-argument.tsx
 "use client";
 
 import { format } from "date-fns";
-import { ArrowUpLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import type { DebateWithDetails } from "@/types/debate";
 import { ArgumentReferences } from "./argument-references";

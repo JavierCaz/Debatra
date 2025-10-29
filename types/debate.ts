@@ -1,5 +1,19 @@
 import type { Prisma } from "@/app/generated/prisma";
 
+export enum DebateStatus {
+  DRAFT = "DRAFT",
+  OPEN = "OPEN",
+  IN_PROGRESS = "IN_PROGRESS",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
+}
+
+export enum DebateFormat {
+  ONE_VS_ONE = "ONE_VS_ONE",
+  ONE_VS_MANY = "ONE_VS_MANY",
+  MULTI_SIDED = "MULTI_SIDED",
+}
+
 export interface Reference {
   id: number;
   title: string;
@@ -16,17 +30,11 @@ export interface DebateFormData {
   title: string;
   topic: string;
   description: string;
-  format: "ONE_VS_ONE" | "ONE_VS_MANY" | "MULTI_SIDED";
+  format: DebateFormat;
   maxParticipants: number;
   turnsPerSide: number;
   turnTimeLimit: number;
   minReferences: number;
-}
-
-export interface DebateFormat {
-  value: DebateFormData["format"];
-  label: string;
-  description: string;
 }
 
 export type DebateWithDetails = Prisma.DebateGetPayload<{
