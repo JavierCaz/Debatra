@@ -1,6 +1,8 @@
+// components/debate/browse/debate-card.tsx
 import { formatDistanceToNow } from "date-fns";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
+import type { DebateTopicEnum } from "@/app/generated/prisma";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,18 +12,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { type DebateTopic, getTopicDisplayName } from "@/types/debate";
 
 interface DebateCardProps {
   debate: {
     id: string;
     title: string;
-    topic: string;
     status: string;
     createdAt: Date;
     creator: {
       name: string | null;
       image: string | null;
     };
+    topics: {
+      topic: DebateTopicEnum;
+    }[];
     _count: {
       arguments: number;
       participants: number;
@@ -46,15 +51,21 @@ const statusLabels = {
 };
 
 export function DebateCard({ debate }: DebateCardProps) {
+  // Limit displayed topics to prevent overflow
+  const displayTopics = debate.topics.slice(0, 3);
+  const hasMoreTopics = debate.topics.length > 3;
+
   return (
     <Link href={`/debates/${debate.id}`}>
       <Card className="hover:shadow-lg transition-shadow cursor-pointer">
         <CardHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <CardTitle className="text-xl mb-2">{debate.title}</CardTitle>
-              <CardDescription className="flex items-center gap-2">
-                <Badge variant="secondary">{debate.topic}</Badge>
+              <CardTitle className="text-xl mb-3 line-clamp-2">
+                {debate.title}
+              </CardTitle>{" "}
+              <CardDescription className="flex flex-wrap items-center gap-2">
+                {/* Status Badge */}
                 <Badge
                   className={
                     statusColors[debate.status as keyof typeof statusColors]
@@ -62,6 +73,24 @@ export function DebateCard({ debate }: DebateCardProps) {
                 >
                   {statusLabels[debate.status as keyof typeof statusLabels]}
                 </Badge>
+
+                {/* Topics Badges - removed max-width and truncate */}
+                {displayTopics.map(({ topic }) => (
+                  <Badge
+                    key={topic}
+                    variant="secondary"
+                    className="whitespace-normal break-words"
+                  >
+                    {getTopicDisplayName(topic as DebateTopic)}
+                  </Badge>
+                ))}
+
+                {/* Show "+X more" if there are additional topics */}
+                {hasMoreTopics && (
+                  <Badge variant="outline" className="text-xs">
+                    +{debate.topics.length - 3} more
+                  </Badge>
+                )}
               </CardDescription>
             </div>
           </div>

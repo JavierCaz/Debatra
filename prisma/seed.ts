@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma";
 import { hash } from "bcryptjs";
+import { DebateTopicEnum } from "@/app/generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -14,6 +15,7 @@ async function main() {
   await prisma.reference.deleteMany();
   await prisma.argument.deleteMany();
   await prisma.winCondition.deleteMany();
+  await prisma.debateTopic.deleteMany();
   await prisma.debateParticipant.deleteMany();
   await prisma.debate.deleteMany();
   await prisma.account.deleteMany();
@@ -78,7 +80,6 @@ async function main() {
       title: "Should governments implement Universal Basic Income (UBI)?",
       description:
         "A comprehensive debate examining the economic, social, and practical implications of implementing a universal basic income program. This debate will explore evidence from pilot programs, economic theory, and implementation challenges.",
-      topic: "Economic Policy",
       status: "IN_PROGRESS",
       format: "ONE_VS_ONE",
       maxParticipants: 2,
@@ -87,7 +88,17 @@ async function main() {
       minReferences: 1,
       creatorId: alice.id,
       startedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Started 7 days ago
+      // Note: topics are added separately via the DebateTopic relation
     },
+  });
+
+  // Add multiple topics to the debate
+  await prisma.debateTopic.createMany({
+    data: [
+      { debateId: ubiDebate.id, topic: DebateTopicEnum.ECONOMICS },
+      { debateId: ubiDebate.id, topic: DebateTopicEnum.POLITICS },
+      { debateId: ubiDebate.id, topic: DebateTopicEnum.SOCIETY_CULTURE },
+    ],
   });
 
   // Add participants to UBI debate
@@ -443,10 +454,60 @@ async function main() {
     },
   });
 
+  // Create additional debates with multiple topics
+  const aiDebate = await prisma.debate.create({
+    data: {
+      title: "Should AI development be regulated internationally?",
+      description:
+        "Debate on the need for global governance frameworks for artificial intelligence development and deployment.",
+      status: "OPEN",
+      format: "ONE_VS_ONE",
+      maxParticipants: 2,
+      turnsPerSide: 3,
+      minReferences: 1,
+      creatorId: charlie.id,
+    },
+  });
+
+  await prisma.debateTopic.createMany({
+    data: [
+      { debateId: aiDebate.id, topic: DebateTopicEnum.TECHNOLOGY },
+      { debateId: aiDebate.id, topic: DebateTopicEnum.INTERNATIONAL_RELATIONS },
+      { debateId: aiDebate.id, topic: DebateTopicEnum.LAW_JUSTICE },
+    ],
+  });
+
+  const climateDebate = await prisma.debate.create({
+    data: {
+      title: "Is nuclear energy essential for addressing climate change?",
+      description:
+        "Examining the role of nuclear power in the transition to clean energy and climate change mitigation.",
+      status: "OPEN",
+      format: "ONE_VS_MANY",
+      maxParticipants: 4,
+      turnsPerSide: 2,
+      minReferences: 1,
+      creatorId: diana.id,
+    },
+  });
+
+  await prisma.debateTopic.createMany({
+    data: [
+      {
+        debateId: climateDebate.id,
+        topic: DebateTopicEnum.ENVIRONMENT_CLIMATE,
+      },
+      { debateId: climateDebate.id, topic: DebateTopicEnum.SCIENCE },
+      { debateId: climateDebate.id, topic: DebateTopicEnum.TECHNOLOGY },
+    ],
+  });
+
   console.log(
     "💰 Created comprehensive UBI debate with multiple arguments per turn including SAME-TURN counterarguments",
   );
-  console.log("\n📊 Debate Structure Summary:");
+  console.log("🤖 Created AI regulation debate with multiple topics");
+  console.log("🌍 Created climate change debate with multiple topics");
+  console.log("\n📊 UBI Debate Structure Summary:");
   console.log("TURN 1:");
   console.log(
     "   - Alice: 3 opening arguments (efficiency, evidence, automation)",
@@ -469,6 +530,7 @@ async function main() {
     "   - Bob: 3 arguments (2 final counters, 1 SAME-TURN counter to Alice's Turn 3 environmental argument)",
   );
   console.log("\n🎯 Key Features Demonstrated:");
+  console.log("   - Multiple topics per debate using DebateTopic relation");
   console.log("   - Multiple arguments per user per turn (3 in each turn)");
   console.log("   - Cross-turn counterarguments using rebuttalToId");
   console.log("   - SAME-TURN counterarguments within the same turn number");

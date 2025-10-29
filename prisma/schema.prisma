@@ -82,6 +82,26 @@ model User {
   @@index([email])
 }
 
+enum DebateTopicEnum {
+  POLITICS
+  ECONOMICS
+  TECHNOLOGY
+  SCIENCE
+  HEALTH_MEDICINE
+  EDUCATION
+  SOCIETY_CULTURE
+  PHILOSOPHY
+  LAW_JUSTICE
+  INTERNATIONAL_RELATIONS
+  ARTS
+  ENTERTAINMENT
+  SPORTS
+  RELIGION_SPIRITUALITY
+  PSYCHOLOGY_BEHAVIOR
+  ENVIRONMENT_CLIMATE
+  HISTORY
+}
+
 enum DebateStatus {
   DRAFT       // Creator is setting up
   OPEN        // Accepting participants
@@ -100,7 +120,6 @@ model Debate {
   id          String       @id @default(cuid())
   title       String
   description String       @db.Text
-  topic       String
   status      DebateStatus @default(DRAFT)
   format      DebateFormat @default(ONE_VS_ONE)
   
@@ -122,10 +141,20 @@ model Debate {
   participants DebateParticipant[]
   arguments    Argument[]
   winCondition WinCondition?
+  topics DebateTopic[]
 
   @@index([creatorId])
   @@index([status])
   @@index([createdAt])
+}
+
+model DebateTopic {
+  debateId String
+  topic    DebateTopicEnum
+  debate   Debate @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  
+  @@id([debateId, topic])
+  @@index([topic])
 }
 
 enum ParticipantRole {

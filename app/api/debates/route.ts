@@ -2,6 +2,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
+import { detectReferenceType } from "@/lib/utils/reference-types";
+import { ALL_DEBATE_TOPICS, type DebateTopic } from "@/types/debate";
 
 export async function POST(request: NextRequest) {
   try {
@@ -21,10 +23,15 @@ export async function POST(request: NextRequest) {
 
     const data = await request.json();
 
-    // Validate required data
-    if (!data.title || !data.topic) {
+    // Validate required data - updated for multiple topics
+    if (
+      !data.title ||
+      !data.topics ||
+      !Array.isArray(data.topics) ||
+      data.topics.length === 0
+    ) {
       return NextResponse.json(
-        { error: "Title and topic are required" },
+        { error: "Title and at least one topic are required" },
         { status: 400 },
       );
     }
@@ -40,13 +47,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create debate with participant and multiple initial arguments in a transaction
+    const invalidTopics = data.topics.filter(
+      (topic: string) => !ALL_DEBATE_TOPICS.includes(topic as DebateTopic),
+    );
+    if (invalidTopics.length > 0) {
+      return NextResponse.json(
+        { error: `Invalid topics provided: ${invalidTopics.join(", ")}` },
+        { status: 400 },
+      );
+    }
+
+    // Create debate with topics, participant and multiple initial arguments in a transaction
     const debate = await prisma.$transaction(async (tx) => {
       // Create the debate
       const newDebate = await tx.debate.create({
         data: {
           title: data.title,
-          topic: data.topic,
           description: data.description,
           format: data.format,
           maxParticipants: data.maxParticipants,
@@ -56,6 +72,14 @@ export async function POST(request: NextRequest) {
           status: data.status,
           creatorId: user.id,
         },
+      });
+
+      // Create debate topics
+      await tx.debateTopic.createMany({
+        data: data.topics.map((topic: string) => ({
+          debateId: newDebate.id,
+          topic: topic,
+        })),
       });
 
       // Create participant
@@ -86,18 +110,16 @@ export async function POST(request: NextRequest) {
             participantId: participant.id,
             authorId: user.id,
             references: {
-              create: initialArg.references.map((ref: any) => ({
-                type: detectReferenceType(ref.url),
-                title: ref.title,
-                url: ref.url,
-                author: ref.author,
-                publication: ref.publication,
-                notes: ref.notes,
-              })),
+              create:
+                initialArg.references?.map((ref: any) => ({
+                  type: detectReferenceType(ref.url),
+                  title: ref.title,
+                  url: ref.url,
+                  author: ref.author,
+                  publication: ref.publication,
+                  notes: ref.notes,
+                })) || [],
             },
-          },
-          include: {
-            references: true, // Include references in the response if needed
           },
         });
       }
@@ -105,7 +127,7 @@ export async function POST(request: NextRequest) {
       return newDebate;
     });
 
-    // Fetch the complete debate with participants and arguments
+    // Fetch the complete debate with topics, participants and arguments
     const completeDebate = await prisma.debate.findUnique({
       where: { id: debate.id },
       include: {
@@ -117,6 +139,7 @@ export async function POST(request: NextRequest) {
             image: true,
           },
         },
+        topics: true, // Include the debate topics
         participants: {
           include: {
             user: {

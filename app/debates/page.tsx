@@ -64,9 +64,14 @@ export default async function DebatesPage({ searchParams }: PageProps) {
               )}
             </div>
           ) : (
-            <div key={debatesKey} className="space-y-4">
-              {result.debates.map((debate) => (
-                <DebateCard key={debate.id} debate={debate} />
+            <div key={debatesKey} className="space-y-6">
+              {result.debates.map((debate, i) => (
+                <div
+                  key={debate.id}
+                  className={i < result.debates.length - 1 ? "mb-6" : ""}
+                >
+                  <DebateCard debate={debate} />
+                </div>
               ))}
             </div>
           )}
