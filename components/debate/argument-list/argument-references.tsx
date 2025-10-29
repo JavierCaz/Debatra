@@ -1,4 +1,3 @@
-// components/debate/argument-references.tsx
 "use client";
 
 import { format } from "date-fns";

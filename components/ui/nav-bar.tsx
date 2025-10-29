@@ -58,12 +58,6 @@ export function Navbar() {
                   >
                     Debates
                   </Link>
-                  <Link
-                    href="/topics"
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
-                  >
-                    Topics
-                  </Link>
                 </div>
               )}
               {/* Mobile Menu - Only show for authenticated users */}

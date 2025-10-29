@@ -86,7 +86,22 @@
 │   │   ├── protected-route.tsx
 │   │   └── user-nav.tsx
 │   ├── debate
-│   │   ├── arguments-list.tsx
+│   │   ├── argument-list
+│   │   │   ├── argument-references.tsx
+│   │   │   ├── argument-stats.tsx
+│   │   │   ├── index.tsx
+│   │   │   ├── participant-header.tsx
+│   │   │   ├── rebuttal-indicator.tsx
+│   │   │   ├── safe-content-renderer.tsx
+│   │   │   └── single-argument.tsx
+│   │   ├── create
+│   │   │   ├── basic-info-section.tsx
+│   │   │   ├── create-debate-form.tsx
+│   │   │   ├── debate-parameters-section.tsx
+│   │   │   ├── initial-arguments-section.tsx
+│   │   │   ├── opening-statement-section.tsx
+│   │   │   ├── reference-section.tsx
+│   │   │   └── submit-button.tsx
 │   │   └── debate-metadata.tsx
 │   ├── profile
 │   │   ├── DebateList.tsx
@@ -101,6 +116,7 @@
 │       ├── badge.tsx
 │       ├── button.tsx
 │       ├── card.tsx
+│       ├── collapsible.tsx
 │       ├── dialog.tsx
 │       ├── dropdown-menu.tsx
 │       ├── input.tsx
@@ -123,6 +139,9 @@
 │   │   ├── auth-guard.ts
 │   │   ├── cleanup-tokens.ts
 │   │   └── options.ts
+│   ├── debate
+│   │   ├── formatters.ts
+│   │   └── stats.ts
 │   ├── email
 │   │   ├── service.ts
 │   │   └── templates.tsx
@@ -133,6 +152,7 @@
 │   │   ├── limiter.ts
 │   │   └── middleware.ts
 │   ├── utils
+│   │   └── reference-types.ts
 │   └── utils.ts
 ├── prisma
 │   ├── migrations
@@ -172,4 +192,4 @@
 ├── STRUCTURE.md
 └── tsconfig.json
 
-51 directories, 122 files
+54 directories, 139 files

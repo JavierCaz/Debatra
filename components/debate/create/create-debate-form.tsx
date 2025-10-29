@@ -10,7 +10,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { DebateFormData, InitialArgument } from "@/types/debate";
+import {
+  DebateFormat,
+  type DebateFormData,
+  type InitialArgument,
+} from "@/types/debate";
 import { BasicInfoSection } from "./basic-info-section";
 import { DebateParametersSection } from "./debate-parameters-section";
 import { InitialArgumentsSection } from "./initial-arguments-section";
@@ -31,9 +35,9 @@ export function CreateDebateForm({
 }: CreateDebateFormProps) {
   const [formData, setFormData] = useState<DebateFormData>({
     title: "",
-    topic: "",
+    topics: [],
     description: "",
-    format: "ONE_VS_ONE",
+    format: DebateFormat.ONE_VS_ONE,
     maxParticipants: 2,
     turnsPerSide: 3,
     turnTimeLimit: 24,
@@ -54,7 +58,8 @@ export function CreateDebateForm({
     const newErrors: Record<string, string> = {};
 
     if (!formData.title) newErrors.title = "Title is required";
-    if (!formData.topic) newErrors.topic = "Topic is required";
+    if (formData.topics.length === 0)
+      newErrors.topics = "At least one topic is required";
 
     // Validate initial arguments
     const hasValidArguments = initialArguments.some((arg) => {

@@ -1,4 +1,4 @@
-function detectReferenceType(url: string): string {
+export function detectReferenceType(url: string): string {
   if (!url) return "WEBSITE";
 
   const lowerUrl = url.toLowerCase();

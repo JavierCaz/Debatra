@@ -3,7 +3,8 @@ import { Calendar, Clock, FileText, Target, Trophy, Users } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { DebateWithDetails } from "@/types/debate";
+import type { DebateTopic, DebateWithDetails } from "@/types/debate";
+import { getTopicDisplayName } from "@/types/debate";
 
 interface DebateMetadataProps {
   debate: DebateWithDetails;
@@ -54,9 +55,17 @@ export function DebateMetadata({
         <div className="flex items-start justify-between">
           <div>
             <CardTitle className="text-2xl mb-2">{debate.title}</CardTitle>
-            <Badge className={getStatusColor(debate.status)}>
-              {debate.status.replace("_", " ")}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className={getStatusColor(debate.status)}>
+                {debate.status.replace("_", " ")}
+              </Badge>
+              {/* Topics Badges */}
+              {debate.topics.map(({ topic }) => (
+                <Badge key={topic} variant="secondary">
+                  {getTopicDisplayName(topic as DebateTopic)}
+                </Badge>
+              ))}
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -102,12 +111,18 @@ export function DebateMetadata({
           <p className="text-sm text-muted-foreground">{debate.description}</p>
         </div>
 
-        {/* Topic */}
+        {/* Topics */}
         <div className="flex items-start space-x-2">
           <Target className="w-4 h-4 mt-0.5 text-muted-foreground" />
-          <div>
-            <p className="text-sm font-medium">Topic</p>
-            <p className="text-sm text-muted-foreground">{debate.topic}</p>
+          <div className="flex-1">
+            <p className="text-sm font-medium mb-1">Topics</p>
+            <div className="flex flex-wrap gap-1">
+              {debate.topics.map(({ topic }) => (
+                <Badge key={topic} variant="outline" className="text-xs">
+                  {getTopicDisplayName(topic as DebateTopic)}
+                </Badge>
+              ))}
+            </div>
           </div>
         </div>
 

@@ -121,14 +121,9 @@ export function InitialArgumentsSection({
                 onClick={() => toggleArgument(argument.id)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-medium">
-                      {index + 1}
-                    </div>
-                    <CardTitle className="text-base">
-                      Argument {index + 1}
-                    </CardTitle>
-                  </div>
+                  <CardTitle className="text-base">
+                    Argument {index + 1}
+                  </CardTitle>
 
                   <div className="flex items-center space-x-2">
                     {/* Status indicators */}
