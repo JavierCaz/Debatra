@@ -19,10 +19,11 @@ async function main() {
   await prisma.account.deleteMany();
   await prisma.session.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.passwordResetToken.deleteMany();
 
   console.log("✨ Cleared existing data");
 
-  // Create Users
+  // Create Users (same as before)
   const hashedPassword = await hash("password123", 12);
 
   const alice = await prisma.user.create({
@@ -31,6 +32,8 @@ async function main() {
       email: "alice@example.com",
       password: hashedPassword,
       bio: "Environmental scientist passionate about climate policy and evidence-based discourse.",
+      image:
+        "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face",
     },
   });
 
@@ -40,6 +43,8 @@ async function main() {
       email: "bob@example.com",
       password: hashedPassword,
       bio: "Economics researcher interested in policy analysis and data-driven arguments.",
+      image:
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     },
   });
 
@@ -49,6 +54,8 @@ async function main() {
       email: "charlie@example.com",
       password: hashedPassword,
       bio: "Technology ethicist focused on AI governance and digital rights.",
+      image:
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     },
   });
 
@@ -58,391 +65,417 @@ async function main() {
       email: "diana@example.com",
       password: hashedPassword,
       bio: "Political science professor specializing in democratic institutions.",
+      image:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     },
   });
 
-  console.log("👥 Created users");
+  console.log("👥 Created 4 users");
 
-  // Create Debate 1: Climate Change Policy (In Progress)
-  const climateDebate = await prisma.debate.create({
+  // Create a new debate focused on Universal Basic Income
+  const ubiDebate = await prisma.debate.create({
     data: {
-      title: "Should carbon taxes be the primary tool for reducing emissions?",
+      title: "Should governments implement Universal Basic Income (UBI)?",
       description:
-        "A structured debate on whether carbon taxation is the most effective policy mechanism for achieving significant reductions in greenhouse gas emissions.",
-      topic: "Climate Policy",
+        "A comprehensive debate examining the economic, social, and practical implications of implementing a universal basic income program. This debate will explore evidence from pilot programs, economic theory, and implementation challenges.",
+      topic: "Economic Policy",
       status: "IN_PROGRESS",
       format: "ONE_VS_ONE",
       maxParticipants: 2,
-      turnsPerSide: 4,
-      turnTimeLimit: 48,
-      minReferences: 2,
+      turnsPerSide: 3,
+      turnTimeLimit: 72,
+      minReferences: 1,
       creatorId: alice.id,
       startedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Started 7 days ago
     },
   });
 
-  // Add participants to climate debate
+  // Add participants to UBI debate
   const aliceParticipant = await prisma.debateParticipant.create({
     data: {
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       userId: alice.id,
-      role: "PROPOSER",
+      role: "PROPOSER", // Alice supports UBI
       status: "ACTIVE",
     },
   });
 
   const bobParticipant = await prisma.debateParticipant.create({
     data: {
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       userId: bob.id,
-      role: "OPPOSER",
+      role: "OPPOSER", // Bob opposes UBI
       status: "ACTIVE",
     },
   });
 
-  // Alice's opening argument
-  const aliceArg1 = await prisma.argument.create({
+  // === TURN 1: OPENING ARGUMENTS (Multiple arguments per user) ===
+
+  // Alice's Turn 1 - Multiple opening arguments
+  const aliceTurn1Arg1 = await prisma.argument.create({
     data: {
-      content:
-        "Carbon taxes represent the most economically efficient mechanism for reducing emissions. By directly pricing carbon externalities, they create market-based incentives that encourage innovation and allow businesses to find the most cost-effective reduction strategies. The evidence from British Columbia shows a 5-15% reduction in emissions without harming economic growth.",
+      content: `<p><strong>Economic Efficiency Argument:</strong> UBI eliminates bureaucratic overhead associated with means-tested welfare programs. Studies show that administrative costs for traditional welfare can consume 10-20% of total budgets, while UBI's universal approach reduces this to 1-2%.</p>`,
       turnNumber: 1,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
       references: {
         create: [
           {
             type: "ACADEMIC_PAPER",
-            title:
-              'The British Columbia Carbon Tax: A Review of the Latest "Grand Experiment" in Environmental Policy',
-            author: "Stewart Elgie and Jessica McClay",
-            publication:
-              "McGill International Journal of Sustainable Development Law and Policy",
-            url: "https://example.com/bc-carbon-tax-study",
-            publishedAt: new Date("2013-01-15"),
+            title: "The Cost of Welfare Administration",
+            author: "Institute for Economic Affairs",
+            publication: "Economic Affairs Journal",
+            url: "https://example.com/welfare-costs",
+            publishedAt: new Date("2020-03-15"),
             notes:
-              "Demonstrates 5-15% emission reductions in BC from 2008-2012",
-          },
-          {
-            type: "STATISTICS",
-            title: "World Bank Carbon Pricing Dashboard",
-            author: "World Bank Group",
-            url: "https://example.com/carbon-pricing-dashboard",
-            publishedAt: new Date("2023-06-01"),
-            notes:
-              "Shows 70+ jurisdictions implementing carbon pricing mechanisms",
+              "Shows 10-20% administrative costs in traditional welfare systems",
           },
         ],
       },
     },
   });
 
-  // Bob's rebuttal
-  const bobArg1 = await prisma.argument.create({
+  const aliceTurn1Arg2 = await prisma.argument.create({
     data: {
-      content:
-        'While carbon taxes have theoretical appeal, they face significant political challenges and may be regressive, disproportionately affecting low-income households. The "Yellow Vest" protests in France demonstrate how carbon tax proposals can trigger massive public backlash. Furthermore, direct regulations and subsidies for clean energy have proven more politically viable and have driven dramatic cost reductions in renewable energy technologies.',
+      content: `<p><strong>Poverty Reduction Evidence:</strong> Pilot programs in Finland and Canada demonstrated significant improvements in mental health, well-being, and trust in institutions. The Finland experiment showed reduced stress and increased confidence among recipients.</p>`,
       turnNumber: 1,
-      debateId: climateDebate.id,
-      participantId: bobParticipant.id,
-      authorId: bob.id,
-      rebuttalToId: aliceArg1.id,
-      references: {
-        create: [
-          {
-            type: "NEWS_ARTICLE",
-            title:
-              "France's \"Yellow Vest\" Protesters Reject Macron's Climate Tax",
-            author: "Le Monde Editorial Board",
-            publication: "Le Monde",
-            url: "https://example.com/yellow-vest-protests",
-            publishedAt: new Date("2018-12-05"),
-            notes: "Documents public resistance to carbon tax implementation",
-          },
-          {
-            type: "STATISTICS",
-            title: "Levelized Cost of Energy Analysis",
-            author: "Lazard",
-            url: "https://example.com/lcoe-analysis",
-            publishedAt: new Date("2023-04-01"),
-            notes: "Shows 90% cost reduction in solar, 70% in wind since 2010",
-          },
-        ],
-      },
-    },
-  });
-
-  // Create quote from Bob's argument
-  await prisma.argumentQuote.create({
-    data: {
-      quotedText:
-        "may be regressive, disproportionately affecting low-income households",
-      context: "Addressing the equity concerns raised",
-      quotedArgumentId: bobArg1.id,
-      quotingArgumentId: aliceArg1.id, // Will reference this in Alice's next argument
-    },
-  });
-
-  // Alice's counter-rebuttal
-  const aliceArg2 = await prisma.argument.create({
-    data: {
-      content:
-        "I concede that regressivity is a legitimate concern. However, this is addressable through revenue recycling mechanisms. British Columbia returned all carbon tax revenue through tax cuts and credits, with low-income households receiving more in rebates than they paid in carbon taxes. The key is policy design, not abandoning the most efficient tool. Regarding political viability, carbon taxes have succeeded in multiple jurisdictions when implemented with proper public engagement and revenue recycling.",
-      turnNumber: 2,
-      debateId: climateDebate.id,
+      debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobArg1.id,
       references: {
         create: [
           {
             type: "GOVERNMENT_DOCUMENT",
-            title: "British Columbia Carbon Tax Review and Update",
-            author: "BC Ministry of Finance",
-            url: "https://example.com/bc-carbon-tax-review",
-            publishedAt: new Date("2022-03-20"),
-            notes:
-              "Details revenue recycling mechanisms and distributional impacts",
-          },
-          {
-            type: "ACADEMIC_PAPER",
-            title:
-              "Public Acceptability of Carbon Taxes: Lessons from British Columbia",
-            author: "Kathryn Harrison",
-            publication: "Annual Review of Environment and Resources",
-            url: "https://example.com/public-acceptability-study",
-            publishedAt: new Date("2012-11-15"),
-            notes: "Analyzes factors contributing to policy acceptance",
+            title: "Finnish Basic Income Experiment Results",
+            author: "Finnish Social Security Institute",
+            url: "https://example.com/finland-ubi",
+            publishedAt: new Date("2019-02-28"),
+            notes: "Documents mental health improvements and reduced stress",
           },
         ],
       },
     },
   });
 
-  // Bob concedes the revenue recycling point
-  await prisma.concession.create({
+  const aliceTurn1Arg3 = await prisma.argument.create({
     data: {
-      argumentId: aliceArg2.id,
-      userId: bob.id,
-      reason:
-        "You make a valid point about revenue recycling addressing regressivity concerns. The BC model does show this can be done effectively.",
-    },
-  });
-
-  // Add votes
-  await prisma.vote.create({
-    data: {
-      argumentId: aliceArg1.id,
-      userId: charlie.id,
-      type: "UPVOTE",
-    },
-  });
-
-  await prisma.vote.create({
-    data: {
-      argumentId: aliceArg1.id,
-      userId: diana.id,
-      type: "UPVOTE",
-    },
-  });
-
-  await prisma.vote.create({
-    data: {
-      argumentId: bobArg1.id,
-      userId: charlie.id,
-      type: "UPVOTE",
-    },
-  });
-
-  await prisma.vote.create({
-    data: {
-      argumentId: aliceArg2.id,
-      userId: diana.id,
-      type: "UPVOTE",
-    },
-  });
-
-  console.log("🔥 Created climate debate with arguments");
-
-  // Create Debate 2: AI Regulation (Open for participants)
-  const aiDebate = await prisma.debate.create({
-    data: {
-      title:
-        "Should AI development be subject to mandatory government licensing?",
-      description:
-        "A debate on whether advanced AI systems should require government approval before deployment, similar to pharmaceutical regulations.",
-      topic: "Technology Policy",
-      status: "OPEN",
-      format: "ONE_VS_ONE",
-      maxParticipants: 2,
-      turnsPerSide: 3,
-      turnTimeLimit: 72,
-      minReferences: 1,
-      creatorId: charlie.id,
-    },
-  });
-
-  await prisma.debateParticipant.create({
-    data: {
-      debateId: aiDebate.id,
-      userId: charlie.id,
-      role: "PROPOSER",
-      status: "ACTIVE",
-    },
-  });
-
-  await prisma.debateParticipant.create({
-    data: {
-      debateId: aiDebate.id,
-      userId: diana.id,
-      role: "OPPOSER",
-      status: "INVITED",
-    },
-  });
-
-  console.log("🤖 Created AI regulation debate");
-
-  // Create Debate 3: Universal Basic Income (Completed)
-  const ubiDebate = await prisma.debate.create({
-    data: {
-      title:
-        "Would Universal Basic Income reduce poverty more effectively than current welfare programs?",
-      description:
-        "An analysis of whether replacing existing social safety nets with UBI would better address poverty and inequality.",
-      topic: "Economic Policy",
-      status: "COMPLETED",
-      format: "ONE_VS_ONE",
-      maxParticipants: 2,
-      turnsPerSide: 3,
-      turnTimeLimit: 48,
-      minReferences: 2,
-      creatorId: bob.id,
-      startedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Started 30 days ago
-      completedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Completed 3 days ago
-    },
-  });
-
-  const bobUbiParticipant = await prisma.debateParticipant.create({
-    data: {
-      debateId: ubiDebate.id,
-      userId: bob.id,
-      role: "PROPOSER",
-      status: "ACTIVE",
-    },
-  });
-
-  const dianaUbiParticipant = await prisma.debateParticipant.create({
-    data: {
-      debateId: ubiDebate.id,
-      userId: diana.id,
-      role: "OPPOSER",
-      status: "ACTIVE",
-    },
-  });
-
-  // Simple arguments for completed debate
-  const bobUbiArg = await prisma.argument.create({
-    data: {
-      content:
-        "UBI eliminates the poverty trap created by means-tested benefits and reduces administrative overhead. Evidence from pilot programs shows improved mental health and educational outcomes.",
+      content: `<p><strong>Automation Preparedness:</strong> With AI and automation projected to displace 20-30% of current jobs by 2030, UBI provides a necessary safety net that allows workers to retrain and adapt to the changing economy without facing destitution.</p>`,
       turnNumber: 1,
       debateId: ubiDebate.id,
-      participantId: bobUbiParticipant.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+    },
+  });
+
+  // Bob's Turn 1 - Multiple opening arguments with SAME-TURN counterarguments
+  const bobTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Fiscal Impossibility:</strong> A meaningful UBI of $1,000/month for all US adults would cost approximately $3 trillion annually, nearly equaling the entire current federal budget. This level of taxation would cripple economic growth.</p>`,
+      turnNumber: 1,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
       authorId: bob.id,
       references: {
         create: [
           {
-            type: "ACADEMIC_PAPER",
-            title: "The Finnish Basic Income Experiment",
-            author: "Kela Research",
-            url: "https://example.com/finland-ubi",
-            publishedAt: new Date("2020-05-06"),
+            type: "STATISTICS",
+            title: "Federal Budget Analysis 2023",
+            author: "Congressional Budget Office",
+            url: "https://example.com/cbo-budget",
+            publishedAt: new Date("2023-01-15"),
+            notes: "Shows total federal budget of $4.1 trillion for 2023",
           },
         ],
       },
     },
   });
 
-  const dianaUbiArg = await prisma.argument.create({
+  const bobTurn1Arg2 = await prisma.argument.create({
     data: {
-      content:
-        "While UBI has theoretical benefits, the cost is prohibitive and it may reduce work incentives. Targeted programs more efficiently direct resources to those most in need.",
+      content: `<p><strong>Inflationary Pressures:</strong> Injecting massive amounts of cash into the economy without corresponding production increases would lead to significant inflation, effectively eroding the purchasing power of the UBI payments themselves.</p>`,
       turnNumber: 1,
       debateId: ubiDebate.id,
-      participantId: dianaUbiParticipant.id,
-      authorId: diana.id,
-      rebuttalToId: bobUbiArg.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+    },
+  });
+
+  // Bob's SAME-TURN counterargument to Alice's bureaucracy argument
+  const bobTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Immediate Counter to Bureaucracy Savings:</strong> While UBI reduces administrative costs for <em>existing</em> programs, it creates massive new bureaucracy for tax collection and distribution. The IRS would need to double in size to handle the required taxation, offsetting any administrative savings you mentioned.</p>`,
+      turnNumber: 1,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn1Arg1.id, // SAME-TURN counter to Alice's bureaucracy argument
+    },
+  });
+
+  // === TURN 2: COUNTERARGUMENTS (Multiple counterarguments pointing to specific opposing arguments) ===
+
+  // Alice's Turn 2 - Multiple counterarguments targeting Bob's Turn 1 arguments
+  const aliceTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Fiscal Argument:</strong> Your $3 trillion figure ignores that UBI would <em>replace</em> most existing welfare programs ($1.2 trillion), and could be funded through progressive taxation, carbon taxes, and technology dividends that wouldn't harm most households.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn1Arg1.id, // Direct counter to Bob's fiscal argument
+    },
+  });
+
+  const aliceTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Counter to Inflation Concerns:</strong> Historical evidence from Alaska's Permanent Fund (which provides universal oil revenue dividends) shows no significant inflationary effects. When money is distributed broadly rather than concentrated, it stimulates real economic activity rather than just raising prices.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn1Arg2.id, // Direct counter to Bob's inflation argument
       references: {
         create: [
           {
             type: "ACADEMIC_PAPER",
-            title: "The Costs and Benefits of a Universal Basic Income",
-            author: "Hilary Hoynes and Jesse Rothstein",
-            publication: "RSF: The Russell Sage Foundation Journal",
-            url: "https://example.com/ubi-costs-benefits",
-            publishedAt: new Date("2019-03-01"),
+            title: "Economic Impacts of Alaska Permanent Fund",
+            author: "University of Alaska Economic Research",
+            publication: "Journal of Economic Equality",
+            url: "https://example.com/alaska-fund",
+            publishedAt: new Date("2018-07-20"),
+            notes:
+              "Shows no correlation between dividend payments and inflation in Alaska",
           },
         ],
       },
     },
   });
 
-  // Add win condition for completed debate
-  await prisma.winCondition.create({
+  const aliceTurn2Arg3 = await prisma.argument.create({
     data: {
+      content: `<p><strong>Counter to Work Disincentive:</strong> The Finland experiment actually showed no significant reduction in employment. Participants used the financial security to find better-matched jobs, start businesses, or pursue education - all economically productive activities that aren't captured in simple employment metrics.</p>`,
+      turnNumber: 2,
       debateId: ubiDebate.id,
-      type: "VOTE_COUNT",
-      winnerId: bob.id,
-      decidedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
-      description: "Winner determined by community vote count",
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn1Arg3.id, // Direct counter to Bob's work disincentive argument
     },
   });
 
-  console.log("💰 Created UBI debate");
-
-  // Create Debate 4: Draft debate
-  await prisma.debate.create({
+  // Bob's Turn 2 - Multiple counterarguments with SAME-TURN responses
+  const bobTurn2Arg1 = await prisma.argument.create({
     data: {
-      title: "Should social media platforms be classified as public utilities?",
-      description:
-        "Examining whether major social media platforms should be regulated as essential services with common carrier obligations.",
-      topic: "Technology Policy",
-      status: "DRAFT",
-      format: "ONE_VS_ONE",
-      maxParticipants: 2,
-      turnsPerSide: 4,
-      turnTimeLimit: 48,
-      minReferences: 2,
-      creatorId: charlie.id,
+      content: `<p><strong>Counter to Bureaucracy Savings:</strong> Your digital governance examples like Estonia work for small homogeneous populations. Scaling to diverse nations like the US with complex tax systems and enforcement needs creates entirely different bureaucratic challenges that your examples don't address.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn1Arg1.id, // Direct counter to Alice's bureaucracy argument
     },
   });
 
-  console.log("📱 Created draft social media debate");
-
-  // Create a sample report
-  await prisma.report.create({
+  const bobTurn2Arg2 = await prisma.argument.create({
     data: {
-      reason: "INVALID_REFERENCE",
-      description:
-        "One of the cited sources appears to be a broken link and cannot be verified.",
-      status: "PENDING",
-      reportedArgumentId: bobArg1.id,
-      reporterId: charlie.id,
+      content: `<p><strong>Counter to Pilot Program Evidence:</strong> The Finland experiment involved only 2,000 people for two years - too small and short-term to draw meaningful conclusions. When Ontario cancelled its larger UBI pilot, they found participants weren't transitioning to self-sufficiency as predicted.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn1Arg2.id, // Direct counter to Alice's pilot evidence
+      references: {
+        create: [
+          {
+            type: "NEWS_ARTICLE",
+            title: "Ontario Cancels Basic Income Pilot Project",
+            author: "Canadian Press",
+            publication: "The Globe and Mail",
+            url: "https://example.com/ontario-cancelled",
+            publishedAt: new Date("2018-08-31"),
+            notes: "Reports on cancellation and preliminary findings",
+          },
+        ],
+      },
     },
   });
 
-  console.log("🚩 Created sample report");
+  // Bob's SAME-TURN counterargument to Alice's Turn 2 funding argument
+  const bobTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Immediate Counter to Funding Proposal:</strong> Your proposed funding sources like carbon taxes are already allocated to climate initiatives in most serious proposals. Redirecting them to UBI would mean defunding essential environmental programs, creating a zero-sum game between social welfare and environmental protection.</p>`,
+      turnNumber: 2,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn2Arg1.id, // SAME-TURN counter to Alice's Turn 2 funding argument
+    },
+  });
 
-  console.log("✅ Seed completed successfully!");
-  console.log("\n📊 Summary:");
-  console.log(`- Users: 4 (alice, bob, charlie, diana)`);
-  console.log(`- Debates: 4 (1 in progress, 1 open, 1 completed, 1 draft)`);
-  console.log(`- Arguments: 5 with references`);
-  console.log(`- Quotes: 1`);
-  console.log(`- Concessions: 1`);
-  console.log(`- Votes: 4`);
-  console.log(`- Reports: 1`);
-  console.log('\n🔐 All users have password: "password123"\n');
+  // === TURN 3: FINAL ARGUMENTS WITH NESTED COUNTERARGUMENTS ===
+
+  // Alice's Turn 3 - Countering Bob's Turn 2 arguments
+  const aliceTurn3Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Final Counter on Implementation:</strong> Modern digital systems make UBI distribution remarkably efficient. Countries like Estonia demonstrate that digital governance can administer universal programs at minimal cost - the technology argument actually supports UBI, not undermines it.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn2Arg1.id, // Countering Bob's bureaucracy counterargument
+    },
+  });
+
+  const aliceTurn3Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Final Counter on Evidence:</strong> While individual pilots have limitations, the <em>consistency</em> of positive outcomes across dozens of experiments worldwide creates a compelling pattern. From Namibia to India to Alaska, the results consistently show benefits that outweigh costs.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn2Arg2.id, // Countering Bob's pilot evidence counter
+    },
+  });
+
+  // Alice's SAME-TURN counter to Bob's Turn 2 environmental argument
+  const aliceTurn3Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Immediate Counter to Environmental Trade-off:</strong> Carbon taxes can be designed to fund multiple priorities simultaneously through revenue allocation. Moreover, UBI itself supports environmental goals by enabling people to make sustainable choices without economic desperation forcing environmentally harmful decisions.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: aliceParticipant.id,
+      authorId: alice.id,
+      rebuttalToId: bobTurn2Arg3.id, // SAME-TURN counter to Bob's environmental trade-off argument
+    },
+  });
+
+  // Bob's Turn 3 - Final counterarguments with SAME-TURN responses
+  const bobTurn3Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Final Reality Check:</strong> The political feasibility remains the ultimate obstacle. No major country has implemented nationwide UBI because voters consistently reject the required tax increases when presented with concrete numbers rather than abstract principles.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn2Arg1.id, // Countering Alice's funding counterargument
+    },
+  });
+
+  const bobTurn3Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Final Economic Principle:</strong> Basic economics teaches that when you subsidize something, you get more of it. By subsidizing non-work, we'd get more non-work. This fundamental principle has held true across centuries and cannot be wished away with optimistic pilot studies.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn2Arg3.id, // Countering Alice's work disincentive counter
+    },
+  });
+
+  // Bob's SAME-TURN counter to Alice's Turn 3 environmental synergy argument
+  const bobTurn3Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Immediate Counter to Environmental Synergy:</strong> There's no evidence that UBI recipients make more environmentally conscious choices. In fact, increased disposable income often leads to higher consumption and carbon footprints. Your environmental synergy claim is speculative at best.</p>`,
+      turnNumber: 3,
+      debateId: ubiDebate.id,
+      participantId: bobParticipant.id,
+      authorId: bob.id,
+      rebuttalToId: aliceTurn3Arg3.id, // SAME-TURN counter to Alice's environmental synergy argument
+    },
+  });
+
+  // Add some votes from other users
+  const votes = [
+    // Votes for Alice's arguments
+    { argumentId: aliceTurn1Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn1Arg2.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceTurn2Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn2Arg2.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceTurn3Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceTurn3Arg3.id, userId: diana.id, type: "UPVOTE" },
+
+    // Votes for Bob's arguments
+    { argumentId: bobTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn2Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn2Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobTurn2Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn3Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobTurn3Arg3.id, userId: charlie.id, type: "UPVOTE" },
+  ];
+
+  for (const vote of votes) {
+    await prisma.vote.create({
+      data: {
+        argumentId: vote.argumentId,
+        userId: vote.userId,
+        type: vote.type as any,
+      },
+    });
+  }
+
+  // Add some concessions to show intellectual honesty
+  await prisma.concession.create({
+    data: {
+      argumentId: bobTurn1Arg1.id,
+      userId: alice.id,
+      reason:
+        "I concede that the scale of funding required is substantial and requires careful consideration of tax policy.",
+    },
+  });
+
+  await prisma.concession.create({
+    data: {
+      argumentId: aliceTurn2Arg2.id,
+      userId: bob.id,
+      reason:
+        "The Alaska Permanent Fund example is a valid point about inflation management in resource-rich economies.",
+    },
+  });
+
+  // Add a concession for a same-turn counterargument
+  await prisma.concession.create({
+    data: {
+      argumentId: bobTurn2Arg3.id,
+      userId: alice.id,
+      reason:
+        "You raise a valid concern about potential trade-offs between environmental funding and UBI that requires careful policy design.",
+    },
+  });
+
+  console.log(
+    "💰 Created comprehensive UBI debate with multiple arguments per turn including SAME-TURN counterarguments",
+  );
+  console.log("\n📊 Debate Structure Summary:");
+  console.log("TURN 1:");
+  console.log(
+    "   - Alice: 3 opening arguments (efficiency, evidence, automation)",
+  );
+  console.log(
+    "   - Bob: 3 arguments (fiscal, inflation, SAME-TURN counter to bureaucracy)",
+  );
+  console.log("TURN 2:");
+  console.log(
+    "   - Alice: 3 counterarguments (targeting each of Bob's Turn 1 arguments)",
+  );
+  console.log(
+    "   - Bob: 3 arguments (2 counters to Alice's Turn 1, 1 SAME-TURN counter to Alice's Turn 2 funding argument)",
+  );
+  console.log("TURN 3:");
+  console.log(
+    "   - Alice: 3 arguments (2 counters to Bob's Turn 2, 1 SAME-TURN counter to Bob's Turn 2 environmental argument)",
+  );
+  console.log(
+    "   - Bob: 3 arguments (2 final counters, 1 SAME-TURN counter to Alice's Turn 3 environmental argument)",
+  );
+  console.log("\n🎯 Key Features Demonstrated:");
+  console.log("   - Multiple arguments per user per turn (3 in each turn)");
+  console.log("   - Cross-turn counterarguments using rebuttalToId");
+  console.log("   - SAME-TURN counterarguments within the same turn number");
+  console.log(
+    "   - Complex argument-rebuttal relationships throughout the debate",
+  );
+  console.log("   - Real-time responses creating more dynamic debate flow");
 }
 
 main()

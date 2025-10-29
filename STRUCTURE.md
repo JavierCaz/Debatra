@@ -1,5 +1,7 @@
 .
 ├── app
+│   ├── actions
+│   │   └── debates.ts
 │   ├── api
 │   │   ├── auth
 │   │   │   ├── forgot-password
@@ -34,7 +36,11 @@
 │   ├── dashboard
 │   │   └── page.tsx
 │   ├── debates
-│   │   └── create
+│   │   ├── create
+│   │   │   └── page.tsx
+│   │   └── [id]
+│   │       ├── loading.tsx
+│   │       ├── not-found.tsx
 │   │       └── page.tsx
 │   ├── generated
 │   │   └── prisma
@@ -79,6 +85,9 @@
 │   ├── auth
 │   │   ├── protected-route.tsx
 │   │   └── user-nav.tsx
+│   ├── debate
+│   │   ├── arguments-list.tsx
+│   │   └── debate-metadata.tsx
 │   ├── profile
 │   │   ├── DebateList.tsx
 │   │   ├── EditProfileForm.tsx
@@ -141,6 +150,7 @@
 │   ├── vercel.svg
 │   └── window.svg
 ├── types
+│   ├── debate.ts
 │   └── next-auth.d.ts
 ├── .vercel
 │   ├── project.json
@@ -162,4 +172,4 @@
 ├── STRUCTURE.md
 └── tsconfig.json
 
-48 directories, 115 files
+51 directories, 122 files
