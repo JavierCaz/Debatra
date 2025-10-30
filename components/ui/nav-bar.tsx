@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/use-auth";
 import { UserNav } from "../auth/user-nav";
+import { NotificationBell } from "../notification/notification-bell";
 import { Skeleton } from "./skeleton";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -92,17 +93,6 @@ export function Navbar() {
                         </Link>
 
                         <Link
-                          href="/topics"
-                          className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200 group"
-                          onClick={() => setIsOpen(false)}
-                        >
-                          <div className="flex items-center justify-center w-8 h-8 rounded-md bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 group-hover:bg-green-200 dark:group-hover:bg-green-800/50 transition-colors">
-                            <BookOpen className="h-4 w-4" />
-                          </div>
-                          <span>Topics</span>
-                        </Link>
-
-                        <Link
                           href="/dashboard"
                           className="flex items-center gap-3 px-3 py-3 rounded-lg text-base font-medium hover:bg-accent hover:text-accent-foreground transition-all duration-200 group"
                           onClick={() => setIsOpen(false)}
@@ -123,12 +113,14 @@ export function Navbar() {
             <div className="flex items-center gap-2 flex-shrink-0">
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-2">
+                {isAuthenticated && <NotificationBell />}
                 <ThemeToggle />
                 <UserNav />
               </div>
 
               {/* Mobile Actions */}
               <div className="flex md:hidden items-center gap-1">
+                {isAuthenticated && <NotificationBell />}
                 <ThemeToggle />
                 <UserNav />
               </div>

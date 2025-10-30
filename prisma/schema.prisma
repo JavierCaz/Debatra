@@ -78,6 +78,8 @@ model User {
   votes              Vote[]
   reports            Report[]
   concessions        Concession[]       @relation("ConcedingUser")
+  notifications      Notification[]
+  triggeredNotifications Notification[]    @relation("NotificationActor")
 
   @@index([email])
 }
@@ -141,7 +143,8 @@ model Debate {
   participants DebateParticipant[]
   arguments    Argument[]
   winCondition WinCondition?
-  topics DebateTopic[]
+  topics       DebateTopic[]
+  notifications Notification[]
 
   @@index([creatorId])
   @@index([status])
@@ -176,6 +179,8 @@ model DebateParticipant {
   role     ParticipantRole
   status   ParticipantStatus @default(INVITED)
   joinedAt DateTime          @default(now())
+  invitedAt    DateTime?
+  respondedAt  DateTime?
   
   // Relations
   debateId String
@@ -215,6 +220,7 @@ model Argument {
   quotes      ArgumentQuote[]     @relation("QuotedArgument")
   quotedIn    ArgumentQuote[]     @relation("QuotingArgument")
   concessions Concession[]        @relation("ConcededArgument")
+  notifications Notification[]
 
   @@index([debateId])
   @@index([participantId])
@@ -375,4 +381,50 @@ model PasswordResetToken {
 
   @@index([email])
   @@index([token])
+}
+
+enum NotificationType {
+  DEBATE_INVITATION
+  DEBATE_ACCEPTED
+  DEBATE_DECLINED
+  NEW_ARGUMENT
+  ARGUMENT_VOTE
+  CONCESSION
+  DEBATE_COMPLETED
+  MENTION
+}
+
+enum NotificationStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+model Notification {
+  id        String             @id @default(cuid())
+  type      NotificationType
+  status    NotificationStatus @default(UNREAD)
+  title     String
+  message   String?            @db.Text
+  link      String?            // URL to navigate to when clicked
+  
+  // Metadata as JSON for flexibility
+  metadata  Json?
+  
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+  
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actor     User?    @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull)
+  debateId  String?
+  debate    Debate?  @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  argumentId String?
+  argument   Argument? @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, status])
+  @@index([userId, createdAt])
+  @@index([debateId])
 }

@@ -502,6 +502,201 @@ async function main() {
     ],
   });
 
+  console.log("🔔 Creating notifications for Alice...");
+
+  // 1. Debate invitation notification
+  await prisma.notification.create({
+    data: {
+      type: "DEBATE_INVITATION",
+      status: "UNREAD",
+      title: "New Debate Invitation",
+      message:
+        "You've been invited to participate in 'Is nuclear energy essential for addressing climate change?'",
+      link: `/debates/${climateDebate.id}`,
+      userId: alice.id,
+      actorId: diana.id,
+      debateId: climateDebate.id,
+      metadata: {
+        debateTitle: climateDebate.title,
+        inviterName: diana.name,
+        format: climateDebate.format,
+      },
+    },
+  });
+
+  // 2. Notification when Bob accepts debate invitation (for UBI debate)
+  await prisma.notification.create({
+    data: {
+      type: "DEBATE_ACCEPTED",
+      status: "READ",
+      title: "Participant Joined Your Debate",
+      message:
+        "Bob Smith has accepted your invitation and joined 'Should governments implement Universal Basic Income (UBI)?'",
+      link: `/debates/${ubiDebate.id}`,
+      userId: alice.id,
+      actorId: bob.id,
+      debateId: ubiDebate.id,
+      metadata: {
+        debateTitle: ubiDebate.title,
+        participantRole: "OPPOSER",
+      },
+      createdAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // 6 days ago
+      readAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 days ago
+    },
+  });
+
+  // 3. Notifications when people vote on Alice's arguments
+  await prisma.notification.create({
+    data: {
+      type: "ARGUMENT_VOTE",
+      status: "UNREAD",
+      title: "New Vote on Your Argument",
+      message:
+        "Charlie Davis upvoted your argument about economic efficiency in the UBI debate",
+      link: `/debates/${ubiDebate.id}/arguments/${aliceTurn1Arg1.id}`,
+      userId: alice.id,
+      actorId: charlie.id,
+      debateId: ubiDebate.id,
+      argumentId: aliceTurn1Arg1.id,
+      metadata: {
+        voteType: "UPVOTE",
+        argumentPreview:
+          "UBI eliminates bureaucratic overhead associated with means-tested welfare programs...",
+      },
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      type: "ARGUMENT_VOTE",
+      status: "UNREAD",
+      title: "New Vote on Your Argument",
+      message:
+        "Diana Martinez upvoted your argument about poverty reduction evidence",
+      link: `/debates/${ubiDebate.id}/arguments/${aliceTurn1Arg2.id}`,
+      userId: alice.id,
+      actorId: diana.id,
+      debateId: ubiDebate.id,
+      argumentId: aliceTurn1Arg2.id,
+      metadata: {
+        voteType: "UPVOTE",
+        argumentPreview:
+          "Pilot programs in Finland and Canada demonstrated significant improvements...",
+      },
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000), // 1 day ago
+    },
+  });
+
+  // 4. Notification when Bob concedes to Alice's argument
+  await prisma.notification.create({
+    data: {
+      type: "CONCESSION",
+      status: "UNREAD",
+      title: "Argument Concession",
+      message:
+        "Bob Smith conceded to your point about the Alaska Permanent Fund and inflation management",
+      link: `/debates/${ubiDebate.id}/arguments/${aliceTurn2Arg2.id}`,
+      userId: alice.id,
+      actorId: bob.id,
+      debateId: ubiDebate.id,
+      argumentId: aliceTurn2Arg2.id,
+      metadata: {
+        concessionReason:
+          "The Alaska Permanent Fund example is a valid point about inflation management in resource-rich economies.",
+        argumentPreview:
+          "Historical evidence from Alaska's Permanent Fund... shows no significant inflationary effects.",
+      },
+      createdAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+    },
+  });
+
+  // 5. Notification for new argument in her debate
+  await prisma.notification.create({
+    data: {
+      type: "NEW_ARGUMENT",
+      status: "UNREAD",
+      title: "New Argument in Your Debate",
+      message: "Bob Smith posted a new argument in your UBI debate",
+      link: `/debates/${ubiDebate.id}/arguments/${bobTurn3Arg1.id}`,
+      userId: alice.id,
+      actorId: bob.id,
+      debateId: ubiDebate.id,
+      argumentId: bobTurn3Arg1.id,
+      metadata: {
+        turnNumber: 3,
+        argumentPreview:
+          "The political feasibility remains the ultimate obstacle...",
+      },
+      createdAt: new Date(Date.now() - 3 * 60 * 60 * 1000), // 3 hours ago
+    },
+  });
+
+  // 6. Debate completion reminder notification
+  await prisma.notification.create({
+    data: {
+      type: "DEBATE_COMPLETED",
+      status: "UNREAD",
+      title: "Debate Nearing Completion",
+      message:
+        "Your UBI debate is in its final turn. Remember to cast your final votes!",
+      link: `/debates/${ubiDebate.id}`,
+      userId: alice.id,
+      debateId: ubiDebate.id,
+      metadata: {
+        currentTurn: 3,
+        totalTurns: 3,
+        deadline: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours from now
+      },
+      createdAt: new Date(Date.now() - 1 * 60 * 60 * 1000), // 1 hour ago
+    },
+  });
+
+  // 7. Mention notification (simulating Bob mentioning Alice in an argument)
+  await prisma.notification.create({
+    data: {
+      type: "MENTION",
+      status: "UNREAD",
+      title: "You Were Mentioned",
+      message:
+        "Bob Smith mentioned you in their argument about environmental trade-offs",
+      link: `/debates/${ubiDebate.id}/arguments/${bobTurn2Arg3.id}`,
+      userId: alice.id,
+      actorId: bob.id,
+      debateId: ubiDebate.id,
+      argumentId: bobTurn2Arg3.id,
+      metadata: {
+        mentionContext: "discussing environmental funding priorities",
+        argumentPreview:
+          "Your proposed funding sources like carbon taxes are already allocated...",
+      },
+      createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000), // 6 hours ago
+    },
+  });
+
+  // 8. Archived notification (older, already read)
+  await prisma.notification.create({
+    data: {
+      type: "DEBATE_INVITATION",
+      status: "ARCHIVED",
+      title: "AI Regulation Debate Invitation",
+      message:
+        "You were invited to participate in 'Should AI development be regulated internationally?'",
+      link: `/debates/${aiDebate.id}`,
+      userId: alice.id,
+      actorId: charlie.id,
+      debateId: aiDebate.id,
+      metadata: {
+        debateTitle: aiDebate.title,
+        inviterName: charlie.name,
+      },
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      readAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000), // 9 days ago
+    },
+  });
+
+  console.log("✅ Created 8 diverse notifications for Alice");
+
   console.log(
     "💰 Created comprehensive UBI debate with multiple arguments per turn including SAME-TURN counterarguments",
   );
