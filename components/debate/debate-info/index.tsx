@@ -54,23 +54,6 @@ export function DebateInfo({
   );
   const canJoin = !isCreator && !isParticipant && debate.status === "OPEN";
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "DRAFT":
-        return "bg-gray-500";
-      case "OPEN":
-        return "bg-blue-500";
-      case "IN_PROGRESS":
-        return "bg-yellow-500";
-      case "COMPLETED":
-        return "bg-green-500";
-      case "CANCELLED":
-        return "bg-red-500";
-      default:
-        return "bg-gray-500";
-    }
-  };
-
   // Role availability logic
   const isProposerTaken = debate.participants.some(
     (p) => p.role === ParticipantRole.PROPOSER,
@@ -257,9 +240,6 @@ export function DebateInfo({
           <div>
             <CardTitle className="text-2xl mb-2">{debate.title}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge className={getStatusColor(debate.status)}>
-                {debate.status.replace("_", " ")}
-              </Badge>
               {/* Topics Badges */}
               {debate.topics.map(({ topic }) => (
                 <Badge key={topic} variant="secondary">
@@ -271,13 +251,16 @@ export function DebateInfo({
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Metadata Section */}
-        <DebateMetadata
-          debate={debate}
-          currentTurn={currentTurn}
-          debateProgress={debateProgress}
-          totalPossibleTurns={totalPossibleTurns}
-        />
+        {(debate.status === "IN_PROGRESS" || debate.status === "COMPLETED") && (
+          <StatusSummary
+            debate={debate}
+            currentTurn={currentTurn}
+            debateProgress={debateProgress}
+            totalPossibleTurns={totalPossibleTurns}
+          />
+        )}
+
+        <DebateMetadata debate={debate} />
 
         {/* Participants Section */}
         <div className="pt-6 border-t">
@@ -291,11 +274,6 @@ export function DebateInfo({
 
           <div className="space-y-6">
             <CurrentParticipants debate={debate} />
-
-            {(debate.status === "IN_PROGRESS" ||
-              debate.status === "COMPLETED") && (
-              <StatusSummary debate={debate} />
-            )}
 
             {debate.participants.length < debate.maxParticipants ? (
               <>

@@ -4,6 +4,13 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ALL_DEBATE_TOPICS, getTopicDisplayName } from "@/types/debate";
 
 interface DebateFiltersProps {
@@ -41,6 +48,24 @@ export function DebateFilters({
         </div>
       </div>
 
+      {/* Topic Filter */}
+      <div className="space-y-2">
+        <Label htmlFor="topic-select">Topic</Label>
+        <Select value={topic} onValueChange={onTopicChange}>
+          <SelectTrigger id="topic-select">
+            <SelectValue placeholder="Select a topic" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="ALL">All Topics</SelectItem>
+            {ALL_DEBATE_TOPICS.map((topicValue) => (
+              <SelectItem key={topicValue} value={topicValue}>
+                {getTopicDisplayName(topicValue)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Status Filter */}
       <div className="space-y-2">
         <Label>Status</Label>
@@ -69,30 +94,6 @@ export function DebateFilters({
               Concluded Debates
             </Label>
           </div>
-        </RadioGroup>
-      </div>
-
-      {/* Topic Filter */}
-      <div className="space-y-2">
-        <Label>Topic</Label>
-        <RadioGroup value={topic} onValueChange={onTopicChange}>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="ALL" id="all-topics" />
-            <Label htmlFor="all-topics" className="font-normal cursor-pointer">
-              All Topics
-            </Label>
-          </div>
-          {ALL_DEBATE_TOPICS.map((topicValue) => (
-            <div key={topicValue} className="flex items-center space-x-2">
-              <RadioGroupItem value={topicValue} id={topicValue} />
-              <Label
-                htmlFor={topicValue}
-                className="font-normal cursor-pointer"
-              >
-                {getTopicDisplayName(topicValue)}
-              </Label>
-            </div>
-          ))}
         </RadioGroup>
       </div>
     </div>
