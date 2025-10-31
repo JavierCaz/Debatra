@@ -133,7 +133,7 @@ model Debate {
   turnTimeLimit   Int?     // Time limit per turn in hours (null = no limit)
   minReferences   Int      @default(1) // Minimum references required per argument
 
-  currentTurnSide ParticipantRole 
+  currentTurnSide ParticipantRole  @default(PROPOSER)
   currentTurnNumber Int @default(1)
   
   // Metadata
