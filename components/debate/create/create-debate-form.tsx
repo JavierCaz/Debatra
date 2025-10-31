@@ -1,4 +1,3 @@
-// components/debates/create-debate-form.tsx
 "use client";
 
 import { FileText } from "lucide-react";
