@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getDebateById } from "@/app/actions/debates";
 import { ArgumentsList } from "@/components/debate/argument-list";
 import { DebateMetadata } from "@/components/debate/debate-metadata";
+import { DebateRequestsPanel } from "@/components/debate/debate-request-panel";
 import { Button } from "@/components/ui/button";
 import {
   calculateDebateProgress,
@@ -49,13 +50,16 @@ export default async function DebateDetailPage({
       {/* Horizontal Layout */}
       <div className="flex flex-col lg:flex-row gap-6">
         {/* Metadata - Compact Sidebar */}
-        <div className="lg:w-80 lg:flex-shrink-0">
+        <div className="lg:w-80 lg:flex-shrink-0 space-y-6">
           <DebateMetadata
             debate={debate}
             currentTurn={currentTurn}
             debateProgress={debateProgress}
             totalPossibleTurns={totalPossibleTurns}
           />
+
+          {/* Add the new requests panel */}
+          <DebateRequestsPanel debate={debate} />
         </div>
 
         {/* Arguments - Main Content */}

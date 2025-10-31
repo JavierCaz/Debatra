@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma";
 import { hash } from "bcryptjs";
-import { DebateTopicEnum } from "@/app/generated/prisma";
+import { DebateTopicEnum, ParticipantRole } from "@/app/generated/prisma";
 
 const prisma = new PrismaClient();
 
@@ -86,6 +86,8 @@ async function main() {
       turnsPerSide: 3,
       turnTimeLimit: 72,
       minReferences: 1,
+      currentTurnSide: ParticipantRole.PROPOSER,
+      currentTurnNumber: 4,
       creatorId: alice.id,
       startedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // Started 7 days ago
       // Note: topics are added separately via the DebateTopic relation
@@ -465,6 +467,8 @@ async function main() {
       maxParticipants: 2,
       turnsPerSide: 3,
       minReferences: 1,
+      currentTurnSide: ParticipantRole.OPPOSER, // NEW: Current turn side
+      currentTurnNumber: 1, // NEW: Current turn number
       creatorId: charlie.id,
     },
   });
@@ -487,6 +491,8 @@ async function main() {
       maxParticipants: 4,
       turnsPerSide: 2,
       minReferences: 1,
+      currentTurnSide: ParticipantRole.OPPOSER,
+      currentTurnNumber: 1,
       creatorId: diana.id,
     },
   });

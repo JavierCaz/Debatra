@@ -34,6 +34,12 @@ export enum DebateTopic {
   HISTORY = "HISTORY",
 }
 
+export enum ParticipantRole {
+  PROPOSER = "PROPOSER",
+  OPPOSER = "OPPOSER",
+  NEUTRAL = "NEUTRAL",
+}
+
 export function getTopicDisplayName(topic: DebateTopic): string {
   const displayNames: Record<DebateTopic, string> = {
     [DebateTopic.POLITICS]: "Politics",

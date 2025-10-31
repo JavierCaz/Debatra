@@ -80,6 +80,8 @@ model User {
   concessions        Concession[]       @relation("ConcedingUser")
   notifications      Notification[]
   triggeredNotifications Notification[]    @relation("NotificationActor")
+  debateRequests       DebateRequest[] @relation("DebateRequestUser")
+  sentInvitations      DebateRequest[] @relation("DebateRequestInviter")
 
   @@index([email])
 }
@@ -130,6 +132,9 @@ model Debate {
   turnsPerSide    Int      @default(3) // How many times each side can argue
   turnTimeLimit   Int?     // Time limit per turn in hours (null = no limit)
   minReferences   Int      @default(1) // Minimum references required per argument
+
+  currentTurnSide ParticipantRole 
+  currentTurnNumber Int @default(1)
   
   // Metadata
   createdAt   DateTime @default(now())
@@ -145,6 +150,7 @@ model Debate {
   winCondition WinCondition?
   topics       DebateTopic[]
   notifications Notification[]
+  requests     DebateRequest[]
 
   @@index([creatorId])
   @@index([status])
@@ -427,4 +433,46 @@ model Notification {
   @@index([userId, status])
   @@index([userId, createdAt])
   @@index([debateId])
+}
+
+
+enum RequestType {
+  JOIN_REQUEST      // User requests to join debate
+  INVITATION        // Creator/participant invites someone
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  CANCELLED
+}
+
+model DebateRequest {
+  id        String        @id @default(cuid())
+  type      RequestType
+  status    RequestStatus @default(PENDING)
+  role      ParticipantRole  // The role being requested/offered
+  message   String?       @db.Text
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  respondedAt DateTime?
+  
+  // Relations
+  debateId  String
+  debate    Debate   @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  
+  // User who made the request or is being invited
+  userId    String
+  user      User     @relation("DebateRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  
+  // User who sent the invitation (null for join requests)
+  inviterId String?
+  inviter   User?    @relation("DebateRequestInviter", fields: [inviterId], references: [id], onDelete: SetNull)
+  
+  @@unique([debateId, userId, role, status])
+  @@index([debateId])
+  @@index([userId])
+  @@index([status])
 }
