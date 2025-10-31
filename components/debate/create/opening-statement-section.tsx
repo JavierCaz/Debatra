@@ -1,4 +1,3 @@
-// components/debates/create/opening-statement-section.tsx
 import { Label } from "@/components/ui/label";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
 

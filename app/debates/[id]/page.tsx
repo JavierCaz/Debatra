@@ -3,8 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDebateById } from "@/app/actions/debates";
 import { ArgumentsList } from "@/components/debate/argument-list";
-import { DebateMetadata } from "@/components/debate/debate-metadata";
-import { DebateRequestsPanel } from "@/components/debate/debate-request-panel";
+import { DebateInfo } from "@/components/debate/debate-info"; // Updated import
 import { Button } from "@/components/ui/button";
 import {
   calculateDebateProgress,
@@ -49,17 +48,14 @@ export default async function DebateDetailPage({
 
       {/* Horizontal Layout */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Metadata - Compact Sidebar */}
-        <div className="lg:w-80 lg:flex-shrink-0 space-y-6">
-          <DebateMetadata
+        {/* Single Combined Info Component */}
+        <div className="lg:w-80 lg:flex-shrink-0">
+          <DebateInfo
             debate={debate}
             currentTurn={currentTurn}
             debateProgress={debateProgress}
             totalPossibleTurns={totalPossibleTurns}
           />
-
-          {/* Add the new requests panel */}
-          <DebateRequestsPanel debate={debate} />
         </div>
 
         {/* Arguments - Main Content */}

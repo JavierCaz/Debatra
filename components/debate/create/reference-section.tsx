@@ -1,4 +1,3 @@
-// components/debates/create/references-section.tsx
 "use client";
 
 import { Link, Plus, X } from "lucide-react";
