@@ -31,7 +31,7 @@ export async function getDebateById(id: string) {
               include: {
                 references: true,
                 votes: true,
-                rebuttalTo: {
+                responseTo: {
                   include: {
                     participant: {
                       include: {
@@ -49,7 +49,7 @@ export async function getDebateById(id: string) {
                 },
                 _count: {
                   select: {
-                    rebuttals: true,
+                    responses: true,
                   },
                 },
               },

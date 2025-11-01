@@ -155,7 +155,7 @@ export async function POST(request: NextRequest) {
                 references: true,
                 _count: {
                   select: {
-                    rebuttals: true,
+                    responses: true,
                   },
                 },
               },

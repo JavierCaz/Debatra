@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import type { DebateWithDetails } from "@/types/debate";
 import { ArgumentReferences } from "./argument-references";
 import { ArgumentStats } from "./argument-stats";
-import { RebuttalIndicator } from "./rebuttal-indicator";
+import { ResponseIndicator } from "./response-indicator";
 import { SafeContentRenderer } from "./safe-content-renderer";
 
 interface SingleArgumentProps {
@@ -17,6 +17,22 @@ export function SingleArgument({
   argument,
   isFirstInGroup,
 }: SingleArgumentProps) {
+  const getResponseType = () => {
+    if (!argument.responseTo) return undefined;
+
+    const currentParticipantRole = argument.participant?.role;
+    const targetParticipantRole = argument.responseTo.participant?.role;
+
+    if (currentParticipantRole && targetParticipantRole) {
+      const areAllies = currentParticipantRole === targetParticipantRole;
+      return areAllies ? "support" : "rebuttal";
+    }
+
+    const isSelfResponse =
+      argument.participantId === argument.responseTo.participantId;
+    return isSelfResponse ? "support" : "rebuttal";
+  };
+
   return (
     <div
       id={`argument-${argument.id}`}
@@ -24,9 +40,12 @@ export function SingleArgument({
     >
       {!isFirstInGroup && <Separator />}
 
-      {/* Rebuttal Indicator */}
-      {argument.rebuttalTo && (
-        <RebuttalIndicator rebuttalTo={argument.rebuttalTo} />
+      {/* Response Indicator */}
+      {argument.responseTo && (
+        <ResponseIndicator
+          responseTo={argument.responseTo}
+          responseType={getResponseType()}
+        />
       )}
 
       {/* Argument Content */}
@@ -38,10 +57,7 @@ export function SingleArgument({
           {format(new Date(argument.createdAt), "PPp")}
         </span>
 
-        <ArgumentStats
-          votes={argument.votes}
-          rebuttalsCount={argument._count?.rebuttals || 0}
-        />
+        <ArgumentStats votes={argument.votes} />
       </div>
 
       {/* References */}

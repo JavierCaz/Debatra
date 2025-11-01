@@ -204,15 +204,14 @@ model DebateParticipant {
 model Argument {
   id         String   @id @default(cuid())
   content    String   @db.Text
-  turnNumber Int      // Which turn this argument belongs to
+  turnNumber Int     
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   
-  // Rebuttal system
-  rebuttalToId String?   // If this is a direct rebuttal to another argument
-  rebuttalTo   Argument? @relation("ArgumentRebuttals", fields: [rebuttalToId], references: [id], onDelete: SetNull)
-  rebuttals    Argument[] @relation("ArgumentRebuttals") // Arguments that rebut this one
-  
+  responseToId String? 
+  responseTo   Argument? @relation("ArgumentResponses", fields: [responseToId], references: [id], onDelete: SetNull)
+  responses    Argument[] @relation("ArgumentResponses")
+
   // Relations
   debateId      String
   debate        Debate            @relation(fields: [debateId], references: [id], onDelete: Cascade)
@@ -231,7 +230,7 @@ model Argument {
   @@index([debateId])
   @@index([participantId])
   @@index([authorId])
-  @@index([rebuttalToId])
+  @@index([responseToId])
   @@index([createdAt])
 }
 
