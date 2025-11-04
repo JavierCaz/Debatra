@@ -1,15 +1,24 @@
-export function getRoleBadgeColor(role: string): string {
+export const getRoleBadgeColor = (role: string) => {
   switch (role) {
     case "PROPOSER":
       return "bg-green-500";
     case "OPPOSER":
       return "bg-red-500";
-    case "NEUTRAL":
-      return "bg-gray-500";
     default:
       return "bg-gray-500";
   }
-}
+};
+
+export const getRoleDisplayName = (role: string) => {
+  switch (role) {
+    case "PROPOSER":
+      return "Proposers";
+    case "OPPOSER":
+      return "Opposers";
+    default:
+      return role;
+  }
+};
 
 export function getFormatLabel(format: string): string {
   switch (format) {
@@ -21,23 +30,6 @@ export function getFormatLabel(format: string): string {
       return "Multi-sided";
     default:
       return format;
-  }
-}
-
-export function getStatusColor(status: string): string {
-  switch (status) {
-    case "DRAFT":
-      return "bg-gray-500";
-    case "OPEN":
-      return "bg-blue-500";
-    case "IN_PROGRESS":
-      return "bg-yellow-500";
-    case "COMPLETED":
-      return "bg-green-500";
-    case "CANCELLED":
-      return "bg-red-500";
-    default:
-      return "bg-gray-500";
   }
 }
 

@@ -1,12 +1,11 @@
-import { MessageSquareReply, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ThumbsDown, ThumbsUp } from "lucide-react";
 import type { DebateWithDetails } from "@/types/debate";
 
 interface ArgumentStatsProps {
   votes: DebateWithDetails["participants"][0]["arguments"][0]["votes"];
-  rebuttalsCount: number;
 }
 
-export function ArgumentStats({ votes, rebuttalsCount }: ArgumentStatsProps) {
+export function ArgumentStats({ votes }: ArgumentStatsProps) {
   const upvotes = votes.filter((v) => v.type === "UPVOTE").length;
   const downvotes = votes.filter((v) => v.type === "DOWNVOTE").length;
 
@@ -19,10 +18,6 @@ export function ArgumentStats({ votes, rebuttalsCount }: ArgumentStatsProps) {
       <div className="flex items-center space-x-1 text-red-600 dark:text-red-400">
         <ThumbsDown className="w-3 h-3" />
         <span>{downvotes}</span>
-      </div>
-      <div className="flex items-center space-x-1 text-blue-600 dark:text-blue-400">
-        <MessageSquareReply className="w-3 h-3" />
-        <span>{rebuttalsCount}</span>
       </div>
     </div>
   );

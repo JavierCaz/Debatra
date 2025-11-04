@@ -14,6 +14,7 @@ import {
   type DebateFormData,
   type InitialArgument,
 } from "@/types/debate";
+import { ArgumentsSubmitter } from "../argument/arguments-submitter";
 import { BasicInfoSection } from "./basic-info-section";
 import { DebateParametersSection } from "./debate-parameters-section";
 import { InitialArgumentsSection } from "./initial-arguments-section";
@@ -111,10 +112,15 @@ export function CreateDebateForm({
           onClearError={clearError}
         />
 
-        <InitialArgumentsSection
+        <ArgumentsSubmitter
           initialArguments={initialArguments}
           error={errors.initialArguments}
           onArgumentsChange={setInitialArguments}
+          mode="create"
+          title="Initial Arguments"
+          description="Add one or more initial arguments to start the debate"
+          minArguments={1}
+          maxArguments={5}
         />
 
         <DebateParametersSection

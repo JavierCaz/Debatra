@@ -37,7 +37,6 @@ export enum DebateTopic {
 export enum ParticipantRole {
   PROPOSER = "PROPOSER",
   OPPOSER = "OPPOSER",
-  NEUTRAL = "NEUTRAL",
 }
 
 export function getTopicDisplayName(topic: DebateTopic): string {
@@ -119,9 +118,21 @@ export type DebateWithDetails = Prisma.DebateGetPayload<{
         };
         arguments: {
           include: {
+            participant: {
+              include: {
+                user: {
+                  select: {
+                    id: true;
+                    name: true;
+                    email: true;
+                    image: true;
+                  };
+                };
+              };
+            };
             references: true;
             votes: true;
-            rebuttalTo: {
+            responseTo: {
               include: {
                 participant: {
                   include: {
@@ -139,7 +150,7 @@ export type DebateWithDetails = Prisma.DebateGetPayload<{
             };
             _count: {
               select: {
-                rebuttals: true;
+                responses: true;
               };
             };
           };

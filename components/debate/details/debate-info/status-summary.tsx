@@ -86,7 +86,7 @@ export function StatusSummary({
           </span>
         </div>
 
-        {/* Progress Bar - Only show for IN_PROGRESS debates */}
+        {/* Progress Bar */}
         {debate.status === "IN_PROGRESS" && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">

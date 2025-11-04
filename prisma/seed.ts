@@ -222,7 +222,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn1Arg1.id, // SAME-TURN counter to Alice's bureaucracy argument
+      responseToId: aliceTurn1Arg1.id, // SAME-TURN counter to Alice's bureaucracy argument
     },
   });
 
@@ -236,7 +236,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobTurn1Arg1.id, // Direct counter to Bob's fiscal argument
+      responseToId: bobTurn1Arg1.id, // Direct counter to Bob's fiscal argument
     },
   });
 
@@ -247,7 +247,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobTurn1Arg2.id, // Direct counter to Bob's inflation argument
+      responseToId: bobTurn1Arg2.id, // Direct counter to Bob's inflation argument
       references: {
         create: [
           {
@@ -272,7 +272,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobTurn1Arg3.id, // Direct counter to Bob's work disincentive argument
+      responseToId: bobTurn1Arg3.id, // Direct counter to Bob's work disincentive argument
     },
   });
 
@@ -284,7 +284,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn1Arg1.id, // Direct counter to Alice's bureaucracy argument
+      responseToId: aliceTurn1Arg1.id, // Direct counter to Alice's bureaucracy argument
     },
   });
 
@@ -295,7 +295,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn1Arg2.id, // Direct counter to Alice's pilot evidence
+      responseToId: aliceTurn1Arg2.id, // Direct counter to Alice's pilot evidence
       references: {
         create: [
           {
@@ -320,7 +320,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn2Arg1.id, // SAME-TURN counter to Alice's Turn 2 funding argument
+      responseToId: aliceTurn2Arg1.id, // SAME-TURN counter to Alice's Turn 2 funding argument
     },
   });
 
@@ -334,7 +334,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobTurn2Arg1.id, // Countering Bob's bureaucracy counterargument
+      responseToId: bobTurn2Arg1.id, // Countering Bob's bureaucracy counterargument
     },
   });
 
@@ -345,7 +345,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobTurn2Arg2.id, // Countering Bob's pilot evidence counter
+      responseToId: bobTurn2Arg2.id, // Countering Bob's pilot evidence counter
     },
   });
 
@@ -357,7 +357,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: aliceParticipant.id,
       authorId: alice.id,
-      rebuttalToId: bobTurn2Arg3.id, // SAME-TURN counter to Bob's environmental trade-off argument
+      responseToId: bobTurn2Arg3.id, // SAME-TURN counter to Bob's environmental trade-off argument
     },
   });
 
@@ -369,7 +369,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn2Arg1.id, // Countering Alice's funding counterargument
+      responseToId: aliceTurn2Arg1.id, // Countering Alice's funding counterargument
     },
   });
 
@@ -380,7 +380,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn2Arg3.id, // Countering Alice's work disincentive counter
+      responseToId: aliceTurn2Arg3.id, // Countering Alice's work disincentive counter
     },
   });
 
@@ -392,7 +392,7 @@ async function main() {
       debateId: ubiDebate.id,
       participantId: bobParticipant.id,
       authorId: bob.id,
-      rebuttalToId: aliceTurn3Arg3.id, // SAME-TURN counter to Alice's environmental synergy argument
+      responseToId: aliceTurn3Arg3.id, // SAME-TURN counter to Alice's environmental synergy argument
     },
   });
 
@@ -507,6 +507,702 @@ async function main() {
       { debateId: climateDebate.id, topic: DebateTopicEnum.TECHNOLOGY },
     ],
   });
+
+  console.log(
+    "👥 Creating enriched Many vs Many debate with RESPONSES system...",
+  );
+
+  // Create a Many vs Many debate about Remote Work
+  const remoteWorkDebate = await prisma.debate.create({
+    data: {
+      title: "Is remote work ultimately beneficial or harmful for society?",
+      description:
+        "A multi-sided debate examining the comprehensive impacts of remote work on productivity, mental health, urban development, social cohesion, and economic structures. This format allows for multiple perspectives beyond simple for/against positions.",
+      status: "IN_PROGRESS",
+      format: "MULTI_SIDED",
+      maxParticipants: 6,
+      turnsPerSide: 2,
+      turnTimeLimit: 48,
+      minReferences: 1,
+      currentTurnSide: ParticipantRole.PROPOSER,
+      currentTurnNumber: 2,
+      creatorId: charlie.id,
+      startedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Started 3 days ago
+    },
+  });
+
+  // Add multiple topics to the remote work debate
+  await prisma.debateTopic.createMany({
+    data: [
+      { debateId: remoteWorkDebate.id, topic: DebateTopicEnum.ECONOMICS },
+      { debateId: remoteWorkDebate.id, topic: DebateTopicEnum.SOCIETY_CULTURE },
+      { debateId: remoteWorkDebate.id, topic: DebateTopicEnum.TECHNOLOGY },
+      {
+        debateId: remoteWorkDebate.id,
+        topic: DebateTopicEnum.PSYCHOLOGY_BEHAVIOR,
+      },
+    ],
+  });
+
+  // Add multiple participants with different roles for the Many vs Many debate
+  const remoteWorkParticipants = await Promise.all([
+    // PROPOSER - Strongly in favor
+    prisma.debateParticipant.create({
+      data: {
+        debateId: remoteWorkDebate.id,
+        userId: alice.id,
+        role: "PROPOSER",
+        status: "ACTIVE",
+      },
+    }),
+    // OPPOSER - Strongly against
+    prisma.debateParticipant.create({
+      data: {
+        debateId: remoteWorkDebate.id,
+        userId: bob.id,
+        role: "OPPOSER",
+        status: "ACTIVE",
+      },
+    }),
+    prisma.debateParticipant.create({
+      data: {
+        debateId: remoteWorkDebate.id,
+        userId: charlie.id,
+        role: "OPPOSER",
+        status: "ACTIVE",
+      },
+    }),
+    prisma.debateParticipant.create({
+      data: {
+        debateId: remoteWorkDebate.id,
+        userId: diana.id,
+        role: "PROPOSER",
+        status: "ACTIVE",
+      },
+    }),
+  ]);
+
+  // Create two additional users for the Many vs Many debate
+  const erin = await prisma.user.create({
+    data: {
+      name: "Erin Chen",
+      email: "erin@example.com",
+      password: hashedPassword,
+      bio: "Urban planner and community development specialist focused on sustainable cities.",
+      image:
+        "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=150&h=150&fit=crop&crop=face",
+    },
+  });
+
+  const frank = await prisma.user.create({
+    data: {
+      name: "Frank Williams",
+      email: "frank@example.com",
+      password: hashedPassword,
+      bio: "Tech company CEO with experience managing both remote and in-office teams.",
+      image:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+    },
+  });
+
+  // Add the new users as participants
+  const additionalParticipants = await Promise.all([
+    prisma.debateParticipant.create({
+      data: {
+        debateId: remoteWorkDebate.id,
+        userId: erin.id,
+        role: "PROPOSER",
+        status: "ACTIVE",
+      },
+    }),
+    prisma.debateParticipant.create({
+      data: {
+        debateId: remoteWorkDebate.id,
+        userId: frank.id,
+        role: "PROPOSER",
+        status: "ACTIVE",
+      },
+    }),
+  ]);
+
+  const allRemoteParticipants = [
+    ...remoteWorkParticipants,
+    ...additionalParticipants,
+  ];
+
+  // === TURN 1: MULTIPLE OPENING ARGUMENTS FROM EACH PARTICIPANT ===
+
+  // Alice (PROPOSER) - 3 Turn 1 arguments
+  const aliceRemoteTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Productivity and Efficiency Benefits:</strong> Multiple studies show remote workers are 13-35% more productive than their office counterparts. The elimination of commute time, reduced office distractions, and flexible scheduling allow for deeper focus and better work-life integration.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[0].id,
+      authorId: alice.id,
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "Remote Work Productivity Study 2023",
+            author: "Stanford University Research",
+            publication: "Journal of Labor Economics",
+            url: "https://example.com/remote-productivity",
+            publishedAt: new Date("2023-05-20"),
+            notes: "Shows 13-35% productivity increase in remote workers",
+          },
+        ],
+      },
+    },
+  });
+
+  const aliceRemoteTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Environmental and Sustainability Impact:</strong> Remote work significantly reduces carbon emissions by eliminating daily commutes. Studies estimate that if all knowledge workers worked remotely half the time, it would reduce transportation emissions by 20-30% while also reducing office energy consumption.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[0].id,
+      authorId: alice.id,
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "Environmental Impact of Remote Work",
+            author: "Environmental Research Institute",
+            publication: "Sustainability Journal",
+            url: "https://example.com/remote-environment",
+            publishedAt: new Date("2022-11-10"),
+            notes: "Estimates 20-30% reduction in transportation emissions",
+          },
+        ],
+      },
+    },
+  });
+
+  const aliceRemoteTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Global Talent Access and Economic Redistribution:</strong> Remote work enables companies to access the best talent globally while allowing workers in lower-cost areas to earn competitive salaries. This creates economic redistribution opportunities and reduces geographic inequality.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[0].id,
+      authorId: alice.id,
+    },
+  });
+
+  // Bob (OPPOSER) - 3 Turn 1 arguments
+  const bobRemoteTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Innovation and Collaboration Costs:</strong> Remote work severely damages spontaneous collaboration and innovation. The 'water cooler conversations' that generate breakthrough ideas are lost, and digital communication cannot replicate the creative energy of in-person brainstorming sessions.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[1].id,
+      authorId: bob.id,
+    },
+  });
+
+  const bobRemoteTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Mental Health and Isolation Risks:</strong> Prolonged remote work leads to increased loneliness, depression, and burnout. The lack of social interaction and blurred work-life boundaries create psychological strain that outweighs any flexibility benefits for many workers.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[1].id,
+      authorId: bob.id,
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "Mental Health Impacts of Remote Work",
+            author: "American Psychological Association",
+            publication: "Journal of Occupational Health",
+            url: "https://example.com/remote-mental-health",
+            publishedAt: new Date("2023-02-15"),
+            notes:
+              "Documents increased loneliness and burnout in remote workers",
+          },
+        ],
+      },
+    },
+  });
+
+  const bobRemoteTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Career Development and Mentorship Challenges:</strong> Junior employees suffer most from remote work, missing crucial informal learning opportunities, mentorship, and visibility that accelerate career growth in office environments.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[1].id,
+      authorId: bob.id,
+    },
+  });
+
+  // Charlie (OPPOSER) - 3 Turn 1 arguments
+  const charlieRemoteTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Hybrid Creates Confusion and Inconsistency:</strong> The so-called 'balanced' hybrid approach actually creates scheduling nightmares and communication gaps. Teams end up with partial information and missed connections that harm both productivity and innovation.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[2].id,
+      authorId: charlie.id,
+    },
+  });
+
+  const charlieRemoteTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Remote Work Undermines Team Cohesion:</strong> The flexibility argument ignores how remote work fragments team identity and shared purpose. In-person collaboration builds trust and alignment that virtual meetings cannot replicate.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[2].id,
+      authorId: charlie.id,
+    },
+  });
+
+  const charlieRemoteTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Management Burden Increases:</strong> Rather than evolving management skills, remote work forces managers to become surveillance officers and meeting coordinators. The overhead of managing distributed teams outweighs any supposed benefits.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[2].id,
+      authorId: charlie.id,
+    },
+  });
+
+  // Diana (PROPOSER) - 3 Turn 1 arguments focusing on social impacts
+  const dianaRemoteTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Urban-Rural Rebalancing Opportunity:</strong> Remote work enables geographic redistribution away from overcrowded, expensive cities toward smaller communities. This could help address housing affordability crises in major metros while revitalizing rural and suburban areas.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[3].id,
+      authorId: diana.id,
+      references: {
+        create: [
+          {
+            type: "GOVERNMENT_DOCUMENT",
+            title: "Geographic Mobility and Remote Work Trends",
+            author: "U.S. Census Bureau",
+            url: "https://example.com/remote-migration",
+            publishedAt: new Date("2023-08-15"),
+            notes: "Documents migration patterns from urban to rural areas",
+          },
+        ],
+      },
+    },
+  });
+
+  const dianaRemoteTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Family and Caregiver Benefits:</strong> Remote work provides crucial flexibility for parents, caregivers, and people with disabilities. It enables better work-life integration and reduces the 'second shift' burden that disproportionately affects women.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[3].id,
+      authorId: diana.id,
+    },
+  });
+
+  const dianaRemoteTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Social Capital Erosion Concerns:</strong> While remote work offers individual benefits, it may erode community social capital. Local businesses, community organizations, and civic engagement could suffer if people become more physically isolated.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[3].id,
+      authorId: diana.id,
+    },
+  });
+
+  // Erin (PROPOSER) - 3 Turn 1 arguments from urban planning perspective
+  const erinRemoteTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Infrastructure and Transportation Benefits:</strong> Widespread remote work reduces traffic congestion, public transportation strain, and carbon emissions. Cities could repurpose office space and parking lots for housing and green spaces.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[4].id,
+      authorId: erin.id,
+    },
+  });
+
+  const erinRemoteTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Commercial Real Estate Transformation:</strong> The shift to remote work creates opportunity to convert underutilized office spaces into much-needed housing, addressing affordability crises while creating more mixed-use, walkable neighborhoods.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[4].id,
+      authorId: erin.id,
+    },
+  });
+
+  const erinRemoteTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Municipal Budget Challenges:</strong> Cities face significant revenue losses from reduced downtown activity, commercial property devaluation, and transportation fees. This requires fundamental rethinking of municipal finance and service delivery models.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[4].id,
+      authorId: erin.id,
+    },
+  });
+
+  // Frank (PROPOSER) - 3 Turn 1 arguments from management perspective
+  const frankRemoteTurn1Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Talent Access and Retention Advantages:</strong> Remote work enables access to global talent pools and dramatically improves employee retention. Our company reduced turnover by 45% after implementing remote-first policies, saving millions in recruitment costs.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[5].id,
+      authorId: frank.id,
+    },
+  });
+
+  const frankRemoteTurn1Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Cost Structure Optimization:</strong> Companies can significantly reduce real estate costs, office maintenance, and overhead expenses. These savings can be reinvested in employee benefits, technology infrastructure, and competitive compensation.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[5].id,
+      authorId: frank.id,
+    },
+  });
+
+  const frankRemoteTurn1Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Digital Transformation Acceleration:</strong> Remote work forces organizations to modernize their technology stack, collaboration tools, and digital processes. This creates long-term competitive advantages beyond the immediate remote work context.</p>`,
+      turnNumber: 1,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[5].id,
+      authorId: frank.id,
+    },
+  });
+
+  // === TURN 2: MIXED RESPONSES - BOTH CRITICAL AND SUPPORTIVE ===
+
+  // Alice (PROPOSER) - Mixed responses: 2 critical, 1 supportive
+  const aliceRemoteTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Innovation Concerns:</strong> Modern collaboration tools actually enhance innovation by allowing asynchronous brainstorming and documentation. The myth of 'water cooler innovation' isn't supported by data - most breakthrough ideas come from deep focused work.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[0].id,
+      authorId: alice.id,
+      responseToId: bobRemoteTurn1Arg1.id, // Critical response to Bob's innovation argument
+    },
+  });
+
+  const aliceRemoteTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Mental Health Risks:</strong> The mental health impacts depend entirely on implementation. Well-structured remote work with regular virtual social events, mental health support, and clear boundaries actually improves well-being compared to stressful commutes and office politics.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[0].id,
+      authorId: alice.id,
+      responseToId: bobRemoteTurn1Arg2.id, // Critical response to Bob's mental health argument
+    },
+  });
+
+  const aliceRemoteTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Infrastructure Benefits:</strong> I want to build on Erin's excellent point about infrastructure. Beyond just reducing congestion, remote work enables more efficient energy use through distributed home offices rather than energy-intensive centralized office buildings.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[0].id,
+      authorId: alice.id,
+      responseToId: erinRemoteTurn1Arg1.id, // SUPPORTIVE response to Erin's infrastructure argument
+    },
+  });
+
+  // Bob (OPPOSER) - Mixed responses: 2 critical, 1 supportive
+  const bobRemoteTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Productivity Claims:</strong> The productivity studies often measure output quantity but ignore quality and innovation. While remote workers may complete more routine tasks, they generate fewer innovative solutions that drive long-term business success.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[1].id,
+      authorId: bob.id,
+      responseToId: aliceRemoteTurn1Arg1.id, // Critical response to Alice's productivity argument
+    },
+  });
+
+  const bobRemoteTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Environmental Benefits:</strong> The environmental gains from reduced commuting are partially offset by increased home energy use and the carbon footprint of everyone maintaining separate home offices rather than sharing centralized spaces.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[1].id,
+      authorId: bob.id,
+      responseToId: aliceRemoteTurn1Arg2.id, // Critical response to Alice's environmental argument
+    },
+  });
+
+  const bobRemoteTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Social Capital Concerns:</strong> Diana raises a crucial point about social capital erosion. The decline in local business patronage and community engagement represents real social costs that remote work advocates often overlook.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[1].id,
+      authorId: bob.id,
+      responseToId: dianaRemoteTurn1Arg3.id, // SUPPORTIVE response to Diana's social capital argument
+    },
+  });
+
+  // Charlie (OPPOSER) - Mixed responses: 1 critical, 2 supportive
+  const charlieRemoteTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Universal Productivity Claims:</strong> While Alice cites productivity studies, these often fail to account for the coordination costs and communication overhead that emerge in fully remote teams over time. The initial productivity boost may not be sustainable.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[2].id,
+      authorId: charlie.id,
+      responseToId: aliceRemoteTurn1Arg1.id, // Critical response to Alice's productivity argument
+    },
+  });
+
+  const charlieRemoteTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Management Evolution:</strong> Frank makes an excellent point about management evolution. The transition to remote work forces necessary organizational development that benefits companies regardless of their eventual work arrangement decisions.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[2].id,
+      authorId: charlie.id,
+      responseToId: frankRemoteTurn1Arg3.id, // SUPPORTIVE response to Frank's digital transformation
+    },
+  });
+
+  const charlieRemoteTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Geographic Redistribution:</strong> Diana's point about urban-rural rebalancing is crucial. This could help address decades of regional inequality and create more resilient, distributed economic networks.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[2].id,
+      authorId: charlie.id,
+      responseToId: dianaRemoteTurn1Arg1.id, // SUPPORTIVE response to Diana's redistribution argument
+    },
+  });
+
+  // Diana (PROPOSER) - Mixed responses: 1 critical, 1 supportive, 1 self-reflection
+  const dianaRemoteTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Infrastructure Simplification:</strong> While Erin highlights infrastructure benefits, we must consider the strain on suburban and rural infrastructure as populations shift. The net infrastructure impact requires comprehensive analysis.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[3].id,
+      authorId: diana.id,
+      responseToId: erinRemoteTurn1Arg1.id, // Critical response to Erin's infrastructure argument
+    },
+  });
+
+  const dianaRemoteTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Family Benefits:</strong> Building on my earlier point about caregiver benefits, I want to emphasize that this flexibility is particularly transformative for people with disabilities and chronic illnesses who face barriers in traditional office settings.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[3].id,
+      authorId: diana.id,
+      responseToId: dianaRemoteTurn1Arg2.id, // SUPPORTIVE response to her own earlier argument
+    },
+  });
+
+  const dianaRemoteTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Self-Reflection on Redistribution:</strong> While I highlighted redistribution benefits, Bob's supportive point about social capital erosion is valid. We need solutions that preserve community ties while enabling geographic mobility.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[3].id,
+      authorId: diana.id,
+      responseToId: dianaRemoteTurn1Arg1.id, // Critical reflection on her own redistribution argument
+    },
+  });
+
+  // Erin (PROPOSER) - Mixed responses: 1 critical, 2 supportive
+  const erinRemoteTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Environmental Benefits:</strong> Alice's environmental point is well-taken. The reduction in transportation emissions is substantial, and when combined with renewable energy for home offices, the net environmental benefit becomes even clearer.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[4].id,
+      authorId: erin.id,
+      responseToId: aliceRemoteTurn1Arg2.id, // SUPPORTIVE response to Alice's environmental argument
+    },
+  });
+
+  const erinRemoteTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Municipal Budget Oversimplification:</strong> While I raised budget challenges, Alice is right that these are transitional. However, the transition period could last decades and requires careful policy planning to avoid municipal bankruptcies.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[4].id,
+      authorId: erin.id,
+      responseToId: erinRemoteTurn1Arg3.id, // Critical reflection on her own budget argument
+    },
+  });
+
+  const erinRemoteTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Career Development Innovation:</strong> Frank's management perspective is crucial here. Remote work forces more intentional, structured career development that can actually be more equitable than office-based informal networks.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[4].id,
+      authorId: erin.id,
+      responseToId: frankRemoteTurn1Arg3.id, // SUPPORTIVE response to Frank's management argument
+    },
+  });
+
+  // Frank (PROPOSER) - Mixed responses: 2 critical, 1 supportive
+  const frankRemoteTurn2Arg1 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Innovation Concerns:</strong> The claim that remote work harms innovation reflects outdated management practices. Companies that successfully transition implement structured innovation processes that surpass office-based serendipity.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[5].id,
+      authorId: frank.id,
+      responseToId: bobRemoteTurn1Arg1.id, // Critical response to Bob's innovation argument
+    },
+  });
+
+  const frankRemoteTurn2Arg2 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Supportive Response to Hybrid Approach:</strong> Charlie's hybrid model suggestion is practical. In our experience, the optimal balance varies by team function, and flexible hybrid policies allow for this necessary customization.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[5].id,
+      authorId: frank.id,
+      responseToId: charlieRemoteTurn1Arg1.id, // SUPPORTIVE response to Charlie's hybrid argument
+    },
+  });
+
+  const frankRemoteTurn2Arg3 = await prisma.argument.create({
+    data: {
+      content: `<p><strong>Critical Response to Timezone Coordination Concerns:</strong> Modern async collaboration tools and overlapping core hours effectively solve timezone challenges. Many global companies have operated successfully across time zones for decades.</p>`,
+      turnNumber: 2,
+      debateId: remoteWorkDebate.id,
+      participantId: allRemoteParticipants[5].id,
+      authorId: frank.id,
+      responseToId: bobRemoteTurn2Arg1.id, // Critical response to Bob's coordination argument
+    },
+  });
+
+  // Add comprehensive cross-participant votes
+  const remoteWorkVotes = [
+    // Turn 1 votes
+    { argumentId: aliceRemoteTurn1Arg1.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn1Arg1.id, userId: frank.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
+
+    { argumentId: bobRemoteTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobRemoteTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobRemoteTurn1Arg3.id, userId: erin.id, type: "UPVOTE" },
+
+    { argumentId: charlieRemoteTurn1Arg1.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn1Arg1.id, userId: bob.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn1Arg2.id, userId: frank.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
+
+    { argumentId: dianaRemoteTurn1Arg1.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: dianaRemoteTurn1Arg2.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: dianaRemoteTurn1Arg3.id, userId: bob.id, type: "UPVOTE" },
+
+    { argumentId: erinRemoteTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: erinRemoteTurn1Arg2.id, userId: frank.id, type: "UPVOTE" },
+    { argumentId: erinRemoteTurn1Arg3.id, userId: charlie.id, type: "UPVOTE" },
+
+    { argumentId: frankRemoteTurn1Arg1.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: frankRemoteTurn1Arg2.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: frankRemoteTurn1Arg3.id, userId: bob.id, type: "UPVOTE" },
+
+    // Turn 2 votes showing complex alignment patterns
+    { argumentId: aliceRemoteTurn2Arg1.id, userId: frank.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn2Arg2.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn2Arg3.id, userId: erin.id, type: "UPVOTE" },
+
+    { argumentId: bobRemoteTurn2Arg1.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: bobRemoteTurn2Arg2.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobRemoteTurn2Arg3.id, userId: erin.id, type: "UPVOTE" },
+
+    { argumentId: charlieRemoteTurn2Arg1.id, userId: bob.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn2Arg2.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn2Arg3.id, userId: frank.id, type: "UPVOTE" },
+
+    { argumentId: dianaRemoteTurn2Arg1.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: dianaRemoteTurn2Arg2.id, userId: bob.id, type: "UPVOTE" },
+    { argumentId: dianaRemoteTurn2Arg3.id, userId: alice.id, type: "UPVOTE" },
+
+    { argumentId: erinRemoteTurn2Arg1.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: erinRemoteTurn2Arg2.id, userId: bob.id, type: "UPVOTE" },
+    { argumentId: erinRemoteTurn2Arg3.id, userId: frank.id, type: "UPVOTE" },
+
+    { argumentId: frankRemoteTurn2Arg1.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: frankRemoteTurn2Arg2.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: frankRemoteTurn2Arg3.id, userId: charlie.id, type: "UPVOTE" },
+  ];
+
+  for (const vote of remoteWorkVotes) {
+    await prisma.vote.create({
+      data: {
+        argumentId: vote.argumentId,
+        userId: vote.userId,
+        type: vote.type as any,
+      },
+    });
+  }
+
+  // Add nuanced concessions showing complex positions
+  await prisma.concession.create({
+    data: {
+      argumentId: bobRemoteTurn2Arg1.id,
+      userId: alice.id,
+      reason:
+        "I concede that measuring innovation quality in remote settings requires more sophisticated metrics beyond simple productivity output.",
+    },
+  });
+
+  await prisma.concession.create({
+    data: {
+      argumentId: dianaRemoteTurn2Arg1.id,
+      userId: erin.id,
+      reason:
+        "Valid point about potential strain on suburban infrastructure - the geographic redistribution does require comprehensive infrastructure planning.",
+    },
+  });
+
+  await prisma.concession.create({
+    data: {
+      argumentId: charlieRemoteTurn2Arg1.id,
+      userId: frank.id,
+      reason:
+        "The team-specific hybrid approach is a reasonable compromise that acknowledges different work types have different optimal arrangements.",
+    },
+  });
+
+  await prisma.concession.create({
+    data: {
+      argumentId: aliceRemoteTurn2Arg3.id,
+      userId: erin.id,
+      reason:
+        "You're right that combining remote work with renewable energy for home offices could amplify the environmental benefits.",
+    },
+  });
+
+  await prisma.concession.create({
+    data: {
+      argumentId: frankRemoteTurn2Arg2.id,
+      userId: charlie.id,
+      reason:
+        "Your management perspective on flexible hybrid policies accounting for different team functions is a practical approach we should consider.",
+    },
+  });
+
+  console.log("✅ Created ENRICHED Many vs Many debate with RESPONSES system");
+  console.log("📊 RESPONSES SYSTEM Features:");
+  console.log(
+    "   - Mixed response types: Critical, Supportive, and Self-Reflective",
+  );
+  console.log(
+    "   - Cross-role supportive responses (e.g., Alice supporting Erin's point)",
+  );
+  console.log(
+    "   - Self-reflective responses critiquing own earlier arguments",
+  );
+  console.log("   - Complex response networks beyond simple pro/con rebuttals");
+  console.log("   - 18 supportive/critical responses creating rich dialogue");
+  console.log(
+    "   - Demonstrates how responses can build on or challenge any argument",
+  );
 
   console.log("🔔 Creating notifications for Alice...");
 
@@ -733,7 +1429,7 @@ async function main() {
   console.log("\n🎯 Key Features Demonstrated:");
   console.log("   - Multiple topics per debate using DebateTopic relation");
   console.log("   - Multiple arguments per user per turn (3 in each turn)");
-  console.log("   - Cross-turn counterarguments using rebuttalToId");
+  console.log("   - Cross-turn counterarguments using responseToId");
   console.log("   - SAME-TURN counterarguments within the same turn number");
   console.log(
     "   - Complex argument-rebuttal relationships throughout the debate",

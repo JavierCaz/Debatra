@@ -3,7 +3,11 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
 import { detectReferenceType } from "@/lib/utils/reference-types";
-import { ALL_DEBATE_TOPICS, type DebateTopic } from "@/types/debate";
+import {
+  ALL_DEBATE_TOPICS,
+  DebateFormat,
+  type DebateTopic,
+} from "@/types/debate";
 
 export async function POST(request: NextRequest) {
   try {
@@ -59,6 +63,10 @@ export async function POST(request: NextRequest) {
 
     // Create debate with topics, participant and multiple initial arguments in a transaction
     const debate = await prisma.$transaction(async (tx) => {
+      const shouldStartWithOpposer =
+        data.format === DebateFormat.ONE_VS_ONE ||
+        data.format === DebateFormat.ONE_VS_MANY;
+
       // Create the debate
       const newDebate = await tx.debate.create({
         data: {
@@ -71,6 +79,8 @@ export async function POST(request: NextRequest) {
           minReferences: data.minReferences,
           status: data.status,
           creatorId: user.id,
+          currentTurnSide: shouldStartWithOpposer ? "OPPOSER" : "PROPOSER",
+          currentTurnNumber: 1,
         },
       });
 
@@ -155,7 +165,7 @@ export async function POST(request: NextRequest) {
                 references: true,
                 _count: {
                   select: {
-                    rebuttals: true,
+                    responses: true,
                   },
                 },
               },
