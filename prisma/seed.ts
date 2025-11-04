@@ -524,7 +524,7 @@ async function main() {
       turnsPerSide: 2,
       turnTimeLimit: 48,
       minReferences: 1,
-      currentTurnSide: ParticipantRole.NEUTRAL,
+      currentTurnSide: ParticipantRole.PROPOSER,
       currentTurnNumber: 2,
       creatorId: charlie.id,
       startedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000), // Started 3 days ago
@@ -564,21 +564,19 @@ async function main() {
         status: "ACTIVE",
       },
     }),
-    // NEUTRAL - Balanced/mixed perspective 1
     prisma.debateParticipant.create({
       data: {
         debateId: remoteWorkDebate.id,
         userId: charlie.id,
-        role: "NEUTRAL",
+        role: "OPPOSER",
         status: "ACTIVE",
       },
     }),
-    // NEUTRAL - Balanced/mixed perspective 2 (Diana)
     prisma.debateParticipant.create({
       data: {
         debateId: remoteWorkDebate.id,
         userId: diana.id,
-        role: "NEUTRAL",
+        role: "PROPOSER",
         status: "ACTIVE",
       },
     }),
@@ -613,7 +611,7 @@ async function main() {
       data: {
         debateId: remoteWorkDebate.id,
         userId: erin.id,
-        role: "NEUTRAL",
+        role: "PROPOSER",
         status: "ACTIVE",
       },
     }),
@@ -621,7 +619,7 @@ async function main() {
       data: {
         debateId: remoteWorkDebate.id,
         userId: frank.id,
-        role: "PROPOSER", // Another supporter
+        role: "PROPOSER",
         status: "ACTIVE",
       },
     }),
@@ -736,10 +734,10 @@ async function main() {
     },
   });
 
-  // Charlie (NEUTRAL) - 3 Turn 1 arguments
+  // Charlie (OPPOSER) - 3 Turn 1 arguments
   const charlieRemoteTurn1Arg1 = await prisma.argument.create({
     data: {
-      content: `<p><strong>Hybrid as the Optimal Solution:</strong> The evidence suggests a balanced hybrid approach maximizes benefits while minimizing drawbacks. 2-3 days in office maintains collaboration and mentorship, while remote days provide focus time and flexibility.</p>`,
+      content: `<p><strong>Hybrid Creates Confusion and Inconsistency:</strong> The so-called 'balanced' hybrid approach actually creates scheduling nightmares and communication gaps. Teams end up with partial information and missed connections that harm both productivity and innovation.</p>`,
       turnNumber: 1,
       debateId: remoteWorkDebate.id,
       participantId: allRemoteParticipants[2].id,
@@ -749,7 +747,7 @@ async function main() {
 
   const charlieRemoteTurn1Arg2 = await prisma.argument.create({
     data: {
-      content: `<p><strong>Work-Type Dependent Outcomes:</strong> The effectiveness of remote work varies dramatically by industry and role. Creative and collaborative roles suffer more than individual contributor roles, suggesting we need role-specific policies rather than universal mandates.</p>`,
+      content: `<p><strong>Remote Work Undermines Team Cohesion:</strong> The flexibility argument ignores how remote work fragments team identity and shared purpose. In-person collaboration builds trust and alignment that virtual meetings cannot replicate.</p>`,
       turnNumber: 1,
       debateId: remoteWorkDebate.id,
       participantId: allRemoteParticipants[2].id,
@@ -759,7 +757,7 @@ async function main() {
 
   const charlieRemoteTurn1Arg3 = await prisma.argument.create({
     data: {
-      content: `<p><strong>Management Skill Evolution Required:</strong> Many remote work failures stem from managers applying office-based techniques to remote contexts. Successful remote organizations invest in training managers for distributed leadership and digital collaboration.</p>`,
+      content: `<p><strong>Management Burden Increases:</strong> Rather than evolving management skills, remote work forces managers to become surveillance officers and meeting coordinators. The overhead of managing distributed teams outweighs any supposed benefits.</p>`,
       turnNumber: 1,
       debateId: remoteWorkDebate.id,
       participantId: allRemoteParticipants[2].id,
@@ -767,7 +765,7 @@ async function main() {
     },
   });
 
-  // Diana (NEUTRAL) - 3 Turn 1 arguments focusing on social impacts
+  // Diana (PROPOSER) - 3 Turn 1 arguments focusing on social impacts
   const dianaRemoteTurn1Arg1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Urban-Rural Rebalancing Opportunity:</strong> Remote work enables geographic redistribution away from overcrowded, expensive cities toward smaller communities. This could help address housing affordability crises in major metros while revitalizing rural and suburban areas.</p>`,
@@ -810,7 +808,7 @@ async function main() {
     },
   });
 
-  // Erin (NEUTRAL) - 3 Turn 1 arguments from urban planning perspective
+  // Erin (PROPOSER) - 3 Turn 1 arguments from urban planning perspective
   const erinRemoteTurn1Arg1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Infrastructure and Transportation Benefits:</strong> Widespread remote work reduces traffic congestion, public transportation strain, and carbon emissions. Cities could repurpose office space and parking lots for housing and green spaces.</p>`,
@@ -942,7 +940,7 @@ async function main() {
     },
   });
 
-  // Charlie (NEUTRAL) - Mixed responses: 1 critical, 2 supportive
+  // Charlie (OPPOSER) - Mixed responses: 1 critical, 2 supportive
   const charlieRemoteTurn2Arg1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Critical Response to Universal Productivity Claims:</strong> While Alice cites productivity studies, these often fail to account for the coordination costs and communication overhead that emerge in fully remote teams over time. The initial productivity boost may not be sustainable.</p>`,
@@ -976,7 +974,7 @@ async function main() {
     },
   });
 
-  // Diana (NEUTRAL) - Mixed responses: 1 critical, 1 supportive, 1 self-reflection
+  // Diana (PROPOSER) - Mixed responses: 1 critical, 1 supportive, 1 self-reflection
   const dianaRemoteTurn2Arg1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Critical Response to Infrastructure Simplification:</strong> While Erin highlights infrastructure benefits, we must consider the strain on suburban and rural infrastructure as populations shift. The net infrastructure impact requires comprehensive analysis.</p>`,
@@ -1010,7 +1008,7 @@ async function main() {
     },
   });
 
-  // Erin (NEUTRAL) - Mixed responses: 1 critical, 2 supportive
+  // Erin (PROPOSER) - Mixed responses: 1 critical, 2 supportive
   const erinRemoteTurn2Arg1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Supportive Response to Environmental Benefits:</strong> Alice's environmental point is well-taken. The reduction in transportation emissions is substantial, and when combined with renewable energy for home offices, the net environmental benefit becomes even clearer.</p>`,

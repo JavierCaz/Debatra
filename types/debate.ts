@@ -37,7 +37,6 @@ export enum DebateTopic {
 export enum ParticipantRole {
   PROPOSER = "PROPOSER",
   OPPOSER = "OPPOSER",
-  NEUTRAL = "NEUTRAL",
 }
 
 export function getTopicDisplayName(topic: DebateTopic): string {

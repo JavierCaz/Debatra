@@ -7,9 +7,25 @@ export function calculateDebateProgress(debate: DebateWithDetails) {
 
   const currentTurn =
     allTurnNumbers.length > 0 ? Math.max(...allTurnNumbers) : 0;
-  const totalPossibleTurns = debate.turnsPerSide * debate.maxParticipants;
+
+  const activeParticipants = debate.participants.filter(
+    (p) => p.status === "ACTIVE",
+  );
+
+  const totalPossibleArguments =
+    debate.turnsPerSide * activeParticipants.length;
+
+  const totalArgumentsSubmitted = debate.participants.reduce(
+    (total, participant) => total + participant.arguments.length,
+    0,
+  );
+
   const debateProgress =
-    totalPossibleTurns > 0 ? (currentTurn / totalPossibleTurns) * 100 : 0;
+    totalPossibleArguments > 0
+      ? (totalArgumentsSubmitted / totalPossibleArguments) * 100
+      : 0;
+
+  const totalPossibleTurns = debate.turnsPerSide;
 
   return { currentTurn, debateProgress, totalPossibleTurns };
 }
@@ -58,7 +74,7 @@ export function getParticipantsInOrder(
 ) {
   const participants = Object.values(turnData).map((item) => item.participant);
   return participants.sort((a, b) => {
-    const roleOrder = { PROPOSER: 0, OPPOSER: 1, NEUTRAL: 2 };
+    const roleOrder = { PROPOSER: 0, OPPOSER: 1 };
     return roleOrder[a.role] - roleOrder[b.role];
   });
 }

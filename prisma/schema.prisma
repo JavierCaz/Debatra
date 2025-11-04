@@ -167,9 +167,8 @@ model DebateTopic {
 }
 
 enum ParticipantRole {
-  PROPOSER  // Argues FOR the topic
-  OPPOSER   // Argues AGAINST the topic
-  NEUTRAL   // For multi-sided debates
+  PROPOSER
+  OPPOSER
 }
 
 enum ParticipantStatus {

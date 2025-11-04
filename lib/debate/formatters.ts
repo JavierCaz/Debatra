@@ -4,8 +4,6 @@ export const getRoleBadgeColor = (role: string) => {
       return "bg-green-500";
     case "OPPOSER":
       return "bg-red-500";
-    case "NEUTRAL":
-      return "bg-gray-500";
     default:
       return "bg-gray-500";
   }
@@ -17,8 +15,6 @@ export const getRoleDisplayName = (role: string) => {
       return "Proposers";
     case "OPPOSER":
       return "Opposers";
-    case "NEUTRAL":
-      return "Neutral";
     default:
       return role;
   }

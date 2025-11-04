@@ -13,8 +13,6 @@ const getRoleBadgeColor = (role: string) => {
       return "bg-green-500";
     case "OPPOSER":
       return "bg-red-500";
-    case "NEUTRAL":
-      return "bg-gray-500";
     default:
       return "bg-gray-500";
   }
