@@ -2,8 +2,9 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getDebateById } from "@/app/actions/debates";
-import { ArgumentsList } from "@/components/debate/argument-list";
-import { DebateInfo } from "@/components/debate/debate-info"; // Updated import
+import { ArgumentsList } from "@/components/debate/details/argument-list";
+import { DebateInfo } from "@/components/debate/details/debate-info";
+import { DebateResponseSection } from "@/components/debate/details/debate-response-section";
 import { Button } from "@/components/ui/button";
 import {
   calculateDebateProgress,
@@ -26,7 +27,6 @@ export default async function DebateDetailPage({
     notFound();
   }
 
-  // Calculate all data once in the parent
   const { currentTurn, debateProgress, totalPossibleTurns } =
     calculateDebateProgress(debate);
   const argumentsByTurn = groupArgumentsByTurn(debate);
@@ -64,6 +64,11 @@ export default async function DebateDetailPage({
             argumentsByTurn={argumentsByTurn}
             turnNumbers={turnNumbers}
           />
+
+          <div className="my-8 border-t" />
+
+          {/* Response Section for current participant */}
+          <DebateResponseSection debate={debate} />
         </div>
       </div>
     </div>

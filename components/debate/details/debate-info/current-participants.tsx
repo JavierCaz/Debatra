@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, Crown, Trophy } from "lucide-react";
+import { CheckCircle, Clock, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { DebateRequestsPanelProps } from "@/types/debate-requests";
