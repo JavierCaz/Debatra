@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DebateStatus } from "@/types/debate";
 
 interface SubmitButtonsProps {
   isSubmitting: boolean;
@@ -12,7 +13,7 @@ export function SubmitButtons({ isSubmitting, onSubmit }: SubmitButtonsProps) {
       <Button
         type="button"
         variant="outline"
-        onClick={() => onSubmit("DRAFT")}
+        onClick={() => onSubmit(DebateStatus.DRAFT)}
         disabled={isSubmitting}
       >
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
@@ -20,7 +21,7 @@ export function SubmitButtons({ isSubmitting, onSubmit }: SubmitButtonsProps) {
       </Button>
       <Button
         type="button"
-        onClick={() => onSubmit("OPEN")}
+        onClick={() => onSubmit(DebateStatus.OPEN)}
         disabled={isSubmitting}
       >
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}

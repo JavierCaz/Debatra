@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
-import type { InitialArgument, Reference } from "@/types/debate";
-import { ReferencesSection } from "./reference-section";
+import type { InitialArgument } from "@/types/debate";
+import type { Reference } from "@/types/reference";
+import { ReferencesSection } from "../reference/reference-section";
 
 interface ArgumentsSectionProps {
   initialArguments: InitialArgument[];
@@ -36,7 +37,7 @@ export function ArgumentsSubmitter({
   mode = "create",
   disabled = false,
   disabledMessage = "Argument submission is not available at this time",
-  maxArguments = 5,
+  maxArguments = 8,
   minArguments = 1,
   title = "Arguments",
   description = "Add your arguments with supporting evidence",

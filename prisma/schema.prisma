@@ -75,13 +75,16 @@ model User {
   debatesCreated     Debate[]           @relation("DebateCreator")
   debateParticipants DebateParticipant[]
   arguments          Argument[]
-  votes              Vote[]
+  votes              ArgumentVote[]
   reports            Report[]
   concessions        Concession[]       @relation("ConcedingUser")
   notifications      Notification[]
   triggeredNotifications Notification[]    @relation("NotificationActor")
   debateRequests       DebateRequest[] @relation("DebateRequestUser")
   sentInvitations      DebateRequest[] @relation("DebateRequestInviter")
+  definitionsProposed     Definition[]       @relation("DefinitionProposer")
+  definitionVotes         DefinitionVote[]
+  definitionEndorsements  DefinitionEndorsement[]
 
   @@index([email])
 }
@@ -151,6 +154,7 @@ model Debate {
   topics       DebateTopic[]
   notifications Notification[]
   requests     DebateRequest[]
+  definitions  Definition[]
 
   @@index([creatorId])
   @@index([status])
@@ -220,11 +224,12 @@ model Argument {
   author        User              @relation(fields: [authorId], references: [id])
   
   references  Reference[]
-  votes       Vote[]
+  votes       ArgumentVote[]
   quotes      ArgumentQuote[]     @relation("QuotedArgument")
   quotedIn    ArgumentQuote[]     @relation("QuotingArgument")
   concessions Concession[]        @relation("ConcededArgument")
   notifications Notification[]
+  definitionReferences DefinitionReference[]
 
   @@index([debateId])
   @@index([participantId])
@@ -256,10 +261,13 @@ model Reference {
   notes       String?       @db.Text
   
   // Relations
-  argumentId String
-  argument   Argument @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+  argumentId   String?
+  argument     Argument? @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+  definitionId String?
+  definition   Definition? @relation(fields: [definitionId], references: [id], onDelete: Cascade)
 
   @@index([argumentId])
+  @@index([definitionId])
 }
 
 model ArgumentQuote {
@@ -296,14 +304,9 @@ model Concession {
   @@index([userId])
 }
 
-enum VoteType {
-  UPVOTE
-  DOWNVOTE
-}
-
-model Vote {
+model ArgumentVote {
   id        String   @id @default(cuid())
-  type      VoteType
+  support   Boolean  // true = support, false = oppose
   createdAt DateTime @default(now())
   
   // Relations
@@ -315,6 +318,98 @@ model Vote {
   @@unique([argumentId, userId]) // One vote per user per argument
   @@index([argumentId])
   @@index([userId])
+}
+
+enum DefinitionStatus {
+  PROPOSED     // Initially proposed, awaiting acceptance
+  ACCEPTED     // Agreed upon by participants
+  CONTESTED    // Under dispute, alternative definitions proposed
+  DEPRECATED   // No longer used in the debate
+}
+
+model Definition {
+  id          String           @id @default(cuid())
+  term        String           // The term/concept being defined
+  definition  String           @db.Text // The definition itself
+  context     String?          @db.Text // Additional context or rationale
+  status      DefinitionStatus @default(PROPOSED)
+  
+  // Metadata
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  acceptedAt  DateTime? // When it was accepted by participants
+  
+  // Relations
+  debateId    String
+  debate      Debate   @relation(fields: [debateId], references: [id], onDelete: Cascade)
+  proposerId  String
+  proposer    User     @relation("DefinitionProposer", fields: [proposerId], references: [id])
+  
+  
+  // Track which definition supersedes this one (if deprecated)
+  supersededById String?     @unique
+  supersededBy   Definition? @relation("DefinitionSupersession", fields: [supersededById], references: [id], onDelete: SetNull)
+  supersedes     Definition? @relation("DefinitionSupersession")
+  
+  // Relations
+  votes               DefinitionVote[]
+  endorsements        DefinitionEndorsement[]
+  references          Reference[]
+  argumentReferences  DefinitionReference[]
+
+  @@index([debateId])
+  @@index([proposerId])
+  @@index([term])
+  @@index([status])
+}
+
+// Voting on definitions (similar to arguments)
+model DefinitionVote {
+  id        String   @id @default(cuid())
+  support   Boolean  // true = support, false = oppose
+  createdAt DateTime @default(now())
+  
+  // Relations
+  definitionId String
+  definition   Definition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+
+  @@unique([definitionId, userId])
+  @@index([definitionId])
+  @@index([userId])
+}
+
+// Endorsements from debate participants (carries more weight)
+model DefinitionEndorsement {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  // Relations
+  definitionId String
+  definition   Definition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  
+  @@unique([definitionId, userId])
+  @@index([definitionId])
+  @@index([userId])
+}
+
+// Track when arguments reference specific definitions
+model DefinitionReference {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  
+  // Relations
+  definitionId String
+  definition   Definition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  argumentId   String
+  argument     Argument   @relation(fields: [argumentId], references: [id], onDelete: Cascade)
+
+  @@unique([definitionId, argumentId])
+  @@index([definitionId])
+  @@index([argumentId])
 }
 
 enum WinConditionType {
@@ -396,6 +491,11 @@ enum NotificationType {
   CONCESSION
   DEBATE_COMPLETED
   MENTION
+  NEW_DEFINITION
+  DEFINITION_ACCEPTED
+  DEFINITION_IMPROVED
+  DEFINITION_VOTE
+  DEFINITION_ENDORSED
 }
 
 enum NotificationStatus {

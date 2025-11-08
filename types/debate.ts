@@ -1,4 +1,6 @@
 import type { Prisma } from "@/app/generated/prisma";
+import type { InitialDefinition } from "./definitions";
+import type { Reference } from "./reference";
 
 export enum DebateStatus {
   DRAFT = "DRAFT",
@@ -65,12 +67,6 @@ export function getTopicDisplayName(topic: DebateTopic): string {
 
 export const ALL_DEBATE_TOPICS = Object.values(DebateTopic);
 
-export interface Reference {
-  id: number;
-  title: string;
-  url: string;
-}
-
 export interface InitialArgument {
   id: number;
   content: string;
@@ -86,6 +82,7 @@ export interface DebateFormData {
   turnsPerSide: number;
   turnTimeLimit: number;
   minReferences: number;
+  definitions?: InitialDefinition[];
 }
 
 export interface DebateWithTopics {
@@ -153,6 +150,42 @@ export type DebateWithDetails = Prisma.DebateGetPayload<{
                 responses: true;
               };
             };
+          };
+        };
+      };
+    };
+    definitions: {
+      include: {
+        proposer: {
+          select: {
+            id: true;
+            name: true;
+            email: true;
+            image: true;
+          };
+        };
+        references: true;
+        votes: true;
+        endorsements: {
+          include: {
+            user: {
+              select: {
+                id: true;
+                name: true;
+                image: true;
+              };
+            };
+          };
+        };
+        argumentReferences: {
+          select: {
+            argumentId: true;
+          };
+        };
+        supersededBy: {
+          select: {
+            id: true;
+            term: true;
           };
         };
       };

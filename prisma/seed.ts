@@ -11,7 +11,7 @@ async function main() {
   await prisma.report.deleteMany();
   await prisma.concession.deleteMany();
   await prisma.argumentQuote.deleteMany();
-  await prisma.vote.deleteMany();
+  await prisma.argumentVote.deleteMany();
   await prisma.reference.deleteMany();
   await prisma.argument.deleteMany();
   await prisma.winCondition.deleteMany();
@@ -399,30 +399,30 @@ async function main() {
   // Add some votes from other users
   const votes = [
     // Votes for Alice's arguments
-    { argumentId: aliceTurn1Arg1.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: aliceTurn1Arg2.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: aliceTurn2Arg1.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: aliceTurn2Arg2.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: aliceTurn3Arg1.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: aliceTurn3Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceTurn1Arg1.id, userId: charlie.id, support: true },
+    { argumentId: aliceTurn1Arg2.id, userId: diana.id, support: true },
+    { argumentId: aliceTurn2Arg1.id, userId: charlie.id, support: true },
+    { argumentId: aliceTurn2Arg2.id, userId: diana.id, support: true },
+    { argumentId: aliceTurn3Arg1.id, userId: charlie.id, support: true },
+    { argumentId: aliceTurn3Arg3.id, userId: diana.id, support: true },
 
     // Votes for Bob's arguments
-    { argumentId: bobTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: bobTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobTurn2Arg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobTurn2Arg2.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: bobTurn2Arg3.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobTurn3Arg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobTurn3Arg3.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: bobTurn1Arg1.id, userId: diana.id, support: true },
+    { argumentId: bobTurn1Arg2.id, userId: charlie.id, support: true },
+    { argumentId: bobTurn1Arg3.id, userId: diana.id, support: true },
+    { argumentId: bobTurn2Arg1.id, userId: diana.id, support: true },
+    { argumentId: bobTurn2Arg2.id, userId: charlie.id, support: true },
+    { argumentId: bobTurn2Arg3.id, userId: diana.id, support: true },
+    { argumentId: bobTurn3Arg1.id, userId: diana.id, support: true },
+    { argumentId: bobTurn3Arg3.id, userId: charlie.id, support: true },
   ];
 
   for (const vote of votes) {
-    await prisma.vote.create({
+    await prisma.argumentVote.create({
       data: {
         argumentId: vote.argumentId,
         userId: vote.userId,
-        type: vote.type as any,
+        support: vote.support,
       },
     });
   }
@@ -1079,64 +1079,64 @@ async function main() {
   // Add comprehensive cross-participant votes
   const remoteWorkVotes = [
     // Turn 1 votes
-    { argumentId: aliceRemoteTurn1Arg1.id, userId: erin.id, type: "UPVOTE" },
-    { argumentId: aliceRemoteTurn1Arg1.id, userId: frank.id, type: "UPVOTE" },
-    { argumentId: aliceRemoteTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: aliceRemoteTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn1Arg1.id, userId: erin.id, support: true },
+    { argumentId: aliceRemoteTurn1Arg1.id, userId: frank.id, support: true },
+    { argumentId: aliceRemoteTurn1Arg2.id, userId: charlie.id, support: true },
+    { argumentId: aliceRemoteTurn1Arg3.id, userId: diana.id, support: true },
 
-    { argumentId: bobRemoteTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobRemoteTurn1Arg2.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: bobRemoteTurn1Arg3.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: bobRemoteTurn1Arg1.id, userId: diana.id, support: true },
+    { argumentId: bobRemoteTurn1Arg2.id, userId: charlie.id, support: true },
+    { argumentId: bobRemoteTurn1Arg3.id, userId: erin.id, support: true },
 
-    { argumentId: charlieRemoteTurn1Arg1.id, userId: alice.id, type: "UPVOTE" },
-    { argumentId: charlieRemoteTurn1Arg1.id, userId: bob.id, type: "UPVOTE" },
-    { argumentId: charlieRemoteTurn1Arg2.id, userId: frank.id, type: "UPVOTE" },
-    { argumentId: charlieRemoteTurn1Arg3.id, userId: diana.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn1Arg1.id, userId: alice.id, support: true },
+    { argumentId: charlieRemoteTurn1Arg1.id, userId: bob.id, support: true },
+    { argumentId: charlieRemoteTurn1Arg2.id, userId: frank.id, support: true },
+    { argumentId: charlieRemoteTurn1Arg3.id, userId: diana.id, support: true },
 
-    { argumentId: dianaRemoteTurn1Arg1.id, userId: erin.id, type: "UPVOTE" },
-    { argumentId: dianaRemoteTurn1Arg2.id, userId: alice.id, type: "UPVOTE" },
-    { argumentId: dianaRemoteTurn1Arg3.id, userId: bob.id, type: "UPVOTE" },
+    { argumentId: dianaRemoteTurn1Arg1.id, userId: erin.id, support: true },
+    { argumentId: dianaRemoteTurn1Arg2.id, userId: alice.id, support: true },
+    { argumentId: dianaRemoteTurn1Arg3.id, userId: bob.id, support: true },
 
-    { argumentId: erinRemoteTurn1Arg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: erinRemoteTurn1Arg2.id, userId: frank.id, type: "UPVOTE" },
-    { argumentId: erinRemoteTurn1Arg3.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: erinRemoteTurn1Arg1.id, userId: diana.id, support: true },
+    { argumentId: erinRemoteTurn1Arg2.id, userId: frank.id, support: true },
+    { argumentId: erinRemoteTurn1Arg3.id, userId: charlie.id, support: true },
 
-    { argumentId: frankRemoteTurn1Arg1.id, userId: alice.id, type: "UPVOTE" },
-    { argumentId: frankRemoteTurn1Arg2.id, userId: erin.id, type: "UPVOTE" },
-    { argumentId: frankRemoteTurn1Arg3.id, userId: bob.id, type: "UPVOTE" },
+    { argumentId: frankRemoteTurn1Arg1.id, userId: alice.id, support: true },
+    { argumentId: frankRemoteTurn1Arg2.id, userId: erin.id, support: true },
+    { argumentId: frankRemoteTurn1Arg3.id, userId: bob.id, support: true },
 
     // Turn 2 votes showing complex alignment patterns
-    { argumentId: aliceRemoteTurn2Arg1.id, userId: frank.id, type: "UPVOTE" },
-    { argumentId: aliceRemoteTurn2Arg2.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: aliceRemoteTurn2Arg3.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: aliceRemoteTurn2Arg1.id, userId: frank.id, support: true },
+    { argumentId: aliceRemoteTurn2Arg2.id, userId: diana.id, support: true },
+    { argumentId: aliceRemoteTurn2Arg3.id, userId: erin.id, support: true },
 
-    { argumentId: bobRemoteTurn2Arg1.id, userId: diana.id, type: "UPVOTE" },
-    { argumentId: bobRemoteTurn2Arg2.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: bobRemoteTurn2Arg3.id, userId: erin.id, type: "UPVOTE" },
+    { argumentId: bobRemoteTurn2Arg1.id, userId: diana.id, support: true },
+    { argumentId: bobRemoteTurn2Arg2.id, userId: charlie.id, support: true },
+    { argumentId: bobRemoteTurn2Arg3.id, userId: erin.id, support: true },
 
-    { argumentId: charlieRemoteTurn2Arg1.id, userId: bob.id, type: "UPVOTE" },
-    { argumentId: charlieRemoteTurn2Arg2.id, userId: alice.id, type: "UPVOTE" },
-    { argumentId: charlieRemoteTurn2Arg3.id, userId: frank.id, type: "UPVOTE" },
+    { argumentId: charlieRemoteTurn2Arg1.id, userId: bob.id, support: true },
+    { argumentId: charlieRemoteTurn2Arg2.id, userId: alice.id, support: true },
+    { argumentId: charlieRemoteTurn2Arg3.id, userId: frank.id, support: true },
 
-    { argumentId: dianaRemoteTurn2Arg1.id, userId: charlie.id, type: "UPVOTE" },
-    { argumentId: dianaRemoteTurn2Arg2.id, userId: bob.id, type: "UPVOTE" },
-    { argumentId: dianaRemoteTurn2Arg3.id, userId: alice.id, type: "UPVOTE" },
+    { argumentId: dianaRemoteTurn2Arg1.id, userId: charlie.id, support: true },
+    { argumentId: dianaRemoteTurn2Arg2.id, userId: bob.id, support: true },
+    { argumentId: dianaRemoteTurn2Arg3.id, userId: alice.id, support: true },
 
-    { argumentId: erinRemoteTurn2Arg1.id, userId: alice.id, type: "UPVOTE" },
-    { argumentId: erinRemoteTurn2Arg2.id, userId: bob.id, type: "UPVOTE" },
-    { argumentId: erinRemoteTurn2Arg3.id, userId: frank.id, type: "UPVOTE" },
+    { argumentId: erinRemoteTurn2Arg1.id, userId: alice.id, support: true },
+    { argumentId: erinRemoteTurn2Arg2.id, userId: bob.id, support: true },
+    { argumentId: erinRemoteTurn2Arg3.id, userId: frank.id, support: true },
 
-    { argumentId: frankRemoteTurn2Arg1.id, userId: erin.id, type: "UPVOTE" },
-    { argumentId: frankRemoteTurn2Arg2.id, userId: alice.id, type: "UPVOTE" },
-    { argumentId: frankRemoteTurn2Arg3.id, userId: charlie.id, type: "UPVOTE" },
+    { argumentId: frankRemoteTurn2Arg1.id, userId: erin.id, support: true },
+    { argumentId: frankRemoteTurn2Arg2.id, userId: alice.id, support: true },
+    { argumentId: frankRemoteTurn2Arg3.id, userId: charlie.id, support: true },
   ];
 
   for (const vote of remoteWorkVotes) {
-    await prisma.vote.create({
+    await prisma.argumentVote.create({
       data: {
         argumentId: vote.argumentId,
         userId: vote.userId,
-        type: vote.type as any,
+        support: vote.support,
       },
     });
   }
@@ -1261,7 +1261,7 @@ async function main() {
       debateId: ubiDebate.id,
       argumentId: aliceTurn1Arg1.id,
       metadata: {
-        voteType: "UPVOTE",
+        votesupport: true,
         argumentPreview:
           "UBI eliminates bureaucratic overhead associated with means-tested welfare programs...",
       },
@@ -1282,7 +1282,7 @@ async function main() {
       debateId: ubiDebate.id,
       argumentId: aliceTurn1Arg2.id,
       metadata: {
-        voteType: "UPVOTE",
+        votesupport: true,
         argumentPreview:
           "Pilot programs in Finland and Canada demonstrated significant improvements...",
       },
