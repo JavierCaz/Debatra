@@ -14,11 +14,15 @@ import { SingleArgument } from "./single-argument";
 interface ArgumentsListProps {
   argumentsByTurn: ReturnType<typeof groupArgumentsByTurn>;
   turnNumbers: number[];
+  currentUserId?: string;
+  onVote?: (argumentId: string, support: boolean) => void;
 }
 
 export function ArgumentsList({
   argumentsByTurn,
   turnNumbers,
+  currentUserId,
+  onVote,
 }: ArgumentsListProps) {
   return (
     <div className="space-y-8">
@@ -126,6 +130,8 @@ export function ArgumentsList({
                                     <SingleArgument
                                       argument={argument}
                                       isFirstInGroup={argumentIndex === 0}
+                                      currentUserId={currentUserId}
+                                      onVote={onVote}
                                     />
                                   </div>
                                 ),

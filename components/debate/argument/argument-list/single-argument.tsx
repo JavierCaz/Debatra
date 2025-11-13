@@ -3,19 +3,23 @@
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
 import type { DebateWithDetails } from "@/types/debate";
+import { VotingButtons } from "../../shared/voting-buttons";
 import { ArgumentReferences } from "./argument-references";
-import { ArgumentStats } from "./argument-stats";
 import { ResponseIndicator } from "./response-indicator";
 import { SafeContentRenderer } from "./safe-content-renderer";
 
 interface SingleArgumentProps {
   argument: DebateWithDetails["participants"][0]["arguments"][0];
   isFirstInGroup: boolean;
+  currentUserId?: string;
+  onVote?: (argumentId: string, support: boolean) => void;
 }
 
 export function SingleArgument({
   argument,
   isFirstInGroup,
+  currentUserId,
+  onVote,
 }: SingleArgumentProps) {
   const getResponseType = () => {
     if (!argument.responseTo) return undefined;
@@ -32,6 +36,14 @@ export function SingleArgument({
       argument.participantId === argument.responseTo.participantId;
     return isSelfResponse ? "support" : "rebuttal";
   };
+
+  // Transform votes array to the format VotingButtons expects
+  const transformedVotes = argument.votes
+    ? {
+        support: argument.votes.filter((vote) => vote.support).length,
+        oppose: argument.votes.filter((vote) => !vote.support).length,
+      }
+    : undefined;
 
   return (
     <div
@@ -57,7 +69,15 @@ export function SingleArgument({
           {format(new Date(argument.createdAt), "PPp")}
         </span>
 
-        <ArgumentStats votes={argument.votes} />
+        {/* Voting Buttons with transformed votes data */}
+        <VotingButtons
+          itemId={argument.id}
+          votes={transformedVotes}
+          currentUserId={currentUserId}
+          onVote={onVote}
+          size="sm"
+          orientation="horizontal"
+        />
       </div>
 
       {/* References */}

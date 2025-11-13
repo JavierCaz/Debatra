@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
-import { definitionVoteConfig } from "@/lib/vote/config";
+import { argumentVoteConfig } from "@/lib/vote/config";
 import { handleVote } from "@/lib/vote/handler";
 
 export async function POST(request: NextRequest) {
@@ -12,9 +12,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { definitionId, support } = await request.json();
+    const { argumentId, support } = await request.json();
 
-    if (!definitionId || typeof support !== "boolean") {
+    if (!argumentId || typeof support !== "boolean") {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 },
@@ -22,15 +22,15 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await handleVote(
-      definitionId,
+      argumentId,
       support,
       session.user.id,
-      definitionVoteConfig,
+      argumentVoteConfig,
     );
 
     return NextResponse.json(result);
   } catch (error: any) {
-    console.error("Error voting on definition:", error);
+    console.error("Error voting on argument:", error);
 
     if (error.message.includes("not found")) {
       return NextResponse.json({ error: error.message }, { status: 404 });

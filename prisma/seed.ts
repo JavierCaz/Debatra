@@ -1076,6 +1076,490 @@ async function main() {
     },
   });
 
+  // Add this after creating arguments and before creating votes in your seed file
+
+  console.log("📚 Creating definitions for debates...");
+
+  // === DEFINITIONS FOR UBI DEBATE ===
+
+  // Alice proposes definitions during her turns
+  const ubiDefinition1 = await prisma.definition.create({
+    data: {
+      term: "Universal Basic Income (UBI)",
+      definition:
+        "A periodic cash payment unconditionally delivered to all individuals on an individual basis, without means-test or work requirement.",
+      context:
+        "This definition establishes the core characteristics of UBI as universal, unconditional, and individual-based, which distinguishes it from traditional welfare programs.",
+      status: "ACCEPTED",
+      debateId: ubiDebate.id,
+      proposerId: alice.id,
+      acceptedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000), // Accepted 6 days ago
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title:
+              "Basic Income: A Radical Proposal for a Free Society and a Sane Economy",
+            author: "Philippe Van Parijs and Yannick Vanderborght",
+            publication: "Harvard University Press",
+            publishedAt: new Date("2017-03-01"),
+            notes:
+              "Comprehensive academic work defining UBI and its philosophical foundations",
+          },
+        ],
+      },
+    },
+  });
+
+  const ubiDefinition2 = await prisma.definition.create({
+    data: {
+      term: "Means-testing",
+      definition:
+        "A process that determines eligibility for government assistance based on an individual's or family's income and assets.",
+      context:
+        "Understanding means-testing is crucial for comparing UBI to traditional welfare systems that UBI proponents argue should be replaced.",
+      status: "ACCEPTED",
+      debateId: ubiDebate.id,
+      proposerId: alice.id,
+      acceptedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+      references: {
+        create: [
+          {
+            type: "GOVERNMENT_DOCUMENT",
+            title: "Means-Tested Programs: Overview and Analysis",
+            author: "Congressional Research Service",
+            url: "https://example.com/means-testing",
+            publishedAt: new Date("2020-08-15"),
+            notes:
+              "Official documentation on means-tested program administration",
+          },
+        ],
+      },
+    },
+  });
+
+  // Bob proposes some definitions during his turns
+  const ubiDefinition3 = await prisma.definition.create({
+    data: {
+      term: "Fiscal sustainability",
+      definition:
+        "The ability of a government to sustain its current spending, tax, and other policies in the long run without threatening government solvency or defaulting on liabilities.",
+      context:
+        "This concept is central to evaluating the financial feasibility of UBI proposals and their long-term impact on government budgets.",
+      status: "ACCEPTED",
+      debateId: ubiDebate.id,
+      proposerId: bob.id,
+      acceptedAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000),
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "Fiscal Sustainability: Theoretical and Practical Aspects",
+            author: "International Monetary Fund",
+            publication: "IMF Working Papers",
+            publishedAt: new Date("2019-11-20"),
+            notes:
+              "Theoretical framework for assessing fiscal sustainability of government programs",
+          },
+        ],
+      },
+    },
+  });
+
+  // A contested definition that has votes and endorsements
+  const ubiDefinition4 = await prisma.definition.create({
+    data: {
+      term: "Work disincentive",
+      definition:
+        "A reduction in the motivation to seek or maintain employment due to the availability of alternative income sources or changes in marginal tax rates.",
+      context:
+        "This concept is hotly debated in UBI discussions, with proponents arguing UBI doesn't create disincentives while opponents claim it does.",
+      status: "CONTESTED",
+      debateId: ubiDebate.id,
+      proposerId: bob.id,
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "Labor Supply Responses to Unconditional Cash Transfers",
+            author: "Economics Research Institute",
+            publication: "Journal of Labor Economics",
+            publishedAt: new Date("2021-06-10"),
+            notes:
+              "Mixed evidence on work disincentive effects from cash transfer programs",
+          },
+        ],
+      },
+    },
+  });
+
+  // Add votes and endorsements for definitions
+  await prisma.definitionVote.createMany({
+    data: [
+      // Votes for UBI definition
+      { definitionId: ubiDefinition1.id, userId: alice.id, support: true },
+      { definitionId: ubiDefinition1.id, userId: bob.id, support: true },
+      { definitionId: ubiDefinition1.id, userId: charlie.id, support: true },
+      { definitionId: ubiDefinition1.id, userId: diana.id, support: true },
+
+      // Votes for means-testing definition
+      { definitionId: ubiDefinition2.id, userId: alice.id, support: true },
+      { definitionId: ubiDefinition2.id, userId: bob.id, support: true },
+
+      // Votes for fiscal sustainability definition
+      { definitionId: ubiDefinition3.id, userId: alice.id, support: true },
+      { definitionId: ubiDefinition3.id, userId: bob.id, support: true },
+      { definitionId: ubiDefinition3.id, userId: charlie.id, support: true },
+
+      // Controversial votes for work disincentive definition
+      { definitionId: ubiDefinition4.id, userId: bob.id, support: true },
+      { definitionId: ubiDefinition4.id, userId: charlie.id, support: true },
+      { definitionId: ubiDefinition4.id, userId: alice.id, support: false }, // Alice opposes this definition
+      { definitionId: ubiDefinition4.id, userId: diana.id, support: false }, // Diana also opposes
+    ],
+  });
+
+  // Add endorsements from participants (carry more weight)
+  await prisma.definitionEndorsement.createMany({
+    data: [
+      { definitionId: ubiDefinition1.id, userId: alice.id },
+      { definitionId: ubiDefinition1.id, userId: bob.id },
+      { definitionId: ubiDefinition3.id, userId: bob.id },
+      { definitionId: ubiDefinition2.id, userId: alice.id },
+    ],
+  });
+
+  // Link arguments to definitions (showing how arguments reference specific definitions)
+  await prisma.definitionReference.createMany({
+    data: [
+      // Alice's arguments referencing UBI definition
+      { definitionId: ubiDefinition1.id, argumentId: aliceTurn1Arg1.id },
+      { definitionId: ubiDefinition1.id, argumentId: aliceTurn1Arg2.id },
+      { definitionId: ubiDefinition1.id, argumentId: aliceTurn1Arg3.id },
+
+      // Bob's arguments referencing fiscal sustainability
+      { definitionId: ubiDefinition3.id, argumentId: bobTurn1Arg1.id },
+      { definitionId: ubiDefinition3.id, argumentId: bobTurn2Arg1.id },
+
+      // Arguments referencing means-testing
+      { definitionId: ubiDefinition2.id, argumentId: aliceTurn1Arg1.id },
+
+      // Arguments referencing work disincentive
+      { definitionId: ubiDefinition4.id, argumentId: bobTurn3Arg2.id },
+      { definitionId: ubiDefinition4.id, argumentId: aliceTurn2Arg3.id },
+    ],
+  });
+
+  // === DEFINITIONS FOR REMOTE WORK DEBATE ===
+
+  const remoteWorkDefinition1 = await prisma.definition.create({
+    data: {
+      term: "Remote work",
+      definition:
+        "A work arrangement in which employees do not commute to a central place of work but instead perform their job duties from an alternative location, typically their home.",
+      context:
+        "This establishes the basic concept that distinguishes remote work from traditional office-based employment.",
+      status: "ACCEPTED",
+      debateId: remoteWorkDebate.id,
+      proposerId: alice.id,
+      acceptedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title: "The Rise of Remote Work: Definitions and Trends",
+            author: "Global Workforce Institute",
+            publication: "Journal of Employment Studies",
+            publishedAt: new Date("2022-01-15"),
+            notes:
+              "Comprehensive definition and analysis of remote work arrangements",
+          },
+        ],
+      },
+    },
+  });
+
+  const remoteWorkDefinition2 = await prisma.definition.create({
+    data: {
+      term: "Hybrid work model",
+      definition:
+        "A flexible work arrangement that combines remote work with periodic in-office attendance, allowing employees to split their time between different work locations.",
+      context:
+        "Understanding hybrid models is essential as they represent a middle ground in the remote work debate.",
+      status: "ACCEPTED",
+      debateId: remoteWorkDebate.id,
+      proposerId: frank.id,
+      acceptedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+    },
+  });
+
+  const remoteWorkDefinition3 = await prisma.definition.create({
+    data: {
+      term: "Asynchronous collaboration",
+      definition:
+        "Work coordination that occurs without requiring participants to be available simultaneously, enabled by digital tools that allow contribution at different times.",
+      context:
+        "This concept is crucial for understanding how remote teams maintain productivity across time zones and schedules.",
+      status: "PROPOSED",
+      debateId: remoteWorkDebate.id,
+      proposerId: charlie.id,
+      references: {
+        create: [
+          {
+            type: "BOOK",
+            title: "The Async Organization: Designing for Distributed Work",
+            author: "Remote Work Research Collective",
+            publishedAt: new Date("2023-03-10"),
+            notes:
+              "Defines and explores asynchronous work practices in distributed teams",
+          },
+        ],
+      },
+    },
+  });
+
+  const remoteWorkDefinition4 = await prisma.definition.create({
+    data: {
+      term: "Social capital",
+      definition:
+        "The networks of relationships among people who live and work in a particular society, enabling that society to function effectively through trust, cooperation, and shared norms.",
+      context:
+        "This concept helps analyze the potential social costs of reduced in-person interaction in remote work arrangements.",
+      status: "ACCEPTED",
+      debateId: remoteWorkDebate.id,
+      proposerId: diana.id,
+      acceptedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+      references: {
+        create: [
+          {
+            type: "ACADEMIC_PAPER",
+            title:
+              "Bowling Alone: The Collapse and Revival of American Community",
+            author: "Robert D. Putnam",
+            publication: "Simon & Schuster",
+            publishedAt: new Date("2000-01-01"),
+            notes: "Seminal work on social capital and community engagement",
+          },
+        ],
+      },
+    },
+  });
+
+  // A definition that gets superseded by a better one
+  const outdatedRemoteDefinition = await prisma.definition.create({
+    data: {
+      term: "Telecommuting",
+      definition:
+        "Working from home while maintaining a connection to the office through telephone and computer.",
+      context:
+        "This older term has been largely replaced by 'remote work' which encompasses broader arrangements.",
+      status: "DEPRECATED",
+      debateId: remoteWorkDebate.id,
+      proposerId: erin.id,
+      references: {
+        create: [
+          {
+            type: "GOVERNMENT_DOCUMENT",
+            title: "Telecommuting and Alternative Work Arrangements",
+            author: "U.S. Department of Labor",
+            publishedAt: new Date("2010-05-20"),
+            notes: "Historical definition from early remote work studies",
+          },
+        ],
+      },
+    },
+  });
+
+  // Create the superseding definition
+  await prisma.definition.update({
+    where: { id: outdatedRemoteDefinition.id },
+    data: {
+      supersededBy: {
+        create: {
+          term: "Remote work",
+          definition:
+            "A work arrangement that allows professionals to work outside of a traditional office environment, based on the concept that work does not need to be done in a specific place to be executed successfully.",
+          context:
+            "This updated definition reflects the evolution from simple 'telecommuting' to comprehensive remote work arrangements enabled by modern technology.",
+          status: "ACCEPTED",
+          debateId: remoteWorkDebate.id,
+          proposerId: erin.id,
+          acceptedAt: new Date(Date.now() - 12 * 60 * 60 * 1000), // 12 hours ago
+          references: {
+            create: [
+              {
+                type: "ACADEMIC_PAPER",
+                title:
+                  "From Telecommuting to Digital Nomadism: The Evolution of Remote Work",
+                author: "Future of Work Institute",
+                publication: "Technology and Society Journal",
+                publishedAt: new Date("2023-09-05"),
+                notes:
+                  "Traces the evolution of remote work terminology and practices",
+              },
+            ],
+          },
+        },
+      },
+    },
+  });
+
+  // Add votes and endorsements for remote work definitions
+  await prisma.definitionVote.createMany({
+    data: [
+      // Votes for remote work definition
+      {
+        definitionId: remoteWorkDefinition1.id,
+        userId: alice.id,
+        support: true,
+      },
+      { definitionId: remoteWorkDefinition1.id, userId: bob.id, support: true },
+      {
+        definitionId: remoteWorkDefinition1.id,
+        userId: charlie.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition1.id,
+        userId: diana.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition1.id,
+        userId: erin.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition1.id,
+        userId: frank.id,
+        support: true,
+      },
+
+      // Votes for hybrid work model
+      {
+        definitionId: remoteWorkDefinition2.id,
+        userId: frank.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition2.id,
+        userId: charlie.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition2.id,
+        userId: alice.id,
+        support: true,
+      },
+
+      // Votes for asynchronous collaboration (mixed support)
+      {
+        definitionId: remoteWorkDefinition3.id,
+        userId: charlie.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition3.id,
+        userId: frank.id,
+        support: true,
+      },
+      {
+        definitionId: remoteWorkDefinition3.id,
+        userId: bob.id,
+        support: false,
+      },
+
+      // Votes for social capital
+      {
+        definitionId: remoteWorkDefinition4.id,
+        userId: diana.id,
+        support: true,
+      },
+      { definitionId: remoteWorkDefinition4.id, userId: bob.id, support: true },
+      {
+        definitionId: remoteWorkDefinition4.id,
+        userId: alice.id,
+        support: true,
+      },
+    ],
+  });
+
+  await prisma.definitionEndorsement.createMany({
+    data: [
+      { definitionId: remoteWorkDefinition1.id, userId: alice.id },
+      { definitionId: remoteWorkDefinition1.id, userId: frank.id },
+      { definitionId: remoteWorkDefinition2.id, userId: frank.id },
+      { definitionId: remoteWorkDefinition4.id, userId: diana.id },
+      { definitionId: remoteWorkDefinition4.id, userId: bob.id },
+    ],
+  });
+
+  // Link remote work arguments to definitions
+  await prisma.definitionReference.createMany({
+    data: [
+      // References to remote work definition
+      {
+        definitionId: remoteWorkDefinition1.id,
+        argumentId: aliceRemoteTurn1Arg1.id,
+      },
+      {
+        definitionId: remoteWorkDefinition1.id,
+        argumentId: bobRemoteTurn1Arg1.id,
+      },
+      {
+        definitionId: remoteWorkDefinition1.id,
+        argumentId: frankRemoteTurn1Arg1.id,
+      },
+
+      // References to hybrid work model
+      {
+        definitionId: remoteWorkDefinition2.id,
+        argumentId: charlieRemoteTurn1Arg1.id,
+      },
+      {
+        definitionId: remoteWorkDefinition2.id,
+        argumentId: frankRemoteTurn2Arg2.id,
+      },
+
+      // References to asynchronous collaboration
+      {
+        definitionId: remoteWorkDefinition3.id,
+        argumentId: aliceRemoteTurn2Arg1.id,
+      },
+      {
+        definitionId: remoteWorkDefinition3.id,
+        argumentId: frankRemoteTurn2Arg3.id,
+      },
+
+      // References to social capital
+      {
+        definitionId: remoteWorkDefinition4.id,
+        argumentId: dianaRemoteTurn1Arg3.id,
+      },
+      {
+        definitionId: remoteWorkDefinition4.id,
+        argumentId: bobRemoteTurn2Arg3.id,
+      },
+      {
+        definitionId: remoteWorkDefinition4.id,
+        argumentId: dianaRemoteTurn2Arg3.id,
+      },
+    ],
+  });
+
+  console.log("✅ Created comprehensive definitions with:");
+  console.log("   - 4 definitions for UBI debate (1 contested)");
+  console.log(
+    "   - 5 definitions for remote work debate (1 deprecated, 1 superseded)",
+  );
+  console.log("   - Definition votes and endorsements from participants");
+  console.log("   - Argument-definition reference links");
+  console.log(
+    "   - Example of definition supersession (telecommuting → remote work)",
+  );
+
+  // Continue with the rest of your seed data...
+
   // Add comprehensive cross-participant votes
   const remoteWorkVotes = [
     // Turn 1 votes

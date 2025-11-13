@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ArgumentsList } from "@/components/debate/argument/argument-list";
-import { DefinitionsList } from "@/components/debate/definition/definitions-list";
 import { DebateResponseSection } from "@/components/debate/details/debate-response-section";
 import { DefinitionsResponseSection } from "@/components/debate/details/definitions-response-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { groupArgumentsByTurn } from "@/lib/debate/stats";
 import type { DebateWithDetails } from "@/types/debate";
+import { ArgumentsList } from "../argument/argument-list";
+import { DefinitionsList } from "../definition/definitions-list";
 
 // Simple interface for the transformed definition data
 interface TransformedDefinition {
@@ -22,7 +22,7 @@ interface TransformedDefinition {
     name: string;
     image?: string;
   };
-  sources: Array<{
+  references: Array<{
     id: string;
     type: string;
     title: string;
@@ -90,7 +90,7 @@ export function DebateContentSection({
           name: def.proposer.name || "Unknown User",
           image: def.proposer.image || undefined,
         },
-        sources: def.references.map((ref) => ({
+        references: def.references.map((ref) => ({
           id: ref.id,
           type: ref.type,
           title: ref.title,
@@ -214,6 +214,31 @@ export function DebateContentSection({
     window.location.reload(); // Refresh to show the updated definitions
   };
 
+  const handleArgumentVote = async (argumentId: string, support: boolean) => {
+    try {
+      const response = await fetch("/api/arguments/vote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          argumentId,
+          support,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        console.error("Failed to vote on argument:", result.error);
+      } else {
+        window.location.reload();
+      }
+    } catch (error) {
+      console.error("Error voting on argument:", error);
+    }
+  };
+
   return (
     <div className="flex-1 min-w-0 space-y-6">
       {/* Arguments & Definitions Tabs */}
@@ -242,10 +267,12 @@ export function DebateContentSection({
         </TabsList>
 
         <TabsContent value="arguments" className="mt-6 space-y-8">
-          {/* Arguments List */}
+          {/* Arguments List with voting support */}
           <ArgumentsList
             argumentsByTurn={argumentsByTurn}
             turnNumbers={turnNumbers}
+            currentUserId={currentUserId}
+            onVote={handleArgumentVote}
           />
 
           {/* Arguments Response Section */}
@@ -268,7 +295,6 @@ export function DebateContentSection({
           {/* Definitions Response Section */}
           <DefinitionsResponseSection
             debate={debate}
-            currentUserId={currentUserId}
             supersedeDefinitionId={supersedeDefinitionId || undefined}
             onSupersedeComplete={handleSupersedeComplete}
           />

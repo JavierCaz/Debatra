@@ -1,33 +1,47 @@
 import type { DebateWithDetails } from "@/types/debate";
 
 export function calculateDebateProgress(debate: DebateWithDetails) {
-  const allTurnNumbers = debate.participants.flatMap((participant) =>
-    participant.arguments.map((argument) => argument.turnNumber),
-  );
-
-  const currentTurn =
-    allTurnNumbers.length > 0 ? Math.max(...allTurnNumbers) : 0;
-
   const activeParticipants = debate.participants.filter(
     (p) => p.status === "ACTIVE",
   );
 
-  const totalPossibleArguments =
-    debate.turnsPerSide * activeParticipants.length;
-
-  const totalArgumentsSubmitted = debate.participants.reduce(
-    (total, participant) => total + participant.arguments.length,
-    0,
+  const allTurnNumbers = debate.participants.flatMap((participant) =>
+    participant.arguments.map((argument) => argument.turnNumber),
+  );
+  const uniqueTurnsWithArguments = [...new Set(allTurnNumbers)].sort(
+    (a, b) => a - b,
   );
 
+  const currentTurn =
+    uniqueTurnsWithArguments.length > 0
+      ? Math.max(...uniqueTurnsWithArguments)
+      : 1;
+
+  let completedTurns = 0;
+
+  for (let turn = 1; turn <= currentTurn; turn++) {
+    const participantsWithArgumentsThisTurn = activeParticipants.filter(
+      (participant) =>
+        participant.arguments.some((arg) => arg.turnNumber === turn),
+    );
+
+    if (
+      participantsWithArgumentsThisTurn.length === activeParticipants.length
+    ) {
+      completedTurns++;
+    }
+  }
+
   const debateProgress =
-    totalPossibleArguments > 0
-      ? (totalArgumentsSubmitted / totalPossibleArguments) * 100
-      : 0;
+    debate.turnsPerSide > 0 ? (completedTurns / debate.turnsPerSide) * 100 : 0;
 
-  const totalPossibleTurns = debate.turnsPerSide;
-
-  return { currentTurn, debateProgress, totalPossibleTurns };
+  return {
+    currentTurn,
+    debateProgress: Math.min(debateProgress, 100),
+    totalPossibleTurns: debate.turnsPerSide,
+    completedTurns,
+    uniqueTurnsWithArguments,
+  };
 }
 
 export function groupArgumentsByTurn(debate: DebateWithDetails) {

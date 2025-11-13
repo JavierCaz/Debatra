@@ -1,37 +1,41 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { DefinitionsSubmitter } from "@/components/debate/definition/definitions-submitter";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DebateWithDetails } from "@/types/debate";
 import type { InitialDefinition } from "@/types/definitions";
 
 interface DefinitionsResponseSectionProps {
   debate: DebateWithDetails;
-  currentUserId?: string;
   supersedeDefinitionId?: string;
   onSupersedeComplete?: () => void;
 }
 
 export function DefinitionsResponseSection({
   debate,
-  currentUserId,
   supersedeDefinitionId,
   onSupersedeComplete,
 }: DefinitionsResponseSectionProps) {
+  const { data: session } = useSession();
   const [definitions, setDefinitions] = useState<InitialDefinition[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Check if current user is a participant
-  const currentParticipant = debate.participants.find(
-    (p) => p.userId === currentUserId && p.status === "ACTIVE",
+  const currentUserParticipant = debate.participants.find(
+    (p) => p.userId === session?.user?.id && p.status === "ACTIVE",
   );
 
   // Find the definition to supersede if provided
   const definitionToSupersede = supersedeDefinitionId
     ? debate.definitions.find((def) => def.id === supersedeDefinitionId)
     : null;
+
+  // Check if it's the current user's turn (same logic as arguments)
+  const isCurrentTurn = currentUserParticipant?.role === debate.currentTurnSide;
 
   // Use useEffect to pre-fill form when superseding
   useEffect(() => {
@@ -59,10 +63,9 @@ export function DefinitionsResponseSection({
     }
   }, [supersedeDefinitionId, definitionToSupersede, definitions.length]);
 
-  // If user is not a participant, show nothing
-  if (!currentParticipant) {
-    return null;
-  }
+  // Determine if user can submit definitions (can submit multiple times per turn)
+  const canSubmitDefinitions =
+    currentUserParticipant && isCurrentTurn && debate.status === "IN_PROGRESS";
 
   const submitDefinitions = async () => {
     if (definitions.length === 0) {
@@ -107,6 +110,7 @@ export function DefinitionsResponseSection({
             body: JSON.stringify({
               debateId: debate.id,
               definitionData: definition,
+              turnNumber: debate.currentTurnNumber, // Include turn number
             }),
           }).then((response) => response.json()),
         );
@@ -136,39 +140,55 @@ export function DefinitionsResponseSection({
 
   const description = supersedeDefinitionId
     ? "Modify and improve this definition. Your new version will replace the existing one."
-    : "Define key terms and concepts for this debate. All participants can propose definitions at any time.";
+    : `Define key terms and concepts for turn ${debate.currentTurnNumber}. You can propose multiple definitions during your turn.`;
 
   const submitButtonText = supersedeDefinitionId
     ? `Submit Improved Definition`
     : `Submit ${definitions.length} Definition${definitions.length > 1 ? "s" : ""}`;
 
-  return (
-    <div className="border-t pt-8">
-      <DefinitionsSubmitter
-        definitions={definitions}
-        onDefinitionsChange={setDefinitions}
-        error={error || undefined}
-        maxDefinitions={supersedeDefinitionId ? 1 : 5} // Limit to 1 when superseding
-        title={title}
-        description={description}
-      />
+  const disabledMessage = !currentUserParticipant
+    ? "You are not a participant in this debate"
+    : !isCurrentTurn
+      ? `It's not your turn. Current turn: ${debate.currentTurnSide}`
+      : debate.status !== "IN_PROGRESS"
+        ? "This debate is not currently in progress"
+        : "Definition submission is not available";
 
-      {definitions.length > 0 && (
-        <div className="mt-6 flex justify-end gap-2">
-          {supersedeDefinitionId && (
-            <Button
-              variant="outline"
-              onClick={onSupersedeComplete}
-              disabled={isSubmitting}
-            >
-              Cancel
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <DefinitionsSubmitter
+          definitions={definitions}
+          onDefinitionsChange={setDefinitions}
+          error={error || undefined}
+          maxDefinitions={supersedeDefinitionId ? 1 : 5} // Limit to 1 when superseding
+          title={title}
+          description={description}
+          disabled={!canSubmitDefinitions}
+          disabledMessage={disabledMessage}
+        />
+
+        {definitions.length > 0 && canSubmitDefinitions && (
+          <div className="flex justify-end gap-2">
+            {supersedeDefinitionId && (
+              <Button
+                variant="outline"
+                onClick={onSupersedeComplete}
+                disabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button onClick={submitDefinitions} disabled={isSubmitting}>
+              {isSubmitting ? "Submitting..." : submitButtonText}
             </Button>
-          )}
-          <Button onClick={submitDefinitions} disabled={isSubmitting}>
-            {isSubmitting ? "Submitting..." : submitButtonText}
-          </Button>
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
