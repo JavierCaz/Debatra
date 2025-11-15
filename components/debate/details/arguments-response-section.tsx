@@ -43,11 +43,13 @@ interface Debate {
   participants: DebateParticipant[];
 }
 
-interface DebateResponseSectionProps {
+interface ArgumentsResponseSectionProps {
   debate: Debate;
 }
 
-export function DebateResponseSection({ debate }: DebateResponseSectionProps) {
+export function ArgumentsResponseSection({
+  debate,
+}: ArgumentsResponseSectionProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [argumentsList, setArgumentsList] = useState<InitialArgument[]>([
@@ -140,8 +142,6 @@ export function DebateResponseSection({ debate }: DebateResponseSectionProps) {
           mode="respond"
           title="Your Arguments"
           description={`Present your arguments for turn ${debate.currentTurnNumber}. You can add multiple arguments.`}
-          minArguments={1}
-          maxArguments={3}
           disabled={!canSubmitArguments}
           disabledMessage={
             !currentUserParticipant

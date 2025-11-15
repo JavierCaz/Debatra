@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { CreateDebateForm } from "@/components/debate/create/create-debate-form";
 import type { DebateFormData, InitialArgument } from "@/types/debate";
+import type { InitialDefinition } from "@/types/definitions";
 
 export function CreateDebateClient() {
   const router = useRouter();
@@ -12,6 +13,7 @@ export function CreateDebateClient() {
   const handleSubmit = async (
     formData: DebateFormData,
     initialArguments: InitialArgument[],
+    initialDefinitions: InitialDefinition[],
     status: string,
   ) => {
     setIsSubmitting(true);
@@ -20,6 +22,7 @@ export function CreateDebateClient() {
       const submitData = {
         ...formData,
         initialArguments,
+        initialDefinitions,
         status,
       };
 

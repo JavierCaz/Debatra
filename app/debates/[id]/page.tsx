@@ -1,15 +1,13 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
 import { getDebateById } from "@/app/actions/debates";
-import { ArgumentsList } from "@/components/debate/details/argument-list";
+import { DebateContentSection } from "@/components/debate/details/debate-content-section";
 import { DebateInfo } from "@/components/debate/details/debate-info";
-import { DebateResponseSection } from "@/components/debate/details/debate-response-section";
 import { Button } from "@/components/ui/button";
-import {
-  calculateDebateProgress,
-  groupArgumentsByTurn,
-} from "@/lib/debate/stats";
+import { authOptions } from "@/lib/auth/options";
+import { calculateDebateProgress } from "@/lib/debate/stats";
 
 interface DebateDetailPageProps {
   params: Promise<{
@@ -22,6 +20,7 @@ export default async function DebateDetailPage({
 }: DebateDetailPageProps) {
   const { id } = await params;
   const debate = await getDebateById(id);
+  const session = await getServerSession(authOptions);
 
   if (!debate) {
     notFound();
@@ -29,10 +28,16 @@ export default async function DebateDetailPage({
 
   const { currentTurn, debateProgress, totalPossibleTurns } =
     calculateDebateProgress(debate);
-  const argumentsByTurn = groupArgumentsByTurn(debate);
-  const turnNumbers = Object.keys(argumentsByTurn)
-    .map(Number)
-    .sort((a, b) => a - b);
+
+  const currentUserId = session?.user?.id;
+
+  const currentUserParticipant = debate.participants.find(
+    (participant) => participant.userId === currentUserId,
+  );
+
+  const isParticipant = !!currentUserParticipant;
+
+  const isUsersTurn = currentUserParticipant?.role === debate.currentTurnSide;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
@@ -58,18 +63,13 @@ export default async function DebateDetailPage({
           />
         </div>
 
-        {/* Arguments - Main Content */}
-        <div className="flex-1 min-w-0">
-          <ArgumentsList
-            argumentsByTurn={argumentsByTurn}
-            turnNumbers={turnNumbers}
-          />
-
-          <div className="my-8 border-t" />
-
-          {/* Response Section for current participant */}
-          <DebateResponseSection debate={debate} />
-        </div>
+        {/* Main Content with Arguments & Definitions */}
+        <DebateContentSection
+          debate={debate}
+          currentUserId={currentUserId}
+          isParticipant={isParticipant}
+          isUsersTurn={isUsersTurn}
+        />
       </div>
     </div>
   );

@@ -29,11 +29,6 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
       icon: MessageSquare,
     },
     {
-      label: "Upvotes Received",
-      value: stats.votes,
-      icon: ThumbsUp,
-    },
-    {
       label: "Concessions Made",
       value: stats.concessions,
       icon: Handshake,

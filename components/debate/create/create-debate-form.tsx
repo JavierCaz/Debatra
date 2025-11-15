@@ -14,16 +14,17 @@ import {
   type DebateFormData,
   type InitialArgument,
 } from "@/types/debate";
-import { ArgumentsSubmitter } from "../argument/arguments-submitter";
+import type { InitialDefinition } from "@/types/definitions";
+import { DebateSubmissionForm } from "../submission/debate-submission-form";
 import { BasicInfoSection } from "./basic-info-section";
 import { DebateParametersSection } from "./debate-parameters-section";
-import { InitialArgumentsSection } from "./initial-arguments-section";
 import { SubmitButtons } from "./submit-button";
 
 interface CreateDebateFormProps {
   onSubmit: (
     formData: DebateFormData,
     initialArguments: InitialArgument[],
+    initialDefinitions: InitialDefinition[],
     status: string,
   ) => void;
   isSubmitting: boolean;
@@ -52,11 +53,16 @@ export function CreateDebateForm({
     },
   ]);
 
+  const [initialDefinitions, setInitialDefinitions] = useState<
+    InitialDefinition[]
+  >([]);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleFormSubmit = (status: string) => {
     const newErrors: Record<string, string> = {};
 
+    // Basic form validation
     if (!formData.title) newErrors.title = "Title is required";
     if (formData.topics.length === 0)
       newErrors.topics = "At least one topic is required";
@@ -77,7 +83,7 @@ export function CreateDebateForm({
       return;
     }
 
-    onSubmit(formData, initialArguments, status);
+    onSubmit(formData, initialArguments, initialDefinitions, status);
   };
 
   const updateFormData = (updates: Partial<DebateFormData>) => {
@@ -98,7 +104,7 @@ export function CreateDebateForm({
           <div>
             <CardTitle className="text-3xl">Create New Debate</CardTitle>
             <CardDescription className="text-primary-foreground/80">
-              Set up your debate parameters and initial arguments
+              Set up your debate parameters, arguments, and definitions
             </CardDescription>
           </div>
         </div>
@@ -112,15 +118,13 @@ export function CreateDebateForm({
           onClearError={clearError}
         />
 
-        <ArgumentsSubmitter
-          initialArguments={initialArguments}
-          error={errors.initialArguments}
+        <DebateSubmissionForm
+          arguments={initialArguments}
           onArgumentsChange={setInitialArguments}
-          mode="create"
-          title="Initial Arguments"
-          description="Add one or more initial arguments to start the debate"
-          minArguments={1}
-          maxArguments={5}
+          argumentsError={errors.initialArguments}
+          definitions={initialDefinitions}
+          onDefinitionsChange={setInitialDefinitions}
+          definitionsError={errors.definitions}
         />
 
         <DebateParametersSection

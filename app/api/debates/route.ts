@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import type { Reference } from "@/app/generated/prisma";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
 import { detectReferenceType } from "@/lib/utils/reference-types";
@@ -61,7 +62,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create debate with topics, participant and multiple initial arguments in a transaction
+    // Create debate with topics, participant, arguments, and definitions in a transaction
     const debate = await prisma.$transaction(async (tx) => {
       const shouldStartWithOpposer =
         data.format === DebateFormat.ONE_VS_ONE ||
@@ -121,12 +122,18 @@ export async function POST(request: NextRequest) {
             authorId: user.id,
             references: {
               create:
-                initialArg.references?.map((ref: any) => ({
-                  type: detectReferenceType(ref.url),
+                initialArg.references?.map((ref: Reference) => ({
+                  type: detectReferenceType(ref.url ?? ""),
                   title: ref.title,
                   url: ref.url,
                   author: ref.author,
                   publication: ref.publication,
+                  publishedAt: ref.publishedAt
+                    ? new Date(ref.publishedAt)
+                    : null,
+                  accessedAt: ref.accessedAt
+                    ? new Date(ref.accessedAt)
+                    : new Date(),
                   notes: ref.notes,
                 })) || [],
             },
@@ -134,10 +141,50 @@ export async function POST(request: NextRequest) {
         });
       }
 
+      // Create definitions with their references if provided
+      if (data.initialDefinitions && Array.isArray(data.initialDefinitions)) {
+        for (const definition of data.initialDefinitions) {
+          // Validate definition data
+          if (!definition.term?.trim() || !definition.definition?.trim()) {
+            throw new Error(
+              "Each definition must have both term and definition",
+            );
+          }
+
+          await tx.definition.create({
+            data: {
+              term: definition.term.trim(),
+              definition: definition.definition.trim(),
+              context: definition.context?.trim(),
+              status: "PROPOSED",
+              debateId: newDebate.id,
+              proposerId: user.id,
+              references: {
+                create:
+                  definition.references?.map((ref: Reference) => ({
+                    type: detectReferenceType(ref.url ?? ""),
+                    title: ref.title,
+                    url: ref.url,
+                    author: ref.author,
+                    publication: ref.publication,
+                    publishedAt: ref.publishedAt
+                      ? new Date(ref.publishedAt)
+                      : null,
+                    accessedAt: ref.accessedAt
+                      ? new Date(ref.accessedAt)
+                      : new Date(),
+                    notes: ref.notes,
+                  })) || [],
+              },
+            },
+          });
+        }
+      }
+
       return newDebate;
     });
 
-    // Fetch the complete debate with topics, participants and arguments
+    // Fetch the complete debate with topics, participants, arguments, and definitions
     const completeDebate = await prisma.debate.findUnique({
       where: { id: debate.id },
       include: {
@@ -149,7 +196,7 @@ export async function POST(request: NextRequest) {
             image: true,
           },
         },
-        topics: true, // Include the debate topics
+        topics: true,
         participants: {
           include: {
             user: {
@@ -173,6 +220,29 @@ export async function POST(request: NextRequest) {
                 createdAt: "asc",
               },
             },
+          },
+        },
+        definitions: {
+          include: {
+            proposer: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                image: true,
+              },
+            },
+            references: true,
+            _count: {
+              select: {
+                votes: true,
+                endorsements: true,
+                argumentReferences: true,
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "asc",
           },
         },
       },
