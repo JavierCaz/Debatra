@@ -43,11 +43,13 @@ interface Debate {
   participants: DebateParticipant[];
 }
 
-interface DebateResponseSectionProps {
+interface ArgumentsResponseSectionProps {
   debate: Debate;
 }
 
-export function DebateResponseSection({ debate }: DebateResponseSectionProps) {
+export function ArgumentsResponseSection({
+  debate,
+}: ArgumentsResponseSectionProps) {
   const { data: session } = useSession();
   const router = useRouter();
   const [argumentsList, setArgumentsList] = useState<InitialArgument[]>([

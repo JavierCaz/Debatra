@@ -12,8 +12,9 @@ interface DefinitionActionsProps {
   };
   currentUserId?: string;
   isParticipant?: boolean;
+  isUsersTurn?: boolean;
+  isOppositeTeam?: boolean;
   onVote?: (definitionId: string, support: boolean) => void;
-  onEndorse?: (definitionId: string) => void;
   onAccept?: (definitionId: string) => void;
   onSupersede?: (definitionId: string) => void;
 }
@@ -24,23 +25,21 @@ export function DefinitionActions({
   votes,
   currentUserId,
   isParticipant = false,
+  isUsersTurn = false,
+  isOppositeTeam = false,
   onVote,
-  onEndorse,
   onAccept,
   onSupersede,
 }: DefinitionActionsProps) {
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
   const [isVoteSubmitting, setIsVoteSubmitting] = useState(false);
 
-  const handleAction = async (action: "endorse" | "accept" | "supersede") => {
+  const handleAction = async (action: "accept" | "supersede") => {
     if (isSubmitting) return;
 
     setIsSubmitting(action);
     try {
       switch (action) {
-        case "endorse":
-          await onEndorse?.(definitionId);
-          break;
         case "accept":
           await onAccept?.(definitionId);
           break;
@@ -66,7 +65,7 @@ export function DefinitionActions({
 
   const handleKeyDown = (
     event: React.KeyboardEvent,
-    action: "endorse" | "accept" | "supersede",
+    action: "accept" | "supersede",
   ) => {
     if (event.key === "Enter" || event.key === " ") {
       event.preventDefault();
@@ -81,6 +80,9 @@ export function DefinitionActions({
     }
   };
 
+  const canImprove = isParticipant && isUsersTurn && status === "PROPOSED";
+  const canAccept = isParticipant && isOppositeTeam && status === "PROPOSED";
+
   return (
     <div className="flex items-center justify-between gap-4">
       {/* Left side: Action buttons */}
@@ -88,7 +90,7 @@ export function DefinitionActions({
         {/* Action buttons for PROPOSED definitions */}
         {isParticipant && status === "PROPOSED" && (
           <div className="flex items-center gap-2">
-            {onAccept && (
+            {onAccept && canAccept && (
               <Button
                 variant="outline"
                 size="sm"
@@ -102,7 +104,7 @@ export function DefinitionActions({
                 Accept
               </Button>
             )}
-            {onSupersede && (
+            {onSupersede && canImprove && (
               <Button
                 variant="outline"
                 size="sm"
@@ -117,22 +119,6 @@ export function DefinitionActions({
               </Button>
             )}
           </div>
-        )}
-
-        {/* Endorse Button */}
-        {isParticipant && onEndorse && status === "PROPOSED" && (
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isSubmitting === "endorse"}
-            onClick={() => handleAction("endorse")}
-            onKeyDown={(e) => handleKeyDown(e, "endorse")}
-            className="gap-1"
-            aria-label="Endorse this definition"
-          >
-            <CheckCircle2 className="h-4 w-4" />
-            Endorse
-          </Button>
         )}
       </div>
 

@@ -7,7 +7,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import type { Definition, DefinitionsListProps } from "@/types/definitions";
 import { DefinitionActions } from "./definition-actions";
@@ -21,11 +20,12 @@ import { VersionSelector } from "./version-selector";
 export function DefinitionsList({
   definitions,
   currentUserId,
+  debate,
   onVote,
-  onEndorse,
   onAccept,
   onSupersede,
   isParticipant = false,
+  isUsersTurn = false,
 }: DefinitionsListProps) {
   const [selectedDefinitionId, setSelectedDefinitionId] = useState<
     string | null
@@ -61,6 +61,25 @@ export function DefinitionsList({
       if (selected) return selected;
     }
     return termDefinitions[0];
+  };
+
+  const getIsOppositeTeam = (definition: Definition): boolean => {
+    if (!currentUserId || !isParticipant) return false;
+
+    // Find current user's participant record
+    const currentUserParticipant = debate.participants.find(
+      (p) => p.userId === currentUserId,
+    );
+
+    // Find definition proposer's participant record
+    const definitionProposerParticipant = debate.participants.find(
+      (p) => p.userId === definition.proposer.id,
+    );
+
+    if (!currentUserParticipant || !definitionProposerParticipant) return false;
+
+    // User is on opposite team if their role is different from proposer's role
+    return currentUserParticipant.role !== definitionProposerParticipant.role;
   };
 
   // Expand/Collapse All functions
@@ -113,12 +132,13 @@ export function DefinitionsList({
         type="multiple"
         value={expandedDefinitions}
         onValueChange={setExpandedDefinitions}
-        className="space-y-4"
+        className="border-b rounded-lg space-y-4"
       >
         {Object.entries(definitionsByTerm).map(([term, termDefinitions]) => {
           const currentDefinition = getCurrentDefinition(termDefinitions);
           const hasMultipleVersions = termDefinitions.length > 1;
           const isExpanded = expandedDefinitions.includes(term);
+          const isOppositeTeam = getIsOppositeTeam(currentDefinition);
 
           return (
             <AccordionItem
@@ -145,7 +165,7 @@ export function DefinitionsList({
 
               {/* Preview when collapsed */}
               {!isExpanded && (
-                <div className="px-6 pb-4 border-b">
+                <div className="px-6 pb-4">
                   <DefinitionHeader
                     proposer={currentDefinition.proposer}
                     createdAt={currentDefinition.createdAt}
@@ -153,7 +173,7 @@ export function DefinitionsList({
                   />
                   <p className="text-sm text-muted-foreground mt-2">
                     {currentDefinition.definition.length > 150
-                      ? currentDefinition.definition.substring(0, 150) + "..."
+                      ? `${currentDefinition.definition.substring(0, 150)}...`
                       : currentDefinition.definition}
                   </p>
                 </div>
@@ -206,37 +226,12 @@ export function DefinitionsList({
                     votes={currentDefinition.votes}
                     currentUserId={currentUserId}
                     isParticipant={isParticipant}
+                    isUsersTurn={isUsersTurn}
+                    isOppositeTeam={isOppositeTeam}
                     onVote={onVote}
-                    onEndorse={onEndorse}
                     onAccept={onAccept}
                     onSupersede={onSupersede}
                   />
-
-                  {/* Endorsements */}
-                  {currentDefinition.endorsements &&
-                    currentDefinition.endorsements.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-semibold text-muted-foreground mb-2">
-                          Endorsed by Participants
-                        </h4>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          {currentDefinition.endorsements.map((endorsement) => (
-                            <div
-                              key={endorsement.id}
-                              className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-1 rounded-full text-xs"
-                            >
-                              <Avatar className="h-4 w-4">
-                                <AvatarImage src={endorsement.user.image} />
-                                <AvatarFallback className="text-[8px]">
-                                  {endorsement.user.name.charAt(0)}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span>{endorsement.user.name}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
 
                   {/* References */}
                   <DefinitionReferences

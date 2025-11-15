@@ -30,9 +30,14 @@ export default async function DebateDetailPage({
     calculateDebateProgress(debate);
 
   const currentUserId = session?.user?.id;
-  const isParticipant = debate.participants.some(
+
+  const currentUserParticipant = debate.participants.find(
     (participant) => participant.userId === currentUserId,
   );
+
+  const isParticipant = !!currentUserParticipant;
+
+  const isUsersTurn = currentUserParticipant?.role === debate.currentTurnSide;
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
@@ -63,6 +68,7 @@ export default async function DebateDetailPage({
           debate={debate}
           currentUserId={currentUserId}
           isParticipant={isParticipant}
+          isUsersTurn={isUsersTurn}
         />
       </div>
     </div>

@@ -1,3 +1,4 @@
+import type { DebateWithDetails } from "./debate";
 import type { Reference } from "./reference";
 
 export interface InitialDefinition {
@@ -67,10 +68,10 @@ export interface Definition {
 export interface DefinitionsListProps {
   definitions: Definition[];
   currentUserId?: string;
-  debateId: string;
+  debate: DebateWithDetails;
   onVote: (definitionId: string, support: boolean) => void;
-  onEndorse: (definitionId: string) => void;
   onAccept: (definitionId: string) => void;
   onSupersede: (definitionId: string) => void;
   isParticipant?: boolean;
+  isUsersTurn?: boolean;
 }

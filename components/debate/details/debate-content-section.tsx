@@ -1,15 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { DebateResponseSection } from "@/components/debate/details/debate-response-section";
 import { DefinitionsResponseSection } from "@/components/debate/details/definitions-response-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { groupArgumentsByTurn } from "@/lib/debate/stats";
 import type { DebateWithDetails } from "@/types/debate";
 import { ArgumentsList } from "../argument/argument-list";
 import { DefinitionsList } from "../definition/definitions-list";
+import { ArgumentsResponseSection } from "./arguments-response-section";
 
-// Simple interface for the transformed definition data
 interface TransformedDefinition {
   id: string;
   term: string;
@@ -35,13 +34,6 @@ interface TransformedDefinition {
     support: number;
     oppose: number;
   };
-  endorsements: Array<{
-    id: string;
-    user: {
-      name: string;
-      image?: string;
-    };
-  }>;
   supersededBy?: {
     id: string;
     term: string;
@@ -53,12 +45,14 @@ interface DebateContentSectionProps {
   debate: DebateWithDetails;
   currentUserId?: string;
   isParticipant?: boolean;
+  isUsersTurn?: boolean;
 }
 
 export function DebateContentSection({
   debate,
   currentUserId,
   isParticipant = false,
+  isUsersTurn = false,
 }: DebateContentSectionProps) {
   const [activeTab, setActiveTab] = useState<string>("arguments");
   const [supersedeDefinitionId, setSupersedeDefinitionId] = useState<
@@ -103,13 +97,6 @@ export function DebateContentSection({
           support: supportVotes,
           oppose: opposeVotes,
         },
-        endorsements: (def.endorsements || []).map((endorsement) => ({
-          id: endorsement.id,
-          user: {
-            name: endorsement.user.name || "Unknown User",
-            image: endorsement.user.image || undefined,
-          },
-        })),
         supersededBy: def.supersededBy
           ? {
               id: def.supersededBy.id,
@@ -157,30 +144,6 @@ export function DebateContentSection({
     }
   };
 
-  const handleDefinitionEndorse = async (definitionId: string) => {
-    try {
-      const response = await fetch("/api/definitions/endorse", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          definitionId,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!result.success) {
-        console.error("Failed to endorse:", result.error);
-      } else {
-        window.location.reload();
-      }
-    } catch (error) {
-      console.error("Error endorsing definition:", error);
-    }
-  };
-
   const handleAcceptDefinition = async (definitionId: string) => {
     try {
       const response = await fetch("/api/definitions/accept", {
@@ -211,7 +174,7 @@ export function DebateContentSection({
 
   const handleSupersedeComplete = () => {
     setSupersedeDefinitionId(null);
-    window.location.reload(); // Refresh to show the updated definitions
+    window.location.reload();
   };
 
   const handleArgumentVote = async (argumentId: string, support: boolean) => {
@@ -276,7 +239,7 @@ export function DebateContentSection({
           />
 
           {/* Arguments Response Section */}
-          <DebateResponseSection debate={debate} />
+          <ArgumentsResponseSection debate={debate} />
         </TabsContent>
 
         <TabsContent value="definitions" className="mt-6 space-y-8">
@@ -284,12 +247,12 @@ export function DebateContentSection({
           <DefinitionsList
             definitions={transformedDefinitions}
             currentUserId={currentUserId}
-            debateId={debate.id}
+            debate={debate}
             onVote={handleDefinitionVote}
-            onEndorse={handleDefinitionEndorse}
             onAccept={handleAcceptDefinition}
             onSupersede={handleSupersedeDefinition}
             isParticipant={isParticipant}
+            isUsersTurn={isUsersTurn}
           />
 
           {/* Definitions Response Section */}
