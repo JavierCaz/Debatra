@@ -7,7 +7,9 @@ import { prisma } from "@/lib/prisma/client";
 import { detectReferenceType } from "@/lib/utils/reference-types";
 import type { InitialArgument } from "@/types/debate";
 import { type DebateStatus, DebateTopic } from "@/types/debate";
+import { createNotificationMetadata } from "@/types/notifications";
 import { DefinitionStatus, type ReferenceType } from "../generated/prisma";
+import { createBulkNotifications, createNotification } from "./notifications";
 
 export async function getDebateById(id: string) {
   try {
@@ -509,21 +511,21 @@ export async function submitDebateArguments(
             },
           });
 
-          for (const participant of opposerParticipants) {
-            await tx.notification.create({
-              data: {
-                type: "NEW_ARGUMENT",
-                title: "Your turn to respond",
-                message: `The proposer has made their arguments for turn ${basicDebate.currentTurnNumber}. It's your turn to respond in the debate "${basicDebate.title}"`,
-                link: `/debates/${debateId}`,
-                userId: participant.user.id,
-                actorId: session.user.id,
-                debateId: debateId,
-                metadata: {
-                  turnNumber: basicDebate.currentTurnNumber,
-                  turnSide: "OPPOSER",
-                },
-              },
+          if (opposerParticipants.length > 0) {
+            await createBulkNotifications({
+              userIds: opposerParticipants.map((p) => p.user.id),
+              type: "NEW_ARGUMENT",
+              title: "Your turn to respond",
+              message: `The proposer has made their arguments for turn ${basicDebate.currentTurnNumber}. It's your turn to respond in the debate "${basicDebate.title}"`,
+              link: `/debates/${debateId}`,
+              actorId: session.user.id,
+              debateId: debateId,
+              metadata: createNotificationMetadata("NEW_ARGUMENT", {
+                turnNumber: basicDebate.currentTurnNumber,
+                turnSide: "OPPOSER",
+                debateTitle: basicDebate.title,
+              }),
+              sendEmail: true, // Enable email notifications
             });
           }
         } else {
@@ -569,21 +571,21 @@ export async function submitDebateArguments(
               },
             });
 
-            for (const participant of proposerParticipants) {
-              await tx.notification.create({
-                data: {
-                  type: "NEW_ARGUMENT",
-                  title: "New turn started",
-                  message: `Turn ${nextTurnNumber} has started. It's your turn to present arguments in the debate "${basicDebate.title}"`,
-                  link: `/debates/${debateId}`,
-                  userId: participant.user.id,
-                  actorId: session.user.id,
-                  debateId: debateId,
-                  metadata: {
-                    turnNumber: nextTurnNumber,
-                    turnSide: "PROPOSER",
-                  },
-                },
+            if (proposerParticipants.length > 0) {
+              await createBulkNotifications({
+                userIds: proposerParticipants.map((p) => p.user.id),
+                type: "NEW_ARGUMENT",
+                title: "New turn started",
+                message: `Turn ${nextTurnNumber} has started. It's your turn to present arguments in the debate "${basicDebate.title}"`,
+                link: `/debates/${debateId}`,
+                actorId: session.user.id,
+                debateId: debateId,
+                metadata: createNotificationMetadata("NEW_ARGUMENT", {
+                  debateTitle: basicDebate.title,
+                  turnNumber: nextTurnNumber,
+                  turnSide: "PROPOSER",
+                }),
+                sendEmail: true, // Enable email notifications
               });
             }
           }
@@ -725,22 +727,20 @@ export async function voteOnDefinition(definitionId: string, support: boolean) {
       });
 
       if (definition.proposer.id !== session.user.id) {
-        await tx.notification.create({
-          data: {
-            type: "DEFINITION_VOTE",
-            title: support ? "Definition Upvoted" : "Definition Downvoted",
-            message: `Someone ${support ? "upvoted" : "downvoted"} your definition for "${definition.term}" in the debate "${definition.debate.title}"`,
-            link: `/debates/${definition.debate.id}?tab=definitions`,
-            userId: definition.proposer.id,
-            actorId: session.user.id,
-            debateId: definition.debate.id,
-            metadata: {
-              definitionId: definition.id,
-              term: definition.term,
-              support: support,
-              type: "definition_vote",
-            },
-          },
+        await createNotification({
+          userId: definition.proposer.id,
+          type: "DEFINITION_VOTE",
+          title: support ? "Definition Upvoted" : "Definition Downvoted",
+          message: `Someone ${support ? "upvoted" : "downvoted"} your definition for "${definition.term}" in the debate "${definition.debate.title}"`,
+          link: `/debates/${definition.debate.id}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: definition.debate.id,
+          metadata: createNotificationMetadata("DEFINITION_VOTE", {
+            definitionId: definition.id,
+            term: definition.term,
+            support: support,
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 
@@ -816,21 +816,21 @@ export async function endorseDefinition(definitionId: string) {
       });
 
       if (definition.proposer.id !== session.user.id) {
-        await tx.notification.create({
-          data: {
+        await createNotification({
+          userId: definition.proposer.id,
+          type: "DEFINITION_ENDORSED",
+          title: "Definition Endorsed",
+          message: `A participant endorsed your definition for "${definition.term}" in the debate "${definition.debate.title}"`,
+          link: `/debates/${definition.debate.id}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: definition.debate.id,
+          metadata: createNotificationMetadata("DEFINITION_ENDORSED", {
+            definitionId: definition.id,
+            term: definition.term,
             type: "DEFINITION_ENDORSED",
-            title: "Definition Endorsed",
-            message: `A participant endorsed your definition for "${definition.term}" in the debate "${definition.debate.title}"`,
-            link: `/debates/${definition.debate.id}?tab=definitions`,
-            userId: definition.proposer.id,
-            actorId: session.user.id,
-            debateId: definition.debate.id,
-            metadata: {
-              definitionId: definition.id,
-              term: definition.term,
-              type: "definition_endorsed",
-            },
-          },
+            timestamp: new Date().toISOString(),
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 
@@ -946,22 +946,21 @@ export async function submitDefinition(
         (p) => p.userId !== session.user.id,
       );
 
-      for (const participant of otherParticipants) {
-        await tx.notification.create({
-          data: {
-            type: "NEW_DEFINITION",
-            title: "New Definition Proposed",
-            message: `${definition.proposer.name} proposed a new definition for "${definition.term}" in the debate "${debate.title}"`,
-            link: `/debates/${debateId}?tab=definitions`,
-            userId: participant.user.id,
-            actorId: session.user.id,
-            debateId: debateId,
-            metadata: {
-              definitionId: definition.id,
-              term: definition.term,
-              type: "definition_created",
-            },
-          },
+      if (otherParticipants.length > 0) {
+        await createBulkNotifications({
+          userIds: otherParticipants.map((p) => p.user.id),
+          type: "NEW_DEFINITION",
+          title: "New Definition Proposed",
+          message: `${definition.proposer.name} proposed a new definition for "${definition.term}" in the debate "${debate.title}"`,
+          link: `/debates/${debateId}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: debateId,
+          metadata: createNotificationMetadata("NEW_DEFINITION", {
+            definitionId: definition.id,
+            term: definition.term,
+            type: "definition_created",
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 
@@ -1048,21 +1047,21 @@ export async function acceptDefinition(definitionId: string) {
 
       // Send notification to the definition proposer
       if (definition.proposer.id !== session.user.id) {
-        await tx.notification.create({
-          data: {
+        await createNotification({
+          userId: definition.proposer.id,
+          type: "DEFINITION_ACCEPTED",
+          title: "Definition Accepted",
+          message: `Your definition for "${definition.term}" has been accepted in the debate "${definition.debate.title}"`,
+          link: `/debates/${definition.debateId}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: definition.debateId,
+          metadata: createNotificationMetadata("DEFINITION_ACCEPTED", {
+            definitionId: definition.id,
+            term: definition.term,
+            timestamp: new Date().toISOString(),
             type: "DEFINITION_ACCEPTED",
-            title: "Definition Accepted",
-            message: `Your definition for "${definition.term}" has been accepted in the debate "${definition.debate.title}"`,
-            link: `/debates/${definition.debateId}?tab=definitions`,
-            userId: definition.proposer.id,
-            actorId: session.user.id,
-            debateId: definition.debateId,
-            metadata: {
-              definitionId: definition.id,
-              term: definition.term,
-              type: "definition_accepted",
-            },
-          },
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 
@@ -1072,22 +1071,21 @@ export async function acceptDefinition(definitionId: string) {
           p.userId !== session.user.id && p.userId !== definition.proposer.id,
       );
 
-      for (const participant of otherParticipants) {
-        await tx.notification.create({
-          data: {
-            type: "DEFINITION_ACCEPTED",
-            title: "Definition Accepted",
-            message: `The definition for "${definition.term}" has been accepted in the debate "${definition.debate.title}"`,
-            link: `/debates/${definition.debateId}?tab=definitions`,
-            userId: participant.user.id,
-            actorId: session.user.id,
-            debateId: definition.debateId,
-            metadata: {
-              definitionId: definition.id,
-              term: definition.term,
-              type: "definition_accepted",
-            },
-          },
+      if (otherParticipants.length > 0) {
+        await createBulkNotifications({
+          userIds: otherParticipants.map((p) => p.user.id),
+          type: "DEFINITION_ACCEPTED",
+          title: "Definition Accepted",
+          message: `The definition for "${definition.term}" has been accepted in the debate "${definition.debate.title}"`,
+          link: `/debates/${definition.debateId}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: definition.debateId,
+          metadata: createNotificationMetadata("DEFINITION_ACCEPTED", {
+            definitionId: definition.id,
+            term: definition.term,
+            type: "definition_accepted",
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 
@@ -1207,22 +1205,20 @@ export async function supersedeDefinition(
 
       // Send notification to the original definition proposer
       if (originalDefinition.proposer.id !== session.user.id) {
-        await tx.notification.create({
-          data: {
-            type: "DEFINITION_IMPROVED",
-            title: "Definition Improved",
-            message: `Your definition for "${originalDefinition.term}" has been improved by another participant in the debate "${originalDefinition.debate.title}"`,
-            link: `/debates/${originalDefinition.debateId}?tab=definitions`,
-            userId: originalDefinition.proposer.id,
-            actorId: session.user.id,
-            debateId: originalDefinition.debateId,
-            metadata: {
-              originalDefinitionId: originalDefinition.id,
-              newDefinitionId: newDefinition.id,
-              term: originalDefinition.term,
-              type: "definition_superseded",
-            },
-          },
+        await createNotification({
+          userId: originalDefinition.proposer.id,
+          type: "DEFINITION_IMPROVED",
+          title: "Definition Improved",
+          message: `Your definition for "${originalDefinition.term}" has been improved by another participant in the debate "${originalDefinition.debate.title}"`,
+          link: `/debates/${originalDefinition.debateId}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: originalDefinition.debateId,
+          metadata: createNotificationMetadata("DEFINITION_IMPROVED", {
+            originalDefinitionId: originalDefinition.id,
+            newDefinitionId: newDefinition.id,
+            term: originalDefinition.term,
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 
@@ -1233,23 +1229,21 @@ export async function supersedeDefinition(
           p.userId !== originalDefinition.proposer.id,
       );
 
-      for (const participant of otherParticipants) {
-        await tx.notification.create({
-          data: {
-            type: "DEFINITION_IMPROVED",
-            title: "Definition Improved",
-            message: `The definition for "${originalDefinition.term}" has been improved in the debate "${originalDefinition.debate.title}"`,
-            link: `/debates/${originalDefinition.debateId}?tab=definitions`,
-            userId: participant.user.id,
-            actorId: session.user.id,
-            debateId: originalDefinition.debateId,
-            metadata: {
-              originalDefinitionId: originalDefinition.id,
-              newDefinitionId: newDefinition.id,
-              term: originalDefinition.term,
-              type: "definition_improved",
-            },
-          },
+      if (otherParticipants.length > 0) {
+        await createBulkNotifications({
+          userIds: otherParticipants.map((p) => p.user.id),
+          type: "DEFINITION_IMPROVED",
+          title: "Definition Improved",
+          message: `The definition for "${originalDefinition.term}" has been improved in the debate "${originalDefinition.debate.title}"`,
+          link: `/debates/${originalDefinition.debateId}?tab=definitions`,
+          actorId: session.user.id,
+          debateId: originalDefinition.debateId,
+          metadata: createNotificationMetadata("DEFINITION_IMPROVED", {
+            originalDefinitionId: originalDefinition.id,
+            newDefinitionId: newDefinition.id,
+            term: originalDefinition.term,
+          }),
+          sendEmail: true, // Enable email notifications
         });
       }
 

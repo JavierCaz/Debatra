@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
+import { createNotificationMetadata } from "../../types/notifications";
 import type { ParticipantRole } from "../generated/prisma";
 import { createNotification } from "./notifications";
 
@@ -81,10 +82,12 @@ export async function sendJoinRequest(
       link: `/debates/${debateId}`,
       actorId: user.id,
       debateId,
-      metadata: {
+      metadata: createNotificationMetadata("DEBATE_INVITATION", {
         requestId: request.id,
         role,
-      },
+        debateTitle: debate.title,
+      }),
+      sendEmail: true, // Enable email notifications
     });
 
     revalidatePath(`/debates/${debateId}`);
@@ -188,10 +191,12 @@ export async function sendInvitation(
       link: `/debates/${debateId}`,
       actorId: inviter.id,
       debateId,
-      metadata: {
+      metadata: createNotificationMetadata("DEBATE_INVITATION", {
         requestId: invitation.id,
         role,
-      },
+        debateTitle: debate.title,
+      }),
+      sendEmail: true, // Enable email notifications
     });
 
     revalidatePath(`/debates/${debateId}`);
@@ -350,12 +355,18 @@ export async function respondToRequest(requestId: string, accept: boolean) {
 
               return createNotification({
                 userId: cancelledRequest.userId,
-                type: "DEBATE_DECLINED", // Using DECLINED type since it's similar context
+                type: "DEBATE_DECLINED",
                 title: notificationTitle,
                 message: notificationMessage,
                 link: `/debates/${request.debateId}`,
                 actorId: user.id,
                 debateId: request.debateId,
+                metadata: createNotificationMetadata("DEBATE_DECLINED", {
+                  requestId: cancelledRequest.id,
+                  debateTitle: request.debate.title,
+                  role: cancelledRequest.role,
+                }),
+                sendEmail: true,
               });
             },
           );
@@ -375,6 +386,12 @@ export async function respondToRequest(requestId: string, accept: boolean) {
           link: `/debates/${request.debateId}`,
           actorId: user.id,
           debateId: request.debateId,
+          metadata: createNotificationMetadata("DEBATE_ACCEPTED", {
+            requestId: request.id,
+            debateTitle: request.debate.title,
+            role: request.role,
+          }),
+          sendEmail: true,
         });
       } else {
         // Notify the inviter
@@ -387,6 +404,12 @@ export async function respondToRequest(requestId: string, accept: boolean) {
             link: `/debates/${request.debateId}`,
             actorId: request.userId,
             debateId: request.debateId,
+            metadata: createNotificationMetadata("DEBATE_ACCEPTED", {
+              requestId: request.id,
+              debateTitle: request.debate.title,
+              role: request.role,
+            }),
+            sendEmail: true,
           });
         }
       }
@@ -413,6 +436,12 @@ export async function respondToRequest(requestId: string, accept: boolean) {
           link: `/debates/${request.debateId}`,
           actorId: user.id,
           debateId: request.debateId,
+          metadata: createNotificationMetadata("DEBATE_DECLINED", {
+            requestId: request.id,
+            debateTitle: request.debate.title,
+            role: request.role,
+          }),
+          sendEmail: true,
         });
       } else {
         if (request.inviterId) {
@@ -424,6 +453,12 @@ export async function respondToRequest(requestId: string, accept: boolean) {
             link: `/debates/${request.debateId}`,
             actorId: request.userId,
             debateId: request.debateId,
+            metadata: createNotificationMetadata("DEBATE_DECLINED", {
+              requestId: request.id,
+              debateTitle: request.debate.title,
+              role: request.role,
+            }),
+            sendEmail: true,
           });
         }
       }

@@ -1,3 +1,4 @@
+import { createNotification } from "@/app/actions/notifications";
 import { prisma } from "@/lib/prisma/client";
 
 interface VoteConfig {
@@ -84,27 +85,27 @@ export async function handleVote(
     });
   }
 
-  // Create notification for the author (only if different user)
+  // Create notification for the author (only if different user and it's a new/updated vote)
   const authorId = getAuthorId(item);
-  if (authorId !== userId) {
+  if (authorId !== userId && result) {
+    // Only create notification if vote was created/updated
     try {
       const voteType = support ? "supported" : "opposed";
       const userName =
         (await prisma.user.findUnique({ where: { id: userId } }))?.name ||
         "Someone";
 
-      await prisma.notification.create({
-        data: {
-          type: notificationType,
-          title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} ${voteType}`,
-          message: generateMessage(item, userName, voteType),
-          link: generateLink(item),
-          userId: authorId,
-          actorId: userId,
-          debateId: item.debateId,
-          ...(itemType === "argument" && { argumentId: item.id }),
-          metadata: generateMetadata(item, voteType),
-        },
+      await createNotification({
+        userId: authorId,
+        type: notificationType,
+        title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} ${voteType}`,
+        message: generateMessage(item, userName, voteType),
+        link: generateLink(item),
+        actorId: userId,
+        debateId: item.debateId,
+        ...(itemType === "argument" && { argumentId: item.id }),
+        metadata: generateMetadata(item, voteType),
+        sendEmail: true, // Enable email notifications for votes
       });
     } catch (notificationError) {
       console.error("Failed to create notification:", notificationError);

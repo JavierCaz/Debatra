@@ -85,6 +85,7 @@ model User {
   definitionsProposed     Definition[]       @relation("DefinitionProposer")
   definitionVotes         DefinitionVote[]
   definitionEndorsements  DefinitionEndorsement[]
+  notificationPreference UserNotificationPreference?
 
   @@index([email])
 }
@@ -533,6 +534,17 @@ model Notification {
   @@index([debateId])
 }
 
+model UserNotificationPreference {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  inApp     Boolean  @default(true)
+  email     Boolean  @default(true)
+  push      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
 enum RequestType {
   JOIN_REQUEST      // User requests to join debate
