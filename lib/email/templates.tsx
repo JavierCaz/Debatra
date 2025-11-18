@@ -138,6 +138,63 @@ export function DebateInvitationEmail({
   );
 }
 
+interface NotificationEmailProps {
+  title: string;
+  message?: string;
+  linkUrl?: string;
+  linkText?: string;
+  userName?: string;
+}
+
+export function NotificationEmail({
+  title,
+  message,
+  linkUrl,
+  linkText = "View Details",
+  userName,
+}: NotificationEmailProps) {
+  return (
+    <Html>
+      <Head />
+      <Body style={main}>
+        <Container style={container}>
+          <Section style={box}>
+            <Text style={heading}>{title}</Text>
+            <Text style={paragraph}>
+              {userName ? `Hi ${userName},` : "Hi,"}
+            </Text>
+            {message && <Text style={paragraph}>{message}</Text>}
+            {link && (
+              <>
+                <Button style={button} href={linkUrl}>
+                  {linkText}
+                </Button>
+                <Text style={paragraph}>
+                  Or copy and paste this URL into your browser:
+                </Text>
+                <Text style={link}>{linkUrl}</Text>
+              </>
+            )}
+            <Hr style={hr} />
+            <Text style={footer}>
+              You received this email because you're participating in a debate
+              on Debate Platform.
+            </Text>
+            <Text style={footer}>
+              <Link
+                href={`${process.env.NEXTAUTH_URL}/settings/notifications`}
+                style={footerLink}
+              >
+                Manage notification preferences
+              </Link>
+            </Text>
+          </Section>
+        </Container>
+      </Body>
+    </Html>
+  );
+}
+
 // Styles
 const main = {
   backgroundColor: "#f6f9fc",
@@ -208,4 +265,9 @@ const footer = {
   color: "#6b7280",
   fontSize: "14px",
   lineHeight: "1.5",
+};
+
+const footerLink = {
+  color: "#6b7280",
+  textDecoration: "underline",
 };

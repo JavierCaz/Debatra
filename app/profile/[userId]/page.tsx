@@ -2,9 +2,11 @@ import { Calendar, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
+import { getNotificationPreferences } from "@/app/actions/notifications";
 import { DebateList } from "@/components/profile/DebateList";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import { ProfileStats } from "@/components/profile/ProfileStats";
+import { SettingsForm } from "@/components/profile/SettingsForm";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Card,
@@ -90,6 +92,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   const userId = (await params).userId;
   const session = await getServerSession();
   const user = await getUserProfile(userId);
+  const { preferences } = await getNotificationPreferences();
 
   if (!user) {
     notFound();
@@ -129,7 +132,14 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
                     {user.email}
                   </CardDescription>
                 </div>
-                {isOwnProfile && <EditProfileForm user={user} />}
+                <div className="flex gap-2">
+                  {isOwnProfile && (
+                    <>
+                      <EditProfileForm user={user} />
+                      <SettingsForm initialPreferences={preferences} />
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -151,7 +161,9 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           </div>
         </CardContent>
       </Card>
+
       <ProfileStats stats={user._count} />
+
       <Tabs defaultValue="created" className="mb-8">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="created">
@@ -170,6 +182,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
           <DebateList items={user.debateParticipants} type="participated" />
         </TabsContent>
       </Tabs>
+
       <Card>
         <CardHeader>
           <CardTitle>Recent Arguments</CardTitle>
