@@ -132,6 +132,7 @@ export async function getDebateById(id: string) {
     throw new Error("Failed to fetch debate");
   }
 }
+
 export interface DebateFilters {
   status?: DebateStatus | "ALL";
   search?: string;

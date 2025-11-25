@@ -9,11 +9,13 @@ import {
   type groupArgumentsByTurn,
 } from "@/lib/debate/stats";
 import { cn } from "@/lib/utils";
+import type { DebateWithDetails } from "@/types/debate";
 import { SingleArgument } from "./single-argument";
 
 interface ArgumentsListProps {
   argumentsByTurn: ReturnType<typeof groupArgumentsByTurn>;
   turnNumbers: number[];
+  debate: DebateWithDetails;
   currentUserId?: string;
   onVote?: (argumentId: string, support: boolean) => void;
 }
@@ -21,6 +23,7 @@ interface ArgumentsListProps {
 export function ArgumentsList({
   argumentsByTurn,
   turnNumbers,
+  debate,
   currentUserId,
   onVote,
 }: ArgumentsListProps) {
@@ -129,6 +132,7 @@ export function ArgumentsList({
                                   >
                                     <SingleArgument
                                       argument={argument}
+                                      debate={debate}
                                       isFirstInGroup={argumentIndex === 0}
                                       currentUserId={currentUserId}
                                       onVote={onVote}

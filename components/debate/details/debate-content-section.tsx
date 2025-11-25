@@ -64,7 +64,6 @@ export function DebateContentSection({
     .map(Number)
     .sort((a, b) => a - b);
 
-  // Safe transformation of definitions data with null handling
   const transformedDefinitions: TransformedDefinition[] =
     debate.definitions.map((def) => {
       const supportVotes =
@@ -230,20 +229,18 @@ export function DebateContentSection({
         </TabsList>
 
         <TabsContent value="arguments" className="mt-6 space-y-8">
-          {/* Arguments List with voting support */}
           <ArgumentsList
             argumentsByTurn={argumentsByTurn}
             turnNumbers={turnNumbers}
+            debate={debate}
             currentUserId={currentUserId}
             onVote={handleArgumentVote}
           />
 
-          {/* Arguments Response Section */}
           <ArgumentsResponseSection debate={debate} />
         </TabsContent>
 
         <TabsContent value="definitions" className="mt-6 space-y-8">
-          {/* Definitions List */}
           <DefinitionsList
             definitions={transformedDefinitions}
             currentUserId={currentUserId}
@@ -255,7 +252,6 @@ export function DebateContentSection({
             isUsersTurn={isUsersTurn}
           />
 
-          {/* Definitions Response Section */}
           <DefinitionsResponseSection
             debate={debate}
             supersedeDefinitionId={supersedeDefinitionId || undefined}
