@@ -141,7 +141,7 @@ export function ArgumentThreadDialog({
                   {threadArguments.length > 1 && (
                     <div className="mb-4 pb-4 border-b">
                       <div className="text-sm font-medium text-muted-foreground mb-2">
-                        Thread arguments:
+                        Previous arguments:
                       </div>
                       <div className="space-y-3">
                         {threadArguments

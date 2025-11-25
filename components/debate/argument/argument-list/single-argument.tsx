@@ -18,6 +18,7 @@ interface SingleArgumentProps {
   isFirstInGroup: boolean;
   currentUserId?: string;
   onVote?: (argumentId: string, support: boolean) => void;
+  onNavigateToArgument?: (argumentId: string) => void;
 }
 
 // Helper function to count ancestors in the thread
@@ -59,6 +60,7 @@ export function SingleArgument({
   isFirstInGroup,
   currentUserId,
   onVote,
+  onNavigateToArgument, // Make sure this is destructured
 }: SingleArgumentProps) {
   const [showThread, setShowThread] = useState(false);
   const [showResponses, setShowResponses] = useState(false);
@@ -105,21 +107,27 @@ export function SingleArgument({
 
   // Handle navigation to an argument (scroll to it)
   const handleNavigateToArgument = (argumentId: string) => {
-    const targetArgument = document.getElementById(`argument-${argumentId}`);
-    if (targetArgument) {
-      targetArgument.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
+    // If we have the callback from ArgumentsList, use it (for accordion support)
+    if (onNavigateToArgument) {
+      onNavigateToArgument(argumentId);
+    } else {
+      // Fallback to original behavior
+      const targetArgument = document.getElementById(`argument-${argumentId}`);
+      if (targetArgument) {
+        targetArgument.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
 
-      // Add a temporary highlight effect
-      targetArgument.classList.add("bg-yellow-50", "dark:bg-yellow-900/20");
-      setTimeout(() => {
-        targetArgument.classList.remove(
-          "bg-yellow-50",
-          "dark:bg-yellow-900/20",
-        );
-      }, 2000);
+        // Add a temporary highlight effect
+        targetArgument.classList.add("bg-yellow-50", "dark:bg-yellow-900/20");
+        setTimeout(() => {
+          targetArgument.classList.remove(
+            "bg-yellow-50",
+            "dark:bg-yellow-900/20",
+          );
+        }, 2000);
+      }
     }
   };
 
