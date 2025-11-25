@@ -2,53 +2,23 @@
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { InitialArgument } from "@/types/debate";
+import { useDebateSubmission } from "@/hooks/use-debate-submission";
+import type { DebateWithDetails, InitialArgument } from "@/types/debate";
 import { ArgumentsSubmitter } from "../argument/arguments-submitter";
 
-interface DebateParticipant {
-  id: string;
-  userId: string;
-  status: string;
-  role: string;
-  joinedAt: Date;
-  invitedAt: Date | null;
-  respondedAt: Date | null;
-  debateId: string;
-  user: {
-    id: string;
-    name: string | null;
-    email: string | null;
-    image: string | null;
-  };
-  arguments: Array<{
-    id: string;
-    turnNumber: number;
-    createdAt: Date;
-  }>;
-}
-
-interface Debate {
-  id: string;
-  title: string;
-  description: string;
-  status: string;
-  format: string;
-  maxParticipants: number;
-  turnsPerSide: number;
-  currentTurnSide: string;
-  currentTurnNumber: number;
-  participants: DebateParticipant[];
-}
-
 interface ArgumentsResponseSectionProps {
-  debate: Debate;
+  debate: DebateWithDetails;
+  replyToArgumentId?: string | null;
+  onReplyComplete?: () => void;
 }
 
 export function ArgumentsResponseSection({
   debate,
+  replyToArgumentId = null,
+  onReplyComplete,
 }: ArgumentsResponseSectionProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -62,29 +32,59 @@ export function ArgumentsResponseSection({
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const currentUserParticipant = debate.participants.find(
-    (p) => p.user.id === session?.user?.id,
-  );
+  // Use the shared hook
+  const {
+    currentUserParticipant,
+    canSubmitArguments,
+    isCurrentTurn,
+    hasSubmittedThisTurn,
+  } = useDebateSubmission({
+    debate,
+    currentUserId: session?.user?.id,
+  });
 
-  const isCurrentTurn = currentUserParticipant?.role === debate.currentTurnSide;
+  // Update argumentsList when replyToArgumentId changes
+  useEffect(() => {
+    if (replyToArgumentId) {
+      // Check if we already have a reply argument for this target
+      const existingReplyIndex = argumentsList.findIndex(
+        (arg) => arg.responseToId === replyToArgumentId,
+      );
 
-  const hasSubmittedThisTurn =
-    currentUserParticipant?.arguments.some(
-      (arg) => arg.turnNumber === debate.currentTurnNumber,
-    ) ?? false;
+      if (existingReplyIndex === -1) {
+        // Add a new reply argument to the existing list
+        const newReplyArgument: InitialArgument = {
+          id: Date.now(),
+          content: "",
+          references: [],
+          responseToId: replyToArgumentId,
+        };
+        setArgumentsList((prev) => [...prev, newReplyArgument]);
+      }
+    }
+  }, [replyToArgumentId, argumentsList]);
 
-  const canSubmitArguments =
-    currentUserParticipant &&
-    isCurrentTurn &&
-    !hasSubmittedThisTurn &&
-    debate.status === "IN_PROGRESS";
+  // Function to remove a specific reply argument
+  const removeReplyArgument = () => {
+    if (replyToArgumentId) {
+      setArgumentsList((prev) =>
+        prev.filter((arg) => arg.responseToId !== replyToArgumentId),
+      );
+      if (onReplyComplete) {
+        onReplyComplete();
+      }
+    }
+  };
+
+  // Check if we're currently in reply mode for display purposes
+  const isInReplyMode = !!replyToArgumentId;
 
   const handleSubmit = async () => {
     setError("");
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/debates/arguments", {
+      const response = await fetch("/api/arguments/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -111,6 +111,11 @@ export function ArgumentsResponseSection({
           },
         ]);
 
+        // Notify parent that reply is complete
+        if (onReplyComplete) {
+          onReplyComplete();
+        }
+
         // Refresh the page to show updated debate state
         router.refresh();
       } else {
@@ -125,13 +130,30 @@ export function ArgumentsResponseSection({
     }
   };
 
+  const getDisabledMessage = () => {
+    if (!currentUserParticipant) {
+      return "You are not a participant in this debate";
+    }
+    if (!isCurrentTurn) {
+      return `It's not your turn. Current turn: ${debate.currentTurnSide}`;
+    }
+    if (hasSubmittedThisTurn) {
+      return "You have already submitted your arguments for this turn";
+    }
+    if (debate.status !== "IN_PROGRESS") {
+      return "This debate is not currently in progress";
+    }
+    return "Argument submission is not available";
+  };
+
   return (
-    <Card className="mb-6">
+    <Card id="arguments-response-section" className="mb-6">
       <CardHeader>
         <CardTitle>Submit Your Arguments</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Present your arguments for turn {debate.currentTurnNumber} with
-          supporting evidence and references
+          {isInReplyMode
+            ? `You are replying to an argument. Your response will be linked to the original argument.`
+            : `Present your arguments for turn ${debate.currentTurnNumber} with supporting evidence and references`}
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -140,26 +162,35 @@ export function ArgumentsResponseSection({
           error={error}
           onArgumentsChange={setArgumentsList}
           mode="respond"
-          title="Your Arguments"
-          description={`Present your arguments for turn ${debate.currentTurnNumber}. You can add multiple arguments.`}
-          disabled={!canSubmitArguments}
-          disabledMessage={
-            !currentUserParticipant
-              ? "You are not a participant in this debate"
-              : !isCurrentTurn
-                ? `It's not your turn. Current turn: ${debate.currentTurnSide}`
-                : hasSubmittedThisTurn
-                  ? "You have already submitted your arguments for this turn"
-                  : debate.status !== "IN_PROGRESS"
-                    ? "This debate is not currently in progress"
-                    : "Argument submission is not available"
+          title={isInReplyMode ? "Your Arguments & Reply" : "Your Arguments"}
+          description={
+            isInReplyMode
+              ? "You can add multiple arguments. One of them is specifically replying to another argument."
+              : `Present your arguments for turn ${debate.currentTurnNumber}. You can add multiple arguments.`
           }
+          disabled={!canSubmitArguments}
+          disabledMessage={getDisabledMessage()}
+          isReply={isInReplyMode}
+          replyToArgumentId={replyToArgumentId || undefined}
         />
 
         {canSubmitArguments && (
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            {isInReplyMode && (
+              <Button
+                variant="outline"
+                onClick={removeReplyArgument}
+                disabled={isLoading}
+              >
+                Remove Reply
+              </Button>
+            )}
             <Button onClick={handleSubmit} disabled={isLoading}>
-              {isLoading ? "Submitting..." : "Submit Arguments"}
+              {isLoading
+                ? "Submitting..."
+                : isInReplyMode
+                  ? "Submit Arguments & Reply"
+                  : "Submit Arguments"}
             </Button>
           </div>
         )}

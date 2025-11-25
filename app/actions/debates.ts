@@ -132,6 +132,7 @@ export async function getDebateById(id: string) {
     throw new Error("Failed to fetch debate");
   }
 }
+
 export interface DebateFilters {
   status?: DebateStatus | "ALL";
   search?: string;
@@ -436,6 +437,22 @@ export async function submitDebateArguments(
     const result = await prisma.$transaction(async (tx) => {
       // Create arguments
       for (const argData of argumentsData) {
+        // Check if the target argument exists and belongs to the same debate
+        let responseToId = null;
+        if (argData.responseToId) {
+          const targetArgument = await tx.argument.findFirst({
+            where: {
+              id: argData.responseToId,
+              debateId: debateId,
+            },
+          });
+
+          if (targetArgument) {
+            responseToId = argData.responseToId;
+          }
+          // If target argument doesn't exist or belongs to different debate, ignore responseToId
+        }
+
         await tx.argument.create({
           data: {
             content: argData.content,
@@ -443,6 +460,7 @@ export async function submitDebateArguments(
             debateId: debateId,
             participantId: currentParticipant.id,
             authorId: session.user.id,
+            responseToId: responseToId,
             references: {
               create: argData.references.map((ref) => ({
                 type: "WEBSITE",

@@ -48,11 +48,11 @@ export function DebateInfo({
   const [debouncedSearchQuery] = useDebounce(searchQuery, 500);
 
   const currentUser = session?.user;
-  const isCreator = debate.creatorId === currentUser?.id;
-  const isParticipant = debate.participants.some(
-    (p) => p.userId === currentUser?.id,
-  );
-  const canJoin = !isCreator && !isParticipant && debate.status === "OPEN";
+  const isCreator = currentUser && debate.creatorId === currentUser.id;
+  const isParticipant =
+    currentUser && debate.participants.some((p) => p.userId === currentUser.id);
+  const canJoin =
+    currentUser && !isCreator && !isParticipant && debate.status === "OPEN";
 
   // Role availability logic
   const isProposerTaken = debate.participants.some(
@@ -110,8 +110,10 @@ export function DebateInfo({
   }, [debate.id, currentUser?.email]);
 
   useEffect(() => {
-    fetchPendingRequests();
-  }, [fetchPendingRequests]);
+    if (currentUser) {
+      fetchPendingRequests();
+    }
+  }, [fetchPendingRequests, currentUser]);
 
   const performSearch = useCallback(
     async (query: string) => {
@@ -143,8 +145,10 @@ export function DebateInfo({
   );
 
   useEffect(() => {
-    performSearch(debouncedSearchQuery);
-  }, [debouncedSearchQuery, performSearch]);
+    if (currentUser) {
+      performSearch(debouncedSearchQuery);
+    }
+  }, [debouncedSearchQuery, performSearch, currentUser]);
 
   // Action handlers
   const handleSendInvitation = async (userEmail: string) => {
@@ -188,6 +192,8 @@ export function DebateInfo({
   };
 
   const handleRespondToRequest = async (requestId: string, accept: boolean) => {
+    if (!currentUser) return;
+
     setIsLoading(true);
     try {
       const result = await respondToRequest(requestId, accept);
@@ -205,6 +211,8 @@ export function DebateInfo({
   };
 
   const handleCancelRequest = async (requestId: string) => {
+    if (!currentUser) return;
+
     setIsLoading(true);
     try {
       const result = await cancelRequest(requestId);
@@ -220,18 +228,6 @@ export function DebateInfo({
       setIsLoading(false);
     }
   };
-
-  if (!currentUser) {
-    return (
-      <Card>
-        <CardContent className="p-6 text-center">
-          <p className="text-muted-foreground">
-            Please sign in to interact with this debate
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
 
   return (
     <Card>
@@ -277,11 +273,13 @@ export function DebateInfo({
 
             {debate.participants.length < debate.maxParticipants ? (
               <>
-                <RoleSelection
-                  availableRoles={availableRoles}
-                  selectedRole={selectedRole}
-                  onRoleChange={setSelectedRole}
-                />
+                {currentUser && (
+                  <RoleSelection
+                    availableRoles={availableRoles}
+                    selectedRole={selectedRole}
+                    onRoleChange={setSelectedRole}
+                  />
+                )}
 
                 {canJoin && (
                   <JoinRequest
@@ -311,6 +309,7 @@ export function DebateInfo({
                 )}
 
                 {!isCreator &&
+                  currentUser &&
                   pendingRequests.filter((r) => r.userId === currentUser.id)
                     .length > 0 && (
                     <UserRequestsSection
@@ -327,6 +326,14 @@ export function DebateInfo({
                 <p className="text-sm text-muted-foreground">
                   This debate has reached the maximum number of participants (
                   {debate.maxParticipants})
+                </p>
+              </div>
+            )}
+
+            {!currentUser && (
+              <div className="p-4 bg-muted rounded-lg text-center">
+                <p className="text-sm text-muted-foreground">
+                  Please sign in to join this debate or manage invitations
                 </p>
               </div>
             )}

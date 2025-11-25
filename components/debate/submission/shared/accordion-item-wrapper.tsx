@@ -63,7 +63,7 @@ export function AccordionItemWrapper({
               e.stopPropagation();
               onDelete(id);
             }}
-            className="absolute right-12 top-4 h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+            className="absolute right-12 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
