@@ -58,6 +58,9 @@ export function DebateContentSection({
   const [supersedeDefinitionId, setSupersedeDefinitionId] = useState<
     string | null
   >(null);
+  const [replyToArgumentId, setReplyToArgumentId] = useState<string | null>(
+    null,
+  );
 
   const argumentsByTurn = groupArgumentsByTurn(debate);
   const turnNumbers = Object.keys(argumentsByTurn)
@@ -201,6 +204,33 @@ export function DebateContentSection({
     }
   };
 
+  // Handler for reply button clicks
+  const handleReply = (argumentId: string) => {
+    setReplyToArgumentId(argumentId);
+
+    // Scroll to arguments response section
+    const responseSection = document.getElementById(
+      "arguments-response-section",
+    );
+    if (responseSection) {
+      responseSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      // Optional: Add a highlight effect
+      responseSection.classList.add("bg-blue-50", "dark:bg-blue-900/20");
+      setTimeout(() => {
+        responseSection.classList.remove("bg-blue-50", "dark:bg-blue-900/20");
+      }, 2000);
+    }
+  };
+
+  // Handler to clear the reply when arguments are submitted or cancelled
+  const handleReplyComplete = () => {
+    setReplyToArgumentId(null);
+  };
+
   return (
     <div className="flex-1 min-w-0 space-y-6">
       {/* Arguments & Definitions Tabs */}
@@ -235,9 +265,14 @@ export function DebateContentSection({
             debate={debate}
             currentUserId={currentUserId}
             onVote={handleArgumentVote}
+            onReply={handleReply}
           />
 
-          <ArgumentsResponseSection debate={debate} />
+          <ArgumentsResponseSection
+            debate={debate}
+            replyToArgumentId={replyToArgumentId}
+            onReplyComplete={handleReplyComplete}
+          />
         </TabsContent>
 
         <TabsContent value="definitions" className="mt-6 space-y-8">

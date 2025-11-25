@@ -71,6 +71,7 @@ export interface InitialArgument {
   id: number;
   content: string;
   references: Reference[];
+  responseToId?: string;
 }
 
 export interface DebateFormData {

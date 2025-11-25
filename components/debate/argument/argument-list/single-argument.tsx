@@ -1,10 +1,11 @@
 "use client";
 
 import { format } from "date-fns";
-import { MessageSquare, Users } from "lucide-react";
+import { MessageSquare, Reply, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useDebateSubmission } from "@/hooks/use-debate-submission";
 import type { DebateWithDetails } from "@/types/debate";
 import { VotingButtons } from "../../shared/voting-buttons";
 import { ArgumentReferences } from "./argument-references";
@@ -19,6 +20,7 @@ interface SingleArgumentProps {
   currentUserId?: string;
   onVote?: (argumentId: string, support: boolean) => void;
   onNavigateToArgument?: (argumentId: string) => void;
+  onReply?: (argumentId: string) => void;
 }
 
 // Helper function to count ancestors in the thread
@@ -60,11 +62,18 @@ export function SingleArgument({
   isFirstInGroup,
   currentUserId,
   onVote,
-  onNavigateToArgument, // Make sure this is destructured
+  onNavigateToArgument,
+  onReply,
 }: SingleArgumentProps) {
   const [showThread, setShowThread] = useState(false);
   const [showResponses, setShowResponses] = useState(false);
   const [threadArgumentId, setThreadArgumentId] = useState<string | null>(null);
+
+  // Use the shared hook
+  const { isArgumentsSubmitterEnabled } = useDebateSubmission({
+    debate: debate!,
+    currentUserId,
+  });
 
   const getResponseType = () => {
     if (!argument.responseTo) return undefined;
@@ -128,6 +137,13 @@ export function SingleArgument({
           );
         }, 2000);
       }
+    }
+  };
+
+  // Handle reply button click
+  const handleReply = () => {
+    if (onReply && isArgumentsSubmitterEnabled) {
+      onReply(argument.id);
     }
   };
 
@@ -205,15 +221,30 @@ export function SingleArgument({
             )}
           </div>
 
-          {/* Voting Buttons with transformed votes data */}
-          <VotingButtons
-            itemId={argument.id}
-            votes={transformedVotes}
-            currentUserId={currentUserId}
-            onVote={onVote}
-            size="sm"
-            orientation="horizontal"
-          />
+          <div className="flex items-center gap-2">
+            {/* Reply Button - Only show if ArgumentsSubmitter is enabled */}
+            {isArgumentsSubmitterEnabled && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 px-2 text-xs text-muted-foreground"
+                onClick={handleReply}
+              >
+                <Reply className="h-3 w-3 mr-1" />
+                Reply
+              </Button>
+            )}
+
+            {/* Voting Buttons with transformed votes data */}
+            <VotingButtons
+              itemId={argument.id}
+              votes={transformedVotes}
+              currentUserId={currentUserId}
+              onVote={onVote}
+              size="sm"
+              orientation="horizontal"
+            />
+          </div>
         </div>
 
         {/* References */}

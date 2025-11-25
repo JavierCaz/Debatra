@@ -23,6 +23,8 @@ interface ArgumentsSectionProps {
   title?: string;
   description?: string;
   showStatusIndicators?: boolean;
+  isReply?: boolean;
+  replyToArgumentId?: string;
 }
 
 export function ArgumentsSubmitter({
@@ -37,6 +39,8 @@ export function ArgumentsSubmitter({
   title = "Arguments",
   description = "Add your arguments with supporting evidence",
   showStatusIndicators = true,
+  isReply = false,
+  replyToArgumentId,
 }: ArgumentsSectionProps) {
   const {
     expandedItems,
@@ -48,6 +52,12 @@ export function ArgumentsSubmitter({
     collapseAll,
     isExpanded,
   } = useAccordionItems(initialArguments, onArgumentsChange);
+
+  // Find the reply argument if it exists
+  const replyArgument =
+    isReply && replyToArgumentId
+      ? initialArguments.find((arg) => arg.responseToId === replyToArgumentId)
+      : null;
 
   const addArgument = () => {
     if (initialArguments.length >= maxArguments) return;
@@ -100,6 +110,23 @@ export function ArgumentsSubmitter({
 
   return (
     <div className="space-y-6">
+      {/* Reply Indicator Banner - Only show if we have a reply argument */}
+      {isReply && replyArgument && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-900/20 dark:border-blue-800">
+          <div className="flex items-center gap-2">
+            <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+              You are replying to an argument
+            </p>
+          </div>
+          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+            One of your arguments below is specifically replying to another
+            argument and will be linked in the discussion thread. You can also
+            add regular arguments alongside your reply.
+          </p>
+        </div>
+      )}
+
       <AccordionSectionHeader
         config={config}
         itemsCount={initialArguments.length}
@@ -122,15 +149,20 @@ export function ArgumentsSubmitter({
         {initialArguments.map((argument, index) => {
           const hasArgumentContent = hasContent(argument);
           const hasArgumentReferences = hasReferences(argument);
+          const isReplyArgument = replyToArgumentId
+            ? argument.responseToId === replyToArgumentId
+            : false;
 
           return (
             <AccordionItemWrapper
               key={argument.id}
               id={argument.id}
               title={
-                mode === "create"
-                  ? `Argument ${index + 1}`
-                  : `Your Argument ${index + 1}`
+                isReplyArgument
+                  ? `Reply to Argument` // Special title for reply arguments
+                  : mode === "create"
+                    ? `Argument ${index + 1}`
+                    : `Your Argument ${index + 1}`
               }
               preview={getPreviewText(argument.content)}
               isExpanded={isExpanded(argument.id)}
@@ -141,17 +173,43 @@ export function ArgumentsSubmitter({
               canDelete={initialArguments.length > minArguments}
               onDelete={removeArgument}
             >
+              {/* Reply Indicator */}
+              {isReplyArgument && (
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 dark:bg-blue-900/20 dark:border-blue-800">
+                  <div className="flex items-start gap-2">
+                    <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></div>
+                    <div>
+                      <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
+                        This argument is a reply
+                      </p>
+                      <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                        Make sure to address the points in the original argument
+                        you're responding to. This argument will be linked to
+                        the original in the discussion thread.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="space-y-2">
                 <Label>
-                  Argument Content <span className="text-destructive">*</span>
+                  {isReplyArgument ? "Reply Content" : "Argument Content"}{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <TiptapEditor
                   content={argument.content}
                   onChange={(content) => updateItem(argument.id, { content })}
-                  placeholder="Present your argument, evidence, and reasoning..."
+                  placeholder={
+                    isReplyArgument
+                      ? "Write your response to the argument. Address specific points and provide counter-evidence..."
+                      : "Present your argument, evidence, and reasoning..."
+                  }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Provide a well-reasoned argument with supporting evidence
+                  {isReplyArgument
+                    ? "Provide a thoughtful response that addresses the original argument's points"
+                    : "Provide a well-reasoned argument with supporting evidence"}
                 </p>
               </div>
 

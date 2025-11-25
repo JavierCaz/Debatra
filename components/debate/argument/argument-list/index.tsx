@@ -25,6 +25,7 @@ interface ArgumentsListProps {
   debate: DebateWithDetails;
   currentUserId?: string;
   onVote?: (argumentId: string, support: boolean) => void;
+  onReply?: (argumentId: string) => void;
 }
 
 export function ArgumentsList({
@@ -33,6 +34,7 @@ export function ArgumentsList({
   debate,
   currentUserId,
   onVote,
+  onReply,
 }: ArgumentsListProps) {
   const [openTurns, setOpenTurns] = useState<string[]>([]);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
@@ -263,6 +265,7 @@ export function ArgumentsList({
                                             onNavigateToArgument={
                                               handleNavigateToArgument
                                             }
+                                            onReply={onReply}
                                           />
                                         </div>
                                       ),
