@@ -269,7 +269,10 @@ export function DebateInfo({
           </p>
 
           <div className="space-y-6">
-            <CurrentParticipants debate={debate} />
+            <CurrentParticipants
+              debate={debate}
+              currentUserId={currentUser?.id}
+            />
 
             {debate.participants.length < debate.maxParticipants ? (
               <>
