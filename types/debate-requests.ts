@@ -28,7 +28,7 @@ export interface DebateRequestsPanelProps {
       type: string;
       description: string | null;
       debateId: string;
-      winnerId: string | null;
+      winningRole: ParticipantRole | null;
       decidedAt: Date | null;
     } | null;
     currentTurnSide: ParticipantRole;

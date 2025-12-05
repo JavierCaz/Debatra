@@ -49,36 +49,34 @@ export async function checkDebateTimeouts() {
           data: { status: "FORFEITED" },
         });
 
-        const winner = debate.participants.find(
-          (p) => p.id !== currentTurnParticipant.id,
-        );
+        // Find the winning side (opposite of the forfeiting participant's role)
+        const winningRole =
+          currentTurnParticipant.role === "PROPOSER" ? "OPPOSER" : "PROPOSER";
 
-        if (winner) {
-          await prisma.winCondition.upsert({
-            where: { debateId: debate.id },
-            create: {
-              debateId: debate.id,
-              type: "FORFEIT",
-              winnerId: winner.userId,
-              decidedAt: new Date(),
-              description: `${currentTurnParticipant.user.name} forfeited due to timeout`,
-            },
-            update: {
-              type: "FORFEIT",
-              winnerId: winner.userId,
-              decidedAt: new Date(),
-              description: `${currentTurnParticipant.user.name} forfeited due to timeout`,
-            },
-          });
+        await prisma.winCondition.upsert({
+          where: { debateId: debate.id },
+          create: {
+            debateId: debate.id,
+            type: "FORFEIT",
+            winningRole: winningRole,
+            decidedAt: new Date(),
+            description: `${currentTurnParticipant.user.name} forfeited due to timeout`,
+          },
+          update: {
+            type: "FORFEIT",
+            winningRole: winningRole,
+            decidedAt: new Date(),
+            description: `${currentTurnParticipant.user.name} forfeited due to timeout`,
+          },
+        });
 
-          await prisma.debate.update({
-            where: { id: debate.id },
-            data: {
-              status: "COMPLETED",
-              completedAt: new Date(),
-            },
-          });
-        }
+        await prisma.debate.update({
+          where: { id: debate.id },
+          data: {
+            status: "COMPLETED",
+            completedAt: new Date(),
+          },
+        });
       }
     }
   }

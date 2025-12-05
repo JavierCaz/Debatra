@@ -83,7 +83,7 @@ export function ArgumentsSubmitter({
   const getPreviewText = (content: string) => {
     const plainText = content.replace(/<[^>]*>/g, "").trim();
     return plainText.length > 100
-      ? plainText.substring(0, 100) + "..."
+      ? `${plainText.substring(0, 100)}...`
       : plainText || "No content yet";
   };
 
@@ -110,7 +110,7 @@ export function ArgumentsSubmitter({
 
   return (
     <div className="space-y-6">
-      {/* Reply Indicator Banner - Only show if we have a reply argument */}
+      {/* Reply Indicator Banner */}
       {isReply && replyArgument && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-900/20 dark:border-blue-800">
           <div className="flex items-center gap-2">
@@ -159,7 +159,7 @@ export function ArgumentsSubmitter({
               id={argument.id}
               title={
                 isReplyArgument
-                  ? `Reply to Argument` // Special title for reply arguments
+                  ? `Reply to Argument`
                   : mode === "create"
                     ? `Argument ${index + 1}`
                     : `Your Argument ${index + 1}`

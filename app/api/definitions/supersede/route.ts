@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supersedeDefinition } from "@/app/actions/debates";
+import { supersedeDefinition } from "@/app/actions/definitions";
 
 export async function POST(request: Request) {
   try {

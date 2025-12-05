@@ -66,7 +66,7 @@ export function CurrentParticipants({
 
     const isWinner =
       debate.status === "COMPLETED" &&
-      debate.winCondition?.winnerId === participant.userId;
+      debate.winCondition?.winningRole === participant.role;
 
     const isCreator = participant.userId === debate.creatorId;
 
