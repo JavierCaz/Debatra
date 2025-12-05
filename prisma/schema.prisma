@@ -424,7 +424,7 @@ model WinCondition {
   id          String            @id @default(cuid())
   type        WinConditionType
   description String?           @db.Text
-  winnerId    String?           // User ID of winner (null if no winner yet)
+  winningRole ParticipantRole? 
   decidedAt   DateTime?
   
   // Relations

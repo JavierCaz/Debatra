@@ -76,7 +76,6 @@ export function ArgumentsResponseSection({
     }
   };
 
-  // Check if we're currently in reply mode for display purposes
   const isInReplyMode = !!replyToArgumentId;
 
   const handleSubmit = async () => {

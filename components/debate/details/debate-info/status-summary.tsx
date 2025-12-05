@@ -1,4 +1,5 @@
 import { CheckCircle, Clock, Edit, Users, XCircle } from "lucide-react";
+import type { ParticipantRole } from "@/types/debate";
 import type { DebateRequestsPanelProps } from "@/types/debate-requests";
 
 interface StatusSummaryProps {
@@ -72,6 +73,24 @@ export function StatusSummary({
   const statusConfig = getStatusConfig(debate.status);
   const IconComponent = statusConfig.icon;
 
+  const getWinningSideDisplay = (winningRole: ParticipantRole) => {
+    switch (winningRole) {
+      case "PROPOSER":
+        return "Proposers";
+      case "OPPOSER":
+        return "Opposers";
+      default:
+        return "Winning Side";
+    }
+  };
+
+  // Get winning participants count
+  const winningParticipantsCount = debate.winCondition?.winningRole
+    ? debate.participants.filter(
+        (p) => p.role === debate.winCondition?.winningRole,
+      ).length
+    : 0;
+
   return (
     <div className="p-3 border rounded-lg bg-muted/50">
       <div className="space-y-3">
@@ -103,13 +122,15 @@ export function StatusSummary({
           </div>
         )}
 
-        {/* Additional info for COMPLETED debates with winners */}
-        {debate.status === "COMPLETED" && debate.winCondition?.winnerId && (
+        {/* Updated winner display for COMPLETED debates */}
+        {debate.status === "COMPLETED" && debate.winCondition?.winningRole && (
           <div className="text-xs text-muted-foreground">
-            Winner:{" "}
-            {debate.participants.find(
-              (p) => p.userId === debate.winCondition?.winnerId,
-            )?.user.name || "Unknown"}
+            Winners:{" "}
+            {getWinningSideDisplay(
+              debate.winCondition.winningRole as ParticipantRole,
+            )}
+            {winningParticipantsCount > 0 &&
+              ` (${winningParticipantsCount} participant${winningParticipantsCount > 1 ? "s" : ""})`}
           </div>
         )}
 

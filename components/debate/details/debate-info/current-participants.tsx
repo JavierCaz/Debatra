@@ -2,16 +2,50 @@ import { CheckCircle, Clock, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { DebateRequestsPanelProps } from "@/types/debate-requests";
+import { TurnCountdown } from "./turn-countdown";
 
 interface CurrentParticipantsProps {
   debate: DebateRequestsPanelProps["debate"];
+  currentUserId?: string;
 }
 
 type DebateParticipant =
   DebateRequestsPanelProps["debate"]["participants"][number];
-type DebateArgument = NonNullable<DebateParticipant["arguments"]>[number];
 
-export function CurrentParticipants({ debate }: CurrentParticipantsProps) {
+export function CurrentParticipants({
+  debate,
+  currentUserId,
+}: CurrentParticipantsProps) {
+  const lastArgumentTime = (() => {
+    const allArguments = debate.participants.flatMap((p) => p.arguments || []);
+
+    if (allArguments.length === 0) {
+      return debate.startedAt || new Date();
+    }
+
+    let latestArgument = allArguments[0];
+    for (const argument of allArguments) {
+      const currentArg = argument as any;
+      const latestArg = latestArgument as any;
+      if (new Date(currentArg.createdAt) > new Date(latestArg.createdAt)) {
+        latestArgument = argument;
+      }
+    }
+
+    return (latestArgument as any).createdAt;
+  })();
+
+  // Get current user's participant data
+  const currentUserParticipant = debate.participants.find(
+    (p) => p.userId === currentUserId,
+  );
+  const canSubmitArguments =
+    currentUserParticipant?.role === debate.currentTurnSide &&
+    !currentUserParticipant.arguments?.some(
+      (arg) => arg.turnNumber === debate.currentTurnNumber,
+    ) &&
+    debate.status === "IN_PROGRESS";
+
   // Group participants by role
   const proposers = debate.participants.filter((p) => p.role === "PROPOSER");
   const opposers = debate.participants.filter((p) => p.role === "OPPOSER");
@@ -22,8 +56,7 @@ export function CurrentParticipants({ debate }: CurrentParticipantsProps) {
     participant: DebateParticipant;
   }) => {
     const hasParticipatedInCurrentTurn = participant.arguments?.some(
-      (argument: DebateArgument) =>
-        argument.turnNumber === debate.currentTurnNumber,
+      (argument: any) => argument.turnNumber === debate.currentTurnNumber,
     );
 
     const isCurrentTurn =
@@ -33,7 +66,7 @@ export function CurrentParticipants({ debate }: CurrentParticipantsProps) {
 
     const isWinner =
       debate.status === "COMPLETED" &&
-      debate.winCondition?.winnerId === participant.userId;
+      debate.winCondition?.winningRole === participant.role;
 
     const isCreator = participant.userId === debate.creatorId;
 
@@ -53,7 +86,7 @@ export function CurrentParticipants({ debate }: CurrentParticipantsProps) {
                 {participant.user.name || participant.user.email}
               </p>
               {isCreator && (
-                <Badge variant="outline" className="text-xs ">
+                <Badge variant="outline" className="text-xs">
                   Creator
                 </Badge>
               )}
@@ -78,7 +111,19 @@ export function CurrentParticipants({ debate }: CurrentParticipantsProps) {
 
   return (
     <div>
+      {/* Turn Countdown Banner - Only show during active debate */}
+      {debate.status === "IN_PROGRESS" && debate.turnTimeLimit && (
+        <div className="mb-4">
+          <TurnCountdown
+            lastArgumentTime={lastArgumentTime}
+            turnTimeLimitHours={debate.turnTimeLimit}
+            canSubmitArguments={canSubmitArguments ?? false}
+          />
+        </div>
+      )}
+
       <h4 className="text-sm font-medium mb-3">Current Participants</h4>
+
       <div className="space-y-4">
         {/* Proposers Team */}
         <div className="space-y-2">

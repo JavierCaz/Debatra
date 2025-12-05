@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { submitDebateArguments } from "@/app/actions/debates";
+import { submitArguments } from "@/app/actions/arguments";
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await submitDebateArguments(debateId, argumentsData);
+    const result = await submitArguments(debateId, argumentsData);
 
     if (!result.success) {
       return NextResponse.json(
