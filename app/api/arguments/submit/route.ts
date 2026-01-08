@@ -3,16 +3,20 @@ import { submitArguments } from "@/app/actions/arguments";
 
 export async function POST(request: NextRequest) {
   try {
-    const { debateId, arguments: argumentsData } = await request.json();
+    const {
+      debateId,
+      arguments: argumentsData,
+      isForfeit = false,
+    } = await request.json();
 
-    if (!debateId || !argumentsData) {
+    if (!debateId) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 },
       );
     }
 
-    const result = await submitArguments(debateId, argumentsData);
+    const result = await submitArguments(debateId, argumentsData, isForfeit);
 
     if (!result.success) {
       return NextResponse.json(
