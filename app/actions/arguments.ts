@@ -11,6 +11,7 @@ import { createBulkNotifications } from "./notifications";
 export async function submitArguments(
   debateId: string,
   argumentsData: InitialArgument[],
+  isForfeit: boolean = false,
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -44,7 +45,6 @@ export async function submitArguments(
       throw new Error("Debate is not in progress");
     }
 
-    // Get current user's participant record
     const currentParticipant = await prisma.debateParticipant.findFirst({
       where: {
         debateId: debateId,
@@ -73,7 +73,6 @@ export async function submitArguments(
       throw new Error("You have already submitted arguments for this turn");
     }
 
-    // Validate arguments
     for (const arg of argumentsData) {
       const plainText = arg.content.replace(/<[^>]*>/g, "").trim();
       if (plainText.length < 10) {
@@ -81,172 +80,102 @@ export async function submitArguments(
           "Each argument must have at least 10 characters of content",
         );
       }
-      if (arg.references.length < basicDebate.minReferences) {
+      if (arg.references.length < basicDebate.minReferences && !isForfeit) {
         throw new Error(
           `Each argument requires at least ${basicDebate.minReferences} reference(s)`,
         );
       }
     }
 
-    // Use transaction for the actual submission
     const result = await prisma.$transaction(async (tx) => {
-      // Create arguments
-      for (const argData of argumentsData) {
-        // Check if the target argument exists and belongs to the same debate
-        let responseToId = null;
-        if (argData.responseToId) {
-          const targetArgument = await tx.argument.findFirst({
-            where: {
-              id: argData.responseToId,
+      if (isForfeit) {
+        const opponentSide =
+          currentParticipant.role === "PROPOSER" ? "OPPOSER" : "PROPOSER";
+
+        for (const argData of argumentsData) {
+          const plainText = argData.content.replace(/<[^>]*>/g, "").trim();
+          if (plainText.length === 0) continue;
+
+          await tx.argument.create({
+            data: {
+              content: argData.content,
+              turnNumber: basicDebate.currentTurnNumber,
               debateId: debateId,
+              participantId: currentParticipant.id,
+              authorId: session.user.id,
+            },
+          });
+        }
+
+        await tx.debateParticipant.update({
+          where: { id: currentParticipant.id },
+          data: {
+            status: "FORFEITED",
+          },
+        });
+
+        const activeParticipantsOnSameSide =
+          await tx.debateParticipant.findMany({
+            where: {
+              debateId: debateId,
+              role: currentParticipant.role,
+              status: "ACTIVE",
             },
           });
 
-          if (targetArgument) {
-            responseToId = argData.responseToId;
-          }
-          // If target argument doesn't exist or belongs to different debate, ignore responseToId
-        }
+        let updatedDebateData = null;
+        let winConditionData = null;
 
-        await tx.argument.create({
-          data: {
-            content: argData.content,
-            turnNumber: basicDebate.currentTurnNumber,
-            debateId: debateId,
-            participantId: currentParticipant.id,
-            authorId: session.user.id,
-            responseToId: responseToId,
-            references: {
-              create: argData.references.map((ref) => ({
-                type: "WEBSITE",
-                title: ref.title,
-                url: ref.url,
-                accessedAt: new Date(),
-              })),
-            },
-          },
-        });
-      }
-
-      // Check if this was the last participant on this side for THIS TURN
-      const participantsOnSameSide = await tx.debateParticipant.findMany({
-        where: {
-          debateId: debateId,
-          role: basicDebate.currentTurnSide,
-          status: "ACTIVE",
-        },
-        select: { id: true },
-      });
-
-      const participantsSubmittedThisTurn = await tx.argument.findMany({
-        where: {
-          debateId: debateId,
-          turnNumber: basicDebate.currentTurnNumber,
-          participantId: {
-            in: participantsOnSameSide.map((p) => p.id),
-          },
-        },
-        select: {
-          participantId: true,
-        },
-        distinct: ["participantId"],
-      });
-
-      let updatedDebateData = null;
-
-      // If all participants on this side have submitted for this turn
-      if (
-        participantsSubmittedThisTurn.length === participantsOnSameSide.length
-      ) {
-        // Determine what to do next based on the current side
-
-        if (basicDebate.currentTurnSide === "PROPOSER") {
-          // Proposer just finished, switch to Opposer for the same turn number
+        if (activeParticipantsOnSameSide.length === 0) {
           updatedDebateData = await tx.debate.update({
             where: { id: debateId },
             data: {
-              currentTurnSide: "OPPOSER",
+              status: "COMPLETED",
+              completedAt: new Date(),
               updatedAt: new Date(),
             },
           });
 
-          // Create notifications for OPPOSER participants
-          const opposerParticipants = await tx.debateParticipant.findMany({
-            where: {
+          winConditionData = await tx.winCondition.create({
+            data: {
               debateId: debateId,
-              role: "OPPOSER",
-              status: "ACTIVE",
-            },
-            include: {
-              user: {
-                select: { id: true },
-              },
+              type: "FORFEIT",
+              winningRole: opponentSide,
+              description: `All ${currentParticipant.role.toLowerCase()}s have forfeited. ${opponentSide}s win by forfeit.`,
+              decidedAt: new Date(),
             },
           });
-
-          if (opposerParticipants.length > 0) {
-            await createBulkNotifications({
-              userIds: opposerParticipants.map((p) => p.user.id),
-              type: "NEW_ARGUMENT",
-              title: "Your turn to respond",
-              message: `The proposer has made their arguments for turn ${basicDebate.currentTurnNumber}. It's your turn to respond in the debate "${basicDebate.title}"`,
-              link: `/debates/${debateId}`,
-              actorId: session.user.id,
-              debateId: debateId,
-              metadata: createNotificationMetadata("NEW_ARGUMENT", {
-                turnNumber: basicDebate.currentTurnNumber,
-                turnSide: "OPPOSER",
-                debateTitle: basicDebate.title,
-              }),
-              sendEmail: true, // Enable email notifications
-            });
-          }
         } else {
-          // Opposer just finished, this completes the current turn
-          // Check if we've reached the maximum turns
-          const isLastTurn =
-            basicDebate.currentTurnNumber >= basicDebate.turnsPerSide;
+          const participantsSubmittedThisTurn = await tx.argument.findMany({
+            where: {
+              debateId: debateId,
+              turnNumber: basicDebate.currentTurnNumber,
+              participantId: {
+                in: activeParticipantsOnSameSide.map((p) => p.id),
+              },
+            },
+            select: {
+              participantId: true,
+            },
+            distinct: ["participantId"],
+          });
 
-          if (isLastTurn) {
-            // Debate is completed - CREATE WIN CONDITION
+          if (
+            participantsSubmittedThisTurn.length ===
+            activeParticipantsOnSameSide.length
+          ) {
             updatedDebateData = await tx.debate.update({
               where: { id: debateId },
               data: {
-                status: "COMPLETED",
-                completedAt: new Date(),
+                currentTurnSide: opponentSide,
                 updatedAt: new Date(),
               },
             });
 
-            // Calculate vote counts to determine the winning side
-            const voteCounts = await calculateTeamVoteCounts(debateId, tx);
-
-            // Determine winning role based on vote counts
-            let winningRole: "PROPOSER" | "OPPOSER" | null = null;
-            if (voteCounts.proposerVotes > voteCounts.opposerVotes) {
-              winningRole = "PROPOSER";
-            } else if (voteCounts.opposerVotes > voteCounts.proposerVotes) {
-              winningRole = "OPPOSER";
-            }
-            // If tie, winningRole remains null
-
-            // Create WinCondition with VOTE_COUNT type
-            await tx.winCondition.create({
-              data: {
-                debateId: debateId,
-                type: "VOTE_COUNT",
-                winningRole: winningRole,
-                description: winningRole
-                  ? `Debate completed after ${basicDebate.turnsPerSide} turns per side. ${winningRole}s won with majority votes.`
-                  : `Debate completed after ${basicDebate.turnsPerSide} turns per side. Result: Tie.`,
-                decidedAt: new Date(),
-              },
-            });
-
-            // Create notifications for all participants about debate completion
-            const allParticipants = await tx.debateParticipant.findMany({
+            const opponentParticipants = await tx.debateParticipant.findMany({
               where: {
                 debateId: debateId,
+                role: opponentSide,
                 status: "ACTIVE",
               },
               include: {
@@ -256,81 +185,301 @@ export async function submitArguments(
               },
             });
 
-            if (allParticipants.length > 0) {
-              const winnerText = winningRole
-                ? `The ${winningRole.toLowerCase()}s have won the debate!`
-                : "The debate ended in a tie!";
-
+            if (opponentParticipants.length > 0) {
+              const userIds = opponentParticipants.map((p) => p.user.id);
               await createBulkNotifications({
-                userIds: allParticipants.map((p) => p.user.id),
-                type: "DEBATE_COMPLETED",
-                title: "Debate Completed",
-                message: `The debate "${basicDebate.title}" has been completed. ${winnerText}`,
+                userIds: userIds,
+                type: "NEW_ARGUMENT",
+                title: "Your turn to respond",
+                message: `The ${currentParticipant.role.toLowerCase()}s have made their arguments for turn ${basicDebate.currentTurnNumber}. It's your turn to respond in the debate "${basicDebate.title}"`,
                 link: `/debates/${debateId}`,
                 actorId: session.user.id,
                 debateId: debateId,
-                metadata: createNotificationMetadata("DEBATE_COMPLETED", {
+                metadata: createNotificationMetadata("NEW_ARGUMENT", {
+                  turnNumber: basicDebate.currentTurnNumber,
+                  turnSide: opponentSide,
                   debateTitle: basicDebate.title,
-                  winningRole: winningRole,
-                  totalTurns: basicDebate.turnsPerSide * 2,
+                }),
+                sendEmail: true,
+              });
+            }
+          }
+        }
+
+        const allParticipants = await tx.debateParticipant.findMany({
+          where: {
+            debateId: debateId,
+            status: { in: ["ACTIVE", "FORFEITED"] },
+          },
+          include: {
+            user: {
+              select: { id: true },
+            },
+          },
+        });
+
+        if (allParticipants.length > 0) {
+          const userIds = allParticipants.map((p) => p.user.id);
+          const isDebateOver = activeParticipantsOnSameSide.length === 0;
+
+          const message = isDebateOver
+            ? `The debate "${basicDebate.title}" has ended because all ${currentParticipant.role.toLowerCase()}s have forfeited. ${opponentSide}s win!`
+            : `A ${currentParticipant.role.toLowerCase()} has forfeited in the debate "${basicDebate.title}". The debate continues with remaining participants.`;
+
+          await createBulkNotifications({
+            userIds: userIds,
+            type: isDebateOver ? "DEBATE_COMPLETED" : "NEW_ARGUMENT",
+            title: isDebateOver ? "Debate Completed" : "NEW_ARGUMENT",
+            message: message,
+            link: `/debates/${debateId}`,
+            actorId: session.user.id,
+            debateId: debateId,
+            metadata: createNotificationMetadata(
+              isDebateOver ? "DEBATE_COMPLETED" : "NEW_ARGUMENT",
+              {
+                debateTitle: basicDebate.title,
+                winningRole: isDebateOver ? opponentSide : null,
+                isForfeit: true,
+                forfeitedBy: currentParticipant.role,
+                isDebateOver: isDebateOver,
+              },
+            ),
+            sendEmail: true,
+          });
+        }
+
+        return {
+          success: true,
+          error: null,
+          debate: updatedDebateData || basicDebate,
+          winCondition: winConditionData,
+        };
+      } else {
+        for (const argData of argumentsData) {
+          let responseToId = null;
+          if (argData.responseToId) {
+            const targetArgument = await tx.argument.findFirst({
+              where: {
+                id: argData.responseToId,
+                debateId: debateId,
+              },
+            });
+
+            if (targetArgument) {
+              responseToId = argData.responseToId;
+            }
+          }
+
+          await tx.argument.create({
+            data: {
+              content: argData.content,
+              turnNumber: basicDebate.currentTurnNumber,
+              debateId: debateId,
+              participantId: currentParticipant.id,
+              authorId: session.user.id,
+              responseToId: responseToId,
+              references: {
+                create: argData.references.map((ref) => ({
+                  type: "WEBSITE",
+                  title: ref.title,
+                  url: ref.url,
+                  accessedAt: new Date(),
+                })),
+              },
+            },
+          });
+        }
+
+        const activeParticipantsOnSameSide =
+          await tx.debateParticipant.findMany({
+            where: {
+              debateId: debateId,
+              role: basicDebate.currentTurnSide,
+              status: "ACTIVE",
+            },
+            select: { id: true },
+          });
+
+        const participantsSubmittedThisTurn = await tx.argument.findMany({
+          where: {
+            debateId: debateId,
+            turnNumber: basicDebate.currentTurnNumber,
+            participantId: {
+              in: activeParticipantsOnSameSide.map((p) => p.id),
+            },
+          },
+          select: {
+            participantId: true,
+          },
+          distinct: ["participantId"],
+        });
+
+        let updatedDebateData = null;
+
+        if (
+          participantsSubmittedThisTurn.length ===
+          activeParticipantsOnSameSide.length
+        ) {
+          if (basicDebate.currentTurnSide === "PROPOSER") {
+            updatedDebateData = await tx.debate.update({
+              where: { id: debateId },
+              data: {
+                currentTurnSide: "OPPOSER",
+                updatedAt: new Date(),
+              },
+            });
+
+            const opposerParticipants = await tx.debateParticipant.findMany({
+              where: {
+                debateId: debateId,
+                role: "OPPOSER",
+                status: "ACTIVE",
+              },
+              include: {
+                user: {
+                  select: { id: true },
+                },
+              },
+            });
+
+            if (opposerParticipants.length > 0) {
+              await createBulkNotifications({
+                userIds: opposerParticipants.map((p) => p.user.id),
+                type: "NEW_ARGUMENT",
+                title: "Your turn to respond",
+                message: `The proposers have made their arguments for turn ${basicDebate.currentTurnNumber}. It's your turn to respond in the debate "${basicDebate.title}"`,
+                link: `/debates/${debateId}`,
+                actorId: session.user.id,
+                debateId: debateId,
+                metadata: createNotificationMetadata("NEW_ARGUMENT", {
+                  turnNumber: basicDebate.currentTurnNumber,
+                  turnSide: "OPPOSER",
+                  debateTitle: basicDebate.title,
                 }),
                 sendEmail: true,
               });
             }
           } else {
-            // Move to next turn and switch back to Proposer
-            const nextTurnNumber = basicDebate.currentTurnNumber + 1;
+            const isLastTurn =
+              basicDebate.currentTurnNumber >= basicDebate.turnsPerSide;
 
-            updatedDebateData = await tx.debate.update({
-              where: { id: debateId },
-              data: {
-                currentTurnSide: "PROPOSER",
-                currentTurnNumber: nextTurnNumber,
-                updatedAt: new Date(),
-              },
-            });
-
-            // Create notifications for PROPOSER participants
-            const proposerParticipants = await tx.debateParticipant.findMany({
-              where: {
-                debateId: debateId,
-                role: "PROPOSER",
-                status: "ACTIVE",
-              },
-              include: {
-                user: {
-                  select: { id: true },
+            if (isLastTurn) {
+              updatedDebateData = await tx.debate.update({
+                where: { id: debateId },
+                data: {
+                  status: "COMPLETED",
+                  completedAt: new Date(),
+                  updatedAt: new Date(),
                 },
-              },
-            });
-
-            if (proposerParticipants.length > 0) {
-              await createBulkNotifications({
-                userIds: proposerParticipants.map((p) => p.user.id),
-                type: "NEW_ARGUMENT",
-                title: "New turn started",
-                message: `Turn ${nextTurnNumber} has started. It's your turn to present arguments in the debate "${basicDebate.title}"`,
-                link: `/debates/${debateId}`,
-                actorId: session.user.id,
-                debateId: debateId,
-                metadata: createNotificationMetadata("NEW_ARGUMENT", {
-                  debateTitle: basicDebate.title,
-                  turnNumber: nextTurnNumber,
-                  turnSide: "PROPOSER",
-                }),
-                sendEmail: true, // Enable email notifications
               });
+
+              const voteCounts = await calculateTeamVoteCounts(debateId, tx);
+
+              let winningRole: "PROPOSER" | "OPPOSER" | null = null;
+              if (voteCounts.proposerVotes > voteCounts.opposerVotes) {
+                winningRole = "PROPOSER";
+              } else if (voteCounts.opposerVotes > voteCounts.proposerVotes) {
+                winningRole = "OPPOSER";
+              }
+
+              await tx.winCondition.create({
+                data: {
+                  debateId: debateId,
+                  type: "VOTE_COUNT",
+                  winningRole: winningRole,
+                  description: winningRole
+                    ? `Debate completed after ${basicDebate.turnsPerSide} turns per side. ${winningRole}s won with majority votes.`
+                    : `Debate completed after ${basicDebate.turnsPerSide} turns per side. Result: Tie.`,
+                  decidedAt: new Date(),
+                },
+              });
+
+              const allActiveParticipants = await tx.debateParticipant.findMany(
+                {
+                  where: {
+                    debateId: debateId,
+                    status: "ACTIVE",
+                  },
+                  include: {
+                    user: {
+                      select: { id: true },
+                    },
+                  },
+                },
+              );
+
+              if (allActiveParticipants.length > 0) {
+                const winnerText = winningRole
+                  ? `The ${winningRole.toLowerCase()}s have won the debate!`
+                  : "The debate ended in a tie!";
+
+                await createBulkNotifications({
+                  userIds: allActiveParticipants.map((p) => p.user.id),
+                  type: "DEBATE_COMPLETED",
+                  title: "Debate Completed",
+                  message: `The debate "${basicDebate.title}" has been completed. ${winnerText}`,
+                  link: `/debates/${debateId}`,
+                  actorId: session.user.id,
+                  debateId: debateId,
+                  metadata: createNotificationMetadata("DEBATE_COMPLETED", {
+                    debateTitle: basicDebate.title,
+                    winningRole: winningRole,
+                    totalTurns: basicDebate.turnsPerSide * 2,
+                  }),
+                  sendEmail: true,
+                });
+              }
+            } else {
+              const nextTurnNumber = basicDebate.currentTurnNumber + 1;
+              updatedDebateData = await tx.debate.update({
+                where: { id: debateId },
+                data: {
+                  currentTurnSide: "PROPOSER",
+                  currentTurnNumber: nextTurnNumber,
+                  updatedAt: new Date(),
+                },
+              });
+
+              const proposerParticipants = await tx.debateParticipant.findMany({
+                where: {
+                  debateId: debateId,
+                  role: "PROPOSER",
+                  status: "ACTIVE",
+                },
+                include: {
+                  user: {
+                    select: { id: true },
+                  },
+                },
+              });
+
+              if (proposerParticipants.length > 0) {
+                await createBulkNotifications({
+                  userIds: proposerParticipants.map((p) => p.user.id),
+                  type: "NEW_ARGUMENT",
+                  title: "New turn started",
+                  message: `Turn ${nextTurnNumber} has started. It's your turn to present arguments in the debate "${basicDebate.title}"`,
+                  link: `/debates/${debateId}`,
+                  actorId: session.user.id,
+                  debateId: debateId,
+                  metadata: createNotificationMetadata("NEW_ARGUMENT", {
+                    debateTitle: basicDebate.title,
+                    turnNumber: nextTurnNumber,
+                    turnSide: "PROPOSER",
+                  }),
+                  sendEmail: true,
+                });
+              }
             }
           }
         }
-      }
 
-      // Return the updated debate data if it was modified, otherwise return the original
-      return {
-        success: true,
-        error: null,
-        debate: updatedDebateData || basicDebate,
-      };
+        return {
+          success: true,
+          error: null,
+          debate: updatedDebateData || basicDebate,
+        };
+      }
     });
 
     revalidatePath(`/debates/${debateId}`);
@@ -345,7 +494,6 @@ export async function submitArguments(
   }
 }
 
-// Helper function to calculate team vote counts
 async function calculateTeamVoteCounts(debateId: string, tx: any) {
   const argumentsWithVotes = await tx.argument.findMany({
     where: { debateId },

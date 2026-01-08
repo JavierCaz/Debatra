@@ -1,4 +1,9 @@
-import type { Debate, DebateRequest, ParticipantRole } from "@prisma";
+import type {
+  Debate,
+  DebateRequest,
+  ParticipantRole,
+  ParticipantStatus,
+} from "@prisma";
 
 export interface DebateRequestsPanelProps {
   debate: Debate & {
@@ -11,6 +16,7 @@ export interface DebateRequestsPanelProps {
     participants: Array<{
       userId: string;
       role: ParticipantRole;
+      status: ParticipantStatus;
       user: {
         id: string;
         name: string | null;

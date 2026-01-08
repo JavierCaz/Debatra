@@ -1,4 +1,4 @@
-import { CheckCircle, Clock, Trophy } from "lucide-react";
+import { CheckCircle, Clock, Flag, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import type { DebateRequestsPanelProps } from "@/types/debate-requests";
@@ -69,6 +69,7 @@ export function CurrentParticipants({
       debate.winCondition?.winningRole === participant.role;
 
     const isCreator = participant.userId === debate.creatorId;
+    const hasForfeited = participant.status === "FORFEITED";
 
     return (
       <div className="flex items-center justify-between p-3 border rounded-lg">
@@ -97,13 +98,16 @@ export function CurrentParticipants({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {hasParticipatedInCurrentTurn && (
+          {hasForfeited && <Flag className="w-4 h-4 text-destructive" />}
+          {hasParticipatedInCurrentTurn && !hasForfeited && (
             <CheckCircle className="w-4 h-4 text-green-600" />
           )}
-          {isCurrentTurn && (
+          {isCurrentTurn && !hasForfeited && (
             <Clock className="w-4 h-4 text-yellow-600 animate-pulse" />
           )}
-          {isWinner && <Trophy className="w-4 h-4 text-green-600" />}
+          {isWinner && !hasForfeited && (
+            <Trophy className="w-4 h-4 text-green-600" />
+          )}
         </div>
       </div>
     );

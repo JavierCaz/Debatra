@@ -158,16 +158,6 @@ export function ArgumentsList({
                       {totalArguments} argument{totalArguments !== 1 ? "s" : ""}
                     </Badge>
                   </div>
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground">
-                    <span>
-                      {Object.keys(participantsByRole).length} position
-                      {Object.keys(participantsByRole).length !== 1 ? "s" : ""}
-                    </span>
-                    <span>
-                      {participantsInOrder.length} participant
-                      {participantsInOrder.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
                 </div>
               </AccordionTrigger>
 
