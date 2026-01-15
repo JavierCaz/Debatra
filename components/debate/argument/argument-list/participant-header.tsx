@@ -1,22 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { getRoleBadgeColor } from "@/lib/debate/formatters";
 import type { DebateWithDetails } from "@/types/debate";
 
 interface ParticipantHeaderProps {
   participant: DebateWithDetails["participants"][0];
   argumentsCount: number;
 }
-
-const getRoleBadgeColor = (role: string) => {
-  switch (role) {
-    case "PROPOSER":
-      return "bg-green-500";
-    case "OPPOSER":
-      return "bg-red-500";
-    default:
-      return "bg-gray-500";
-  }
-};
 
 export function ParticipantHeader({
   participant,

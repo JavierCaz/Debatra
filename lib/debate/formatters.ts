@@ -1,3 +1,19 @@
+const statusColors = {
+  DRAFT: "bg-gray-500",
+  OPEN: "bg-green-500",
+  IN_PROGRESS: "bg-blue-500",
+  COMPLETED: "bg-purple-500",
+  CANCELLED: "bg-red-500",
+} as const;
+
+export const getStatusBadgeColor = (
+  status: keyof typeof statusColors | string,
+): string => {
+  const color = statusColors[status as keyof typeof statusColors];
+
+  return color || "bg-gray-500";
+};
+
 export const getRoleBadgeColor = (role: string) => {
   switch (role) {
     case "PROPOSER":
