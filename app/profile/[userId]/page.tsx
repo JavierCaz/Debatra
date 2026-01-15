@@ -1,8 +1,8 @@
-import { Calendar, ThumbsUp } from "lucide-react";
-import Link from "next/link";
+import { Calendar } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { getNotificationPreferences } from "@/app/actions/notifications";
+import { DebateFiltersClient } from "@/components/debate/browse/debate-filters-client";
 import { DebateList } from "@/components/profile/DebateList";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
 import { ProfileStats } from "@/components/profile/ProfileStats";
@@ -23,19 +23,70 @@ interface ProfilePageProps {
   params: Promise<{
     userId: string;
   }>;
+  searchParams: Promise<{
+    status?: string;
+    search?: string;
+    topic?: string;
+  }>;
 }
 
-async function getUserProfile(userId: string) {
+async function getUserProfile(
+  userId: string,
+  filters?: {
+    status?: string;
+    search?: string;
+    topic?: string;
+  },
+) {
+  const whereConditions: any = {
+    OR: [{ creatorId: userId }, { participants: { some: { userId } } }],
+  };
+
+  // Add status filter if provided
+  if (filters?.status && filters.status !== "ALL") {
+    whereConditions.status = filters.status;
+  }
+
+  // Add search filter if provided
+  if (filters?.search) {
+    whereConditions.OR = [
+      ...(whereConditions.OR || []),
+      {
+        title: {
+          contains: filters.search,
+          mode: "insensitive",
+        },
+      },
+      {
+        description: {
+          contains: filters.search,
+          mode: "insensitive",
+        },
+      },
+    ];
+  }
+
+  // Add topic filter if provided
+  if (filters?.topic && filters.topic !== "ALL") {
+    whereConditions.topics = {
+      some: {
+        topic: filters.topic as any,
+      },
+    };
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
       debatesCreated: {
+        where: whereConditions,
         include: {
           participants: {
             include: {
               user: true,
             },
           },
+          topics: true,
           _count: {
             select: {
               arguments: true,
@@ -46,10 +97,14 @@ async function getUserProfile(userId: string) {
         take: 10,
       },
       debateParticipants: {
+        where: {
+          debate: whereConditions,
+        },
         include: {
           debate: {
             include: {
               creator: true,
+              topics: true,
               _count: {
                 select: {
                   arguments: true,
@@ -75,8 +130,14 @@ async function getUserProfile(userId: string) {
       },
       _count: {
         select: {
-          debatesCreated: true,
-          debateParticipants: true,
+          debatesCreated: {
+            where: whereConditions,
+          },
+          debateParticipants: {
+            where: {
+              debate: whereConditions,
+            },
+          },
           arguments: true,
           votes: true,
           concessions: true,
@@ -88,10 +149,19 @@ async function getUserProfile(userId: string) {
   return user;
 }
 
-export default async function ProfilePage({ params }: ProfilePageProps) {
+export default async function ProfilePage({
+  params,
+  searchParams,
+}: ProfilePageProps) {
   const userId = (await params).userId;
   const session = await getServerSession();
-  const user = await getUserProfile(userId);
+  const filters = await searchParams;
+
+  const status = filters.status || "ALL";
+  const search = filters.search || "";
+  const topic = filters.topic || "ALL";
+
+  const user = await getUserProfile(userId, filters);
   const { preferences } = await getNotificationPreferences();
 
   if (!user) {
@@ -164,67 +234,114 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
       <ProfileStats stats={user._count} />
 
-      <Tabs defaultValue="created" className="mb-8">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="created">
-            Created Debates ({user._count.debatesCreated})
-          </TabsTrigger>
-          <TabsTrigger value="participated">
-            Participated ({user._count.debateParticipants})
-          </TabsTrigger>
-        </TabsList>
+      <div className="mt-8">
+        <Tabs defaultValue="created" className="w-full">
+          <div className="flex flex-col lg:flex-row gap-8">
+            <div className="lg:w-1/3">
+              <div className="sticky top-4 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Filter Debates</CardTitle>
+                    <CardDescription>
+                      Narrow down debates by status, topic, or search
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Tabs Navigation inside CardContent */}
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="created">
+                        Created ({user._count.debatesCreated})
+                      </TabsTrigger>
+                      <TabsTrigger value="participated">
+                        Participated ({user._count.debateParticipants})
+                      </TabsTrigger>
+                    </TabsList>
 
-        <TabsContent value="created" className="mt-6">
-          <DebateList items={user.debatesCreated} type="created" />
-        </TabsContent>
-
-        <TabsContent value="participated" className="mt-6">
-          <DebateList items={user.debateParticipants} type="participated" />
-        </TabsContent>
-      </Tabs>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Arguments</CardTitle>
-          <CardDescription>Latest contributions to debates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {user.arguments.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
-              No arguments yet
-            </p>
-          ) : (
-            <div className="space-y-4">
-              {user.arguments.map((argument) => (
-                <div
-                  key={argument.id}
-                  className="border-l-4 border-primary pl-4 py-2"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <Link href={`/debates/${argument.debate.id}`}>
-                      <span className="text-sm font-medium hover:text-primary cursor-pointer">
-                        {argument.debate.title}
-                      </span>
-                    </Link>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(argument.createdAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {argument.content}
-                  </p>
-                  <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-                    <ThumbsUp className="h-3 w-3" />
-                    <span>{argument._count.votes} votes</span>
-                    <Separator orientation="vertical" className="h-3" />
-                    <span>Turn {argument.turnNumber}</span>
-                  </div>
-                </div>
-              ))}
+                    <div className="pt-2">
+                      <h3 className="text-sm font-medium mb-3">Filters</h3>
+                      <DebateFiltersClient
+                        initialStatus={status}
+                        initialSearch={search}
+                        initialTopic={topic}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+
+            <div className="lg:w-2/3">
+              <TabsContent value="created" className="mt-0">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Created Debates</CardTitle>
+                    <CardDescription>
+                      Debates created by {user.name || "this user"}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {user.debatesCreated.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          No debates found
+                        </p>
+                        {status !== "ALL" || search || topic !== "ALL" ? (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            Try adjusting your filters
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {user.name || "This user"} hasn't created any
+                            debates yet
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <DebateList items={user.debatesCreated} type="created" />
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Participated Debates Tab */}
+              <TabsContent value="participated" className="mt-0">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Participated Debates</CardTitle>
+                    <CardDescription>
+                      Debates {user.name || "this user"} has participated in
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {user.debateParticipants.length === 0 ? (
+                      <div className="text-center py-8">
+                        <p className="text-muted-foreground">
+                          No debates found
+                        </p>
+                        {status !== "ALL" || search || topic !== "ALL" ? (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            Try adjusting your filters
+                          </p>
+                        ) : (
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {user.name || "This user"} hasn't participated in
+                            any debates yet
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <DebateList
+                        items={user.debateParticipants}
+                        type="participated"
+                      />
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </div>
+          </div>
+        </Tabs>
+      </div>
     </div>
   );
 }

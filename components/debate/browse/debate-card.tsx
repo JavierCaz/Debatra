@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getStatusBadgeColor } from "@/lib/debate/formatters";
 import { type DebateTopic, getTopicDisplayName } from "@/types/debate";
 
 interface DebateCardProps {
@@ -32,14 +33,6 @@ interface DebateCardProps {
     };
   };
 }
-
-const statusColors = {
-  DRAFT: "bg-gray-500",
-  OPEN: "bg-green-500",
-  IN_PROGRESS: "bg-blue-500",
-  COMPLETED: "bg-purple-500",
-  CANCELLED: "bg-red-500",
-};
 
 const statusLabels = {
   DRAFT: "Draft",
@@ -65,11 +58,7 @@ export function DebateCard({ debate }: DebateCardProps) {
               </CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-2">
                 {/* Status Badge */}
-                <Badge
-                  className={
-                    statusColors[debate.status as keyof typeof statusColors]
-                  }
-                >
+                <Badge className={getStatusBadgeColor(debate.status)}>
                   {statusLabels[debate.status as keyof typeof statusLabels]}
                 </Badge>
 

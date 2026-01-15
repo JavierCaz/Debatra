@@ -8,6 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import {
+  getRoleBadgeColor,
+  getStatusBadgeColor,
+} from "@/lib/debate/formatters";
 
 interface Debate {
   id: string;
@@ -32,14 +36,6 @@ interface DebateListProps {
   items: (Debate | Participation)[];
   type: "created" | "participated";
 }
-
-const statusVariant = {
-  DRAFT: "secondary",
-  OPEN: "default",
-  IN_PROGRESS: "default",
-  COMPLETED: "default",
-  CANCELLED: "destructive",
-} as const;
 
 export function DebateList({ items, type }: DebateListProps) {
   if (items.length === 0) {
@@ -85,15 +81,13 @@ export function DebateList({ items, type }: DebateListProps) {
                   {type === "participated" && participation && (
                     <CardDescription className="mt-2">
                       Role:{" "}
-                      <Badge variant="outline">{participation.role}</Badge>
+                      <Badge className={getRoleBadgeColor(participation.role)}>
+                        {participation.role}
+                      </Badge>
                     </CardDescription>
                   )}
                 </div>
-                <Badge
-                  variant={
-                    statusVariant[debate.status as keyof typeof statusVariant]
-                  }
-                >
+                <Badge className={getStatusBadgeColor(debate.status)}>
                   {debate.status.replace("_", " ")}
                 </Badge>
               </div>

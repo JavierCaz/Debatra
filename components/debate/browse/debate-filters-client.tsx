@@ -1,7 +1,7 @@
 "use client";
 
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { DebateFilters } from "./debate-filters";
@@ -10,15 +10,18 @@ interface DebateFiltersClientProps {
   initialStatus: string;
   initialSearch: string;
   initialTopic?: string;
+  basePath?: string;
 }
 
 export function DebateFiltersClient({
   initialStatus,
   initialSearch,
   initialTopic = "ALL",
+  basePath,
 }: DebateFiltersClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
@@ -44,10 +47,11 @@ export function DebateFiltersClient({
       });
 
       startTransition(() => {
-        router.push(`/debates?${params.toString()}`, { scroll: false });
+        const targetPath = basePath || pathname;
+        router.push(`${targetPath}?${params.toString()}`, { scroll: false });
       });
     },
-    [router, searchParams],
+    [router, searchParams, pathname, basePath],
   );
 
   const debouncedUpdateSearch = useDebouncedCallback((value: string) => {
