@@ -13,6 +13,7 @@ interface DebateFormatType {
   value: DebateFormData["format"];
   label: string;
   description: string;
+  enabled: boolean;
 }
 
 export function DebateParametersSection({
@@ -24,16 +25,19 @@ export function DebateParametersSection({
       value: DebateFormat.ONE_VS_ONE,
       label: "One vs One",
       description: "Two participants",
+      enabled: true,
     },
     {
       value: DebateFormat.ONE_VS_MANY,
       label: "One vs Many",
-      description: "One person vs multiple",
+      description: "One person vs multiple (WIP)",
+      enabled: false, // Disabled for now until we polish the logic
     },
     {
       value: DebateFormat.MULTI_SIDED,
       label: "Multi-sided",
-      description: "Multiple positions",
+      description: "Multiple positions (WIP)",
+      enabled: false, // Disabled for now until we polish the logic
     },
   ];
 
@@ -74,7 +78,11 @@ export function DebateParametersSection({
               >
                 <CardContent className="p-0">
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value={format.value} id={format.value} />
+                    <RadioGroupItem
+                      value={format.value}
+                      id={format.value}
+                      disabled={!format.enabled}
+                    />
                     <div>
                       <p className="font-medium">{format.label}</p>
                       <p className="text-sm text-muted-foreground">
@@ -90,18 +98,20 @@ export function DebateParametersSection({
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="maxParticipants">Maximum Participants</Label>
-          <Input
-            type="number"
-            id="maxParticipants"
-            name="maxParticipants"
-            value={formData.maxParticipants}
-            onChange={handleInputChange}
-            min="2"
-            max="10"
-          />
-        </div>
+        {formData.format !== DebateFormat.ONE_VS_ONE && (
+          <div className="space-y-2">
+            <Label htmlFor="maxParticipants">Maximum Participants</Label>
+            <Input
+              type="number"
+              id="maxParticipants"
+              name="maxParticipants"
+              value={formData.maxParticipants}
+              onChange={handleInputChange}
+              min="2"
+              max="10"
+            />
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="turnsPerSide">Turns Per Side</Label>

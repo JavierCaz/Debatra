@@ -10,15 +10,15 @@ interface SubmitButtonsProps {
 export function SubmitButtons({ isSubmitting, onSubmit }: SubmitButtonsProps) {
   return (
     <div className="flex justify-end gap-3 pt-4 border-t">
-      <Button
+      {/* <Button
         type="button"
         variant="outline"
         onClick={() => onSubmit(DebateStatus.DRAFT)}
         disabled={isSubmitting}
-      >
+      > WIP: Saving as draft is currently disabled until we implement the logic to handle it properly. --- IGNORE ---
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
         Save as Draft
-      </Button>
+      </Button> */}
       <Button
         type="button"
         onClick={() => onSubmit(DebateStatus.OPEN)}

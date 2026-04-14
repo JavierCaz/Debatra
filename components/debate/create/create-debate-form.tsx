@@ -98,19 +98,25 @@ export function CreateDebateForm({
 
   return (
     <Card>
-      <CardHeader className="space-y-1 bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
-        <div className="flex items-center gap-3">
-          <FileText className="h-8 w-8" />
-          <div>
-            <CardTitle className="text-3xl">Create New Debate</CardTitle>
-            <CardDescription className="text-primary-foreground/80">
-              Set up your debate parameters, arguments, and definitions
+      <CardHeader className="relative overflow-hidden border-b">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <CardTitle className="text-3xl font-bold tracking-tight">
+              Create a New Debate
+            </CardTitle>
+            <CardDescription className="text-muted-foreground max-w-md">
+              Define the format, structure arguments, and establish key
+              definitions before publishing.
             </CardDescription>
+          </div>
+
+          <div className="hidden sm:flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/15">
+            <FileText className="h-7 w-7 text-primary" />
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-8 pt-6">
+      <CardContent className="space-y-8">
         <BasicInfoSection
           formData={formData}
           errors={errors}
