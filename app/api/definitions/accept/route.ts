@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { acceptDefinition } from "@/app/actions/debates";
+import { acceptDefinition } from "@/app/actions/definitions";
 
 export async function POST(request: Request) {
   try {

@@ -332,7 +332,6 @@ model Definition {
   id          String           @id @default(cuid())
   term        String           // The term/concept being defined
   definition  String           @db.Text // The definition itself
-  context     String?          @db.Text // Additional context or rationale
   status      DefinitionStatus @default(PROPOSED)
   
   // Metadata

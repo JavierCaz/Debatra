@@ -48,7 +48,6 @@ export function DefinitionsResponseSection({
         id: Date.now(), // Temporary ID for the form
         term: definitionToSupersede.term,
         definition: definitionToSupersede.definition,
-        context: definitionToSupersede.context || "",
         references: definitionToSupersede.references.map((ref) => ({
           id: Date.now() + Math.random(), // Temporary ID
           type: ref.type,

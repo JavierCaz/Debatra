@@ -207,18 +207,6 @@ export function DefinitionsList({
                     </p>
                   </div>
 
-                  {/* Context (if provided) */}
-                  {currentDefinition.context && (
-                    <div className="bg-muted/50 dark:bg-muted/30 p-4 rounded-lg">
-                      <h4 className="text-sm font-semibold text-muted-foreground mb-2">
-                        Context
-                      </h4>
-                      <p className="text-sm leading-relaxed text-foreground">
-                        {currentDefinition.context}
-                      </p>
-                    </div>
-                  )}
-
                   {/* Action Buttons */}
                   <DefinitionActions
                     definitionId={currentDefinition.id}

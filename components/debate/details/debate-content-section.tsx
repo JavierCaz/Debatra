@@ -13,7 +13,6 @@ interface TransformedDefinition {
   id: string;
   term: string;
   definition: string;
-  context?: string;
   status: "PROPOSED" | "ACCEPTED" | "CONTESTED" | "DEPRECATED";
   createdAt: Date;
   proposer: {
@@ -78,7 +77,6 @@ export function DebateContentSection({
         id: def.id,
         term: def.term,
         definition: def.definition,
-        context: def.context || undefined,
         status: def.status,
         createdAt: def.createdAt,
         proposer: {
@@ -109,7 +107,9 @@ export function DebateContentSection({
       };
     });
 
-  const totalDefinitions = transformedDefinitions.length;
+  const uniqueDefinitionTerms = new Set(
+    debate.definitions.map((def) => def.term),
+  ).size;
 
   const handleTabChange = (value: string) => {
     if (value === "arguments" || value === "definitions") {
@@ -250,9 +250,9 @@ export function DebateContentSection({
           </TabsTrigger>
           <TabsTrigger value="definitions" className="relative">
             Definitions
-            {totalDefinitions > 0 && (
+            {uniqueDefinitionTerms > 0 && (
               <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-primary-foreground bg-primary rounded-full">
-                {totalDefinitions}
+                {uniqueDefinitionTerms}
               </span>
             )}
           </TabsTrigger>

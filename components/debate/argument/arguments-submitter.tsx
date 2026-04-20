@@ -171,7 +171,7 @@ export function ArgumentsSubmitter({
       {/* In forfeit mode, show just a simple editor */}
       {isForfeit ? (
         <div className="space-y-4">
-          <div>
+          <div className="space-y-2">
             <Label className="text-sm font-medium">
               Forfeit Explanation (Optional)
             </Label>

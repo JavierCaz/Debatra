@@ -155,7 +155,6 @@ export async function POST(request: NextRequest) {
             data: {
               term: definition.term.trim(),
               definition: definition.definition.trim(),
-              context: definition.context?.trim(),
               status: "PROPOSED",
               debateId: newDebate.id,
               proposerId: user.id,

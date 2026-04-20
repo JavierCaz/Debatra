@@ -55,7 +55,6 @@ export function DefinitionsSubmitter({
       id: Date.now(),
       term: "",
       definition: "",
-      context: "",
       references: [],
     };
     addItem(newDefinition);
@@ -174,26 +173,6 @@ export function DefinitionsSubmitter({
                 />
                 <p className="text-xs text-muted-foreground">
                   Be as clear and specific as possible
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor={`context-${definition.id}`}>
-                  Context (Optional)
-                </Label>
-                <Textarea
-                  id={`context-${definition.id}`}
-                  value={definition.context || ""}
-                  onChange={(e) =>
-                    updateItem(definition.id, {
-                      context: e.target.value,
-                    })
-                  }
-                  placeholder="Explain why this definition is important for this debate or provide additional context"
-                  rows={3}
-                />
-                <p className="text-xs text-muted-foreground">
-                  Why is this definition important for this debate?
                 </p>
               </div>
 

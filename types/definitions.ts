@@ -5,7 +5,6 @@ export interface InitialDefinition {
   id: number; // temporary ID for UI purposes
   term: string;
   definition: string;
-  context?: string;
   references: Reference[];
 }
 
@@ -50,7 +49,6 @@ export interface Definition {
   id: string;
   term: string;
   definition: string;
-  context?: string;
   status: "PROPOSED" | "ACCEPTED" | "CONTESTED" | "DEPRECATED";
   createdAt: Date;
   proposer: DefinitionUser;

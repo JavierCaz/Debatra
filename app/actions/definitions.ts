@@ -186,7 +186,6 @@ export async function submitDefinition(
   definitionData: {
     term: string;
     definition: string;
-    context?: string;
     references: Array<{
       type: string;
       title: string;
@@ -245,7 +244,6 @@ export async function submitDefinition(
         data: {
           term: definitionData.term.trim(),
           definition: definitionData.definition.trim(),
-          context: definitionData.context?.trim(),
           status: "PROPOSED",
           debateId,
           proposerId: session.user.id,
@@ -441,7 +439,6 @@ export async function supersedeDefinition(
   newDefinitionData: {
     term: string;
     definition: string;
-    context?: string;
     references: Array<{
       type: string;
       title: string;
@@ -504,7 +501,6 @@ export async function supersedeDefinition(
         data: {
           term: newDefinitionData.term.trim(),
           definition: newDefinitionData.definition.trim(),
-          context: newDefinitionData.context?.trim(),
           status: "PROPOSED",
           debateId: originalDefinition.debateId,
           proposerId: session.user.id,
