@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/check-timeouts",
-      "schedule": "*/15 * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
