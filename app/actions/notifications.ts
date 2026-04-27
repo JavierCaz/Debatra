@@ -5,7 +5,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
 import type { NotificationMetadata } from "@/types/notifications";
-import type { NotificationType } from "../generated/prisma";
+import type { NotificationType, Prisma } from "../generated/prisma";
 
 export async function getUnreadNotificationCount() {
   const session = await getServerSession(authOptions);
@@ -226,7 +226,7 @@ export async function createNotification({
         link,
         actorId,
         debateId,
-        metadata,
+        metadata: metadata as Prisma.InputJsonValue,
       },
     });
 
@@ -274,7 +274,7 @@ export async function createBulkNotifications({
   link?: string;
   actorId?: string;
   debateId?: string;
-  metadata?: any;
+  metadata?: NotificationMetadata;
   sendEmail?: boolean;
 }) {
   try {
@@ -310,7 +310,7 @@ export async function createBulkNotifications({
             link,
             actorId,
             debateId,
-            metadata,
+            metadata: metadata as Prisma.InputJsonValue,
           },
         }),
       ),

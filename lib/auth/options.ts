@@ -4,7 +4,32 @@ import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
+import type { Provider } from "next-auth/providers/index";
 import { prisma } from "@/lib/prisma/client";
+
+function getOAuthProviders(): Provider[] {
+  const providers: Provider[] = [];
+
+  if (process.env.CLIENT_ID_GOOGLE && process.env.CLIENT_SECRET_GOOGLE) {
+    providers.push(
+      GoogleProvider({
+        clientId: process.env.CLIENT_ID_GOOGLE,
+        clientSecret: process.env.CLIENT_SECRET_GOOGLE,
+      }),
+    );
+  }
+
+  if (process.env.CLIENT_ID_GITHUB && process.env.CLIENT_SECRET_GITHUB) {
+    providers.push(
+      GitHubProvider({
+        clientId: process.env.CLIENT_ID_GITHUB,
+        clientSecret: process.env.CLIENT_SECRET_GITHUB,
+      }),
+    );
+  }
+
+  return providers;
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -14,19 +39,12 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     signOut: "/auth/signout",
-    error: "/auth/error", // Error code passed in query string as ?error=
-    verifyRequest: "/auth/verify-request", // (used for check email message)
-    newUser: "/auth/new-user", // New users will be directed here on first sign in (leave the property out if not of interest)
+    error: "/auth/error",
+    verifyRequest: "/auth/verify-request",
+    newUser: "/auth/new-user",
   },
   providers: [
-    GoogleProvider({
-      clientId: process.env.CLIENT_ID_GOOGLE!,
-      clientSecret: process.env.CLIENT_SECRET_GOOGLE!,
-    }),
-    GitHubProvider({
-      clientId: process.env.CLIENT_ID_GITHUB!,
-      clientSecret: process.env.CLIENT_SECRET_GITHUB!,
-    }),
+    ...getOAuthProviders(),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -65,7 +83,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -79,8 +97,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
-      // Allow sign in
+    async signIn() {
       return true;
     },
   },

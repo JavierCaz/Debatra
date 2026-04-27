@@ -1,6 +1,6 @@
 "use client";
 
-import { BookOpen, LayoutDashboard, Menu, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Menu, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";

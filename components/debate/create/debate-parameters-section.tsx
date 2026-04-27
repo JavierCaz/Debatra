@@ -44,7 +44,7 @@ export function DebateParametersSection({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     onUpdate({
-      [name]: type === "number" ? parseInt(value) || 0 : value,
+      [name]: type === "number" ? parseInt(value, 10) || 0 : value,
     });
   };
 

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
+import type { Prisma } from "@/app/generated/prisma";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
 import type { InitialArgument } from "@/types/debate";
@@ -494,7 +495,10 @@ export async function submitArguments(
   }
 }
 
-async function calculateTeamVoteCounts(debateId: string, tx: any) {
+async function calculateTeamVoteCounts(
+  debateId: string,
+  tx: Prisma.TransactionClient,
+) {
   const argumentsWithVotes = await tx.argument.findMany({
     where: { debateId },
     include: {
@@ -508,13 +512,9 @@ async function calculateTeamVoteCounts(debateId: string, tx: any) {
   let proposerVotes = 0;
   let opposerVotes = 0;
 
-  argumentsWithVotes.forEach((argument: any) => {
-    const supportVotes = argument.votes.filter(
-      (vote: any) => vote.support,
-    ).length;
-    const opposeVotes = argument.votes.filter(
-      (vote: any) => !vote.support,
-    ).length;
+  for (const argument of argumentsWithVotes) {
+    const supportVotes = argument.votes.filter((vote) => vote.support).length;
+    const opposeVotes = argument.votes.filter((vote) => !vote.support).length;
     const netVotes = supportVotes - opposeVotes;
 
     if (argument.participant.role === "PROPOSER") {
@@ -522,7 +522,7 @@ async function calculateTeamVoteCounts(debateId: string, tx: any) {
     } else {
       opposerVotes += netVotes;
     }
-  });
+  }
 
   return { proposerVotes, opposerVotes };
 }

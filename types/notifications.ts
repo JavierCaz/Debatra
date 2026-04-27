@@ -1,6 +1,6 @@
 import type { NotificationType } from "@/app/generated/prisma";
 
-export type BaseNotificationMetadata = Record<string, any> & {
+export type BaseNotificationMetadata = Record<string, unknown> & {
   type: string;
   timestamp: string;
 };
@@ -73,6 +73,15 @@ export interface DebateDeclinedMetadata extends BaseNotificationMetadata {
   role?: "PROPOSER" | "OPPOSER";
 }
 
+export interface DebateCompletedMetadata extends BaseNotificationMetadata {
+  type: Extract<NotificationType, "DEBATE_COMPLETED">;
+  debateTitle: string;
+  winningRole: "PROPOSER" | "OPPOSER" | null;
+  isForfeit: boolean;
+  forfeitedBy?: "PROPOSER" | "OPPOSER";
+  isDebateOver: boolean;
+}
+
 export type NotificationMetadata =
   | ArgumentVoteMetadata
   | DefinitionVoteMetadata
@@ -83,7 +92,8 @@ export type NotificationMetadata =
   | DebateInvitationMetadata
   | DebateAcceptedMetadata
   | DebateDeclinedMetadata
-  | DefinitionImprovedMetadata;
+  | DefinitionImprovedMetadata
+  | DebateCompletedMetadata;
 
 export type MetadataForNotificationType<T extends NotificationType> = Extract<
   NotificationMetadata,

@@ -8,12 +8,12 @@ export interface BaseItem {
 export interface AccordionItemConfig {
   title: string;
   description?: string;
-  icon?: React.ComponentType<any>;
+  icon?: React.ElementType;
   disabledMessage?: string;
   emptyMessage?: {
     title: string;
     description: string;
-    icon?: React.ComponentType<any>;
+    icon?: React.ElementType;
   };
 }
 

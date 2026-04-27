@@ -26,6 +26,7 @@ export interface DebateRequestsPanelProps {
       arguments?: Array<{
         id: string;
         turnNumber: number;
+        createdAt: Date;
       }>;
     }>;
   } & {

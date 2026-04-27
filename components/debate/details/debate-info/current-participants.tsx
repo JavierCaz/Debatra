@@ -25,14 +25,14 @@ export function CurrentParticipants({
 
     let latestArgument = allArguments[0];
     for (const argument of allArguments) {
-      const currentArg = argument as any;
-      const latestArg = latestArgument as any;
+      const currentArg = argument;
+      const latestArg = latestArgument;
       if (new Date(currentArg.createdAt) > new Date(latestArg.createdAt)) {
         latestArgument = argument;
       }
     }
 
-    return (latestArgument as any).createdAt;
+    return latestArgument.createdAt;
   })();
 
   // Get current user's participant data
@@ -56,7 +56,7 @@ export function CurrentParticipants({
     participant: DebateParticipant;
   }) => {
     const hasParticipatedInCurrentTurn = participant.arguments?.some(
-      (argument: any) => argument.turnNumber === debate.currentTurnNumber,
+      (argument) => argument.turnNumber === debate.currentTurnNumber,
     );
 
     const isCurrentTurn =

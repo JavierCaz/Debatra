@@ -64,7 +64,7 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
       } else {
         setError(result.error || "Failed to update preferences");
       }
-    } catch (err) {
+    } catch (_err) {
       setError("An error occurred while updating preferences");
     } finally {
       setIsSubmitting(false);

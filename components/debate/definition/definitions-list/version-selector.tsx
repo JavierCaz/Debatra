@@ -1,4 +1,4 @@
-import { CheckCircle2, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Definition } from "@/types/definitions";
 
