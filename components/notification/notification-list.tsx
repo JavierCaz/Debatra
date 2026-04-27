@@ -45,7 +45,7 @@ export function NotificationList({ onUpdate }: { onUpdate?: () => void }) {
   const loadNotifications = useCallback(async () => {
     setLoading(true);
     const { notifications } = await getNotifications(20);
-    setNotifications(notifications as any);
+    setNotifications(notifications as Notification[]);
     setLoading(false);
   }, []);
 

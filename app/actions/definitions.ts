@@ -38,7 +38,7 @@ export async function voteOnDefinition(definitionId: string, support: boolean) {
       throw new Error("Definition not found");
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const _result = await prisma.$transaction(async (tx) => {
       // Upsert the vote
       const vote = await tx.definitionVote.upsert({
         where: {
@@ -129,7 +129,7 @@ export async function endorseDefinition(definitionId: string) {
       throw new Error("Only debate participants can endorse definitions");
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const _result = await prisma.$transaction(async (tx) => {
       // Upsert the endorsement
       const endorsement = await tx.definitionEndorsement.upsert({
         where: {
@@ -356,7 +356,7 @@ export async function acceptDefinition(definitionId: string) {
       throw new Error("Only debate participants can accept definitions");
     }
 
-    const result = await prisma.$transaction(async (tx) => {
+    const _result = await prisma.$transaction(async (tx) => {
       if (definition.supersededById) {
         await tx.definition.update({
           where: { id: definition.supersededById },

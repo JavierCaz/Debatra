@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   productionBrowserSourceMaps: true,
 
-  webpack: (config, { dev, isServer }) => {
+  webpack: (config, { dev, isServer: _isServer }) => {
     if (dev) {
       config.devtool = "eval-source-map";
     }

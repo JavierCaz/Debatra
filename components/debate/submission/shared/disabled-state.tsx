@@ -1,10 +1,10 @@
-import { Lock } from "lucide-react";
+import { Lock, type LucideIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface DisabledStateProps {
   title: string;
   message: string;
-  icon?: React.ComponentType<any>;
+  icon?: LucideIcon;
 }
 
 export function DisabledState({

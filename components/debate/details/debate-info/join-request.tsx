@@ -1,6 +1,5 @@
 import type { ParticipantRole } from "@prisma";
 import { UserPlus } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 interface JoinRequestProps {

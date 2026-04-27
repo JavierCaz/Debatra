@@ -71,7 +71,7 @@ export function SingleArgument({
 
   // Use the shared hook
   const { isArgumentsSubmitterEnabled } = useDebateSubmission({
-    debate: debate!,
+    debate: debate as DebateWithDetails,
     currentUserId,
   });
 

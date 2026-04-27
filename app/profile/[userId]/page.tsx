@@ -2,6 +2,7 @@ import { Calendar } from "lucide-react";
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { getNotificationPreferences } from "@/app/actions/notifications";
+import type { Prisma } from "@/app/generated/prisma";
 import { DebateFiltersClient } from "@/components/debate/browse/debate-filters-client";
 import { DebateList } from "@/components/profile/DebateList";
 import { EditProfileForm } from "@/components/profile/EditProfileForm";
@@ -18,6 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { prisma } from "@/lib/prisma/client";
+import type { DebateStatus, DebateTopic } from "@/types/debate";
 
 interface ProfilePageProps {
   params: Promise<{
@@ -38,13 +40,13 @@ async function getUserProfile(
     topic?: string;
   },
 ) {
-  const whereConditions: any = {
+  const whereConditions: Prisma.DebateWhereInput = {
     OR: [{ creatorId: userId }, { participants: { some: { userId } } }],
   };
 
   // Add status filter if provided
   if (filters?.status && filters.status !== "ALL") {
-    whereConditions.status = filters.status;
+    whereConditions.status = filters.status as DebateStatus;
   }
 
   // Add search filter if provided
@@ -70,7 +72,7 @@ async function getUserProfile(
   if (filters?.topic && filters.topic !== "ALL") {
     whereConditions.topics = {
       some: {
-        topic: filters.topic as any,
+        topic: filters.topic as DebateTopic,
       },
     };
   }

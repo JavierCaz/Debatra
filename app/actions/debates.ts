@@ -1,5 +1,6 @@
 "use server";
 
+import type { Prisma } from "@/app/generated/prisma";
 import { prisma } from "@/lib/prisma/client";
 import { type DebateStatus, DebateTopic } from "@/types/debate";
 
@@ -135,7 +136,7 @@ export async function getDebates(filters: DebateFilters = {}) {
   try {
     const { status, search, topic } = filters;
 
-    const where: any = {};
+    const where: Prisma.DebateWhereInput = {};
 
     // Filter by status
     if (status && status !== "ALL") {
@@ -152,7 +153,7 @@ export async function getDebates(filters: DebateFilters = {}) {
     }
 
     // Search by title, description, or topics
-    if (search && search.trim()) {
+    if (search?.trim()) {
       where.OR = [
         {
           title: {

@@ -1,117 +1,135 @@
 import { createNotification } from "@/app/actions/notifications";
 import { prisma } from "@/lib/prisma/client";
+import { createNotificationMetadata } from "@/types/notifications";
 
-interface VoteConfig {
-  itemType: "argument" | "definition";
-  voteModel: "argumentVote" | "definitionVote";
-  notificationType: "ARGUMENT_VOTE" | "DEFINITION_VOTE";
-  includeRelations: any;
-  getAuthorId: (item: any) => string;
-  generateLink: (item: any) => string;
-  generateMessage: (item: any, userName: string, voteType: string) => string;
-  generateMetadata: (item: any, voteType: string) => any;
-}
-
-export async function handleVote(
-  itemId: string,
+export async function handleArgumentVote(
+  argumentId: string,
   support: boolean,
   userId: string,
-  config: VoteConfig,
 ) {
-  const {
-    itemType,
-    voteModel,
-    notificationType,
-    includeRelations,
-    getAuthorId,
-    generateLink,
-    generateMessage,
-    generateMetadata,
-  } = config;
-
-  // Check if item exists
-  const item = await (prisma as any)[itemType].findUnique({
-    where: { id: itemId },
-    include: includeRelations,
-  });
-
-  if (!item) {
-    throw new Error(`${itemType} not found`);
-  }
-
-  // Check if user has already voted
-  const existingVote = await (prisma as any)[voteModel].findUnique({
-    where: {
-      [`${itemType}Id_userId`]: {
-        [`${itemType}Id`]: itemId,
-        userId,
-      },
+  const argument = await prisma.argument.findUnique({
+    where: { id: argumentId },
+    include: {
+      participant: { include: { user: true } },
+      debate: true,
     },
   });
 
-  let result: any;
+  if (!argument) throw new Error("Argument not found");
 
-  if (existingVote) {
-    // Update existing vote if different
-    if (existingVote.support !== support) {
-      result = await (prisma as any)[voteModel].update({
-        where: {
-          [`${itemType}Id_userId`]: {
-            [`${itemType}Id`]: itemId,
-            userId,
-          },
-        },
-        data: { support },
-      });
-    } else {
-      // Remove vote if clicking the same button
-      result = await (prisma as any)[voteModel].delete({
-        where: {
-          [`${itemType}Id_userId`]: {
-            [`${itemType}Id`]: itemId,
-            userId,
-          },
-        },
+  const vote = await (async () => {
+    const existingVote = await prisma.argumentVote.findUnique({
+      where: { argumentId_userId: { argumentId, userId } },
+    });
+
+    if (!existingVote) {
+      return prisma.argumentVote.create({
+        data: { argumentId, userId, support },
       });
     }
-  } else {
-    // Create new vote
-    result = await (prisma as any)[voteModel].create({
-      data: {
-        [`${itemType}Id`]: itemId,
-        userId,
-        support,
-      },
-    });
-  }
 
-  // Create notification for the author (only if different user and it's a new/updated vote)
-  const authorId = getAuthorId(item);
-  if (authorId !== userId && result) {
-    // Only create notification if vote was created/updated
+    if (existingVote.support !== support) {
+      return prisma.argumentVote.update({
+        where: { argumentId_userId: { argumentId, userId } },
+        data: { support },
+      });
+    }
+
+    return prisma.argumentVote.delete({
+      where: { argumentId_userId: { argumentId, userId } },
+    });
+  })();
+
+  const authorId = argument.participant.userId;
+  if (authorId !== userId && vote) {
     try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const userName = user?.name ?? "Someone";
       const voteType = support ? "supported" : "opposed";
-      const userName =
-        (await prisma.user.findUnique({ where: { id: userId } }))?.name ||
-        "Someone";
 
       await createNotification({
         userId: authorId,
-        type: notificationType,
-        title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} ${voteType}`,
-        message: generateMessage(item, userName, voteType),
-        link: generateLink(item),
+        type: "ARGUMENT_VOTE",
+        title: `Argument ${voteType}`,
+        message: `${userName} ${voteType} your argument`,
+        link: `/debates/${argument.debateId}?tab=arguments#argument-${argument.id}`,
         actorId: userId,
-        debateId: item.debateId,
-        ...(itemType === "argument" && { argumentId: item.id }),
-        metadata: generateMetadata(item, voteType),
-        sendEmail: true, // Enable email notifications for votes
+        debateId: argument.debateId,
+        metadata: createNotificationMetadata("ARGUMENT_VOTE", {
+          argumentId: argument.id,
+          voteType,
+        }),
+        sendEmail: true,
       });
-    } catch (notificationError) {
-      console.error("Failed to create notification:", notificationError);
-      // Don't fail the whole request if notification fails
+    } catch (error) {
+      console.error("Failed to create argument vote notification:", error);
     }
   }
 
-  return { success: true, vote: result };
+  return { success: true, vote };
+}
+
+export async function handleDefinitionVote(
+  definitionId: string,
+  support: boolean,
+  userId: string,
+) {
+  const definition = await prisma.definition.findUnique({
+    where: { id: definitionId },
+    include: { proposer: true, debate: true },
+  });
+
+  if (!definition) throw new Error("Definition not found");
+
+  const vote = await (async () => {
+    const existingVote = await prisma.definitionVote.findUnique({
+      where: { definitionId_userId: { definitionId, userId } },
+    });
+
+    if (!existingVote) {
+      return prisma.definitionVote.create({
+        data: { definitionId, userId, support },
+      });
+    }
+
+    if (existingVote.support !== support) {
+      return prisma.definitionVote.update({
+        where: { definitionId_userId: { definitionId, userId } },
+        data: { support },
+      });
+    }
+
+    return prisma.definitionVote.delete({
+      where: { definitionId_userId: { definitionId, userId } },
+    });
+  })();
+
+  const authorId = definition.proposerId;
+  if (authorId !== userId && vote) {
+    try {
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      const userName = user?.name ?? "Someone";
+      const voteType = support ? "supported" : "opposed";
+
+      await createNotification({
+        userId: authorId,
+        type: "DEFINITION_VOTE",
+        title: `Definition ${voteType}`,
+        message: `${userName} ${voteType} your definition of "${definition.term}"`,
+        link: `/debates/${definition.debateId}?tab=definitions`,
+        actorId: userId,
+        debateId: definition.debateId,
+        metadata: createNotificationMetadata("DEFINITION_VOTE", {
+          definitionId: definition.id,
+          term: definition.term,
+          support,
+        }),
+        sendEmail: true,
+      });
+    } catch (error) {
+      console.error("Failed to create definition vote notification:", error);
+    }
+  }
+
+  return { success: true, vote };
 }

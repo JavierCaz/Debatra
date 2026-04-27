@@ -6,6 +6,14 @@ import GitHubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma/client";
 
+function requireEnv(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: {
@@ -20,12 +28,12 @@ export const authOptions: NextAuthOptions = {
   },
   providers: [
     GoogleProvider({
-      clientId: process.env.CLIENT_ID_GOOGLE!,
-      clientSecret: process.env.CLIENT_SECRET_GOOGLE!,
+      clientId: requireEnv("CLIENT_ID_GOOGLE"),
+      clientSecret: requireEnv("CLIENT_SECRET_GOOGLE"),
     }),
     GitHubProvider({
-      clientId: process.env.CLIENT_ID_GITHUB!,
-      clientSecret: process.env.CLIENT_SECRET_GITHUB!,
+      clientId: requireEnv("CLIENT_ID_GITHUB"),
+      clientSecret: requireEnv("CLIENT_SECRET_GITHUB"),
     }),
     CredentialsProvider({
       name: "credentials",
@@ -65,7 +73,7 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
         token.email = user.email;
@@ -79,7 +87,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    async signIn({ user, account, profile }) {
+    async signIn() {
       // Allow sign in
       return true;
     },

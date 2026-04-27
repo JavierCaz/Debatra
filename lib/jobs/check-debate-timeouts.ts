@@ -28,10 +28,10 @@ export async function checkDebateTimeouts() {
 
   for (const debate of activeDebates) {
     const lastArgument = debate.arguments[0];
-    if (!lastArgument) continue;
+    if (!lastArgument || !debate.turnTimeLimit) continue;
 
     const turnDeadline = new Date(
-      lastArgument.createdAt.getTime() + debate.turnTimeLimit! * 60 * 60 * 1000,
+      lastArgument.createdAt.getTime() + debate.turnTimeLimit * 60 * 60 * 1000,
     );
 
     if (new Date() > turnDeadline) {

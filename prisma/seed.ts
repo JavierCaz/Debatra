@@ -288,7 +288,7 @@ async function main() {
   });
 
   // SUB-BRANCH 1B: Responses to Charlie's nuanced support
-  const nested1ToResponse2 = await prisma.argument.create({
+  const _nested1ToResponse2 = await prisma.argument.create({
     data: {
       content: `<p><strong>Definition Problem:</strong> Who gets to define "harmful misinformation"? This power could be abused by whatever party is in power to silence opponents.</p>`,
       turnNumber: 3,
@@ -312,7 +312,7 @@ async function main() {
   });
 
   // SUB-BRANCH 2B: Responses to EU regulation example
-  const nested1ToResponse4 = await prisma.argument.create({
+  const _nested1ToResponse4 = await prisma.argument.create({
     data: {
       content: `<p><strong>US Context Difference:</strong> The EU approach works in their legal context but may violate First Amendment protections in the US. We need solutions that respect our constitutional framework.</p>`,
       turnNumber: 3,
@@ -336,7 +336,7 @@ async function main() {
   });
 
   // SUB-BRANCH 3B: Responses to infrastructure argument
-  const nested1ToResponse6 = await prisma.argument.create({
+  const _nested1ToResponse6 = await prisma.argument.create({
     data: {
       content: `<p><strong>Innovation Risk:</strong> Treating platforms as utilities would stifle the innovation that made them successful in the first place. Heavy-handed regulation kills dynamism.</p>`,
       turnNumber: 3,
@@ -350,7 +350,7 @@ async function main() {
   // === DEEPER NESTING: Level 4 responses ===
 
   // Response to the infrastructure status argument
-  const deepNested1 = await prisma.argument.create({
+  const _deepNested1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Historical Precedent:</strong> We've regulated other transformative technologies like radio and television without killing innovation. The same balanced approach can work for social media.</p>`,
       turnNumber: 3,
@@ -362,7 +362,7 @@ async function main() {
   });
 
   // Response to the contractual freedom argument
-  const deepNested2 = await prisma.argument.create({
+  const _deepNested2 = await prisma.argument.create({
     data: {
       content: `<p><strong>Power Imbalance:</strong> Terms of service agreements are take-it-or-leave-it contracts where users have no real negotiating power. This isn't genuine contractual freedom.</p>`,
       turnNumber: 3,
@@ -376,7 +376,7 @@ async function main() {
   // === CROSS-BRANCH RESPONSES: Connecting different branches ===
 
   // Connecting the slippery slope and definition problem threads
-  const crossBranch1 = await prisma.argument.create({
+  const _crossBranch1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Connecting Both Concerns:</strong> Both Alice's slippery slope and definition problem points highlight the same core issue: whoever controls the definitions wields enormous power over public discourse.</p>`,
       turnNumber: 3,
@@ -490,7 +490,7 @@ async function main() {
   });
 
   // Simple linear thread
-  const simpleArg1 = await prisma.argument.create({
+  const _simpleArg1 = await prisma.argument.create({
     data: {
       content: `<p>UBI would reduce poverty and simplify welfare bureaucracy.</p>`,
       turnNumber: 1,
@@ -521,7 +521,7 @@ async function main() {
     },
   });
 
-  const simpleArg4 = await prisma.argument.create({
+  const _simpleArg4 = await prisma.argument.create({
     data: {
       content: `<p>Eliminating welfare programs would hurt the most vulnerable who need targeted help.</p>`,
       turnNumber: 2,
@@ -544,13 +544,11 @@ async function main() {
   console.log("   - Both previous and posterior arguments");
   console.log("3. Compare with simple debate for linear threads");
   console.log("\n💡 Try clicking on:");
-  console.log("   - " + aliceRoot.id + " (Alice's root - complex branch)");
+  console.log(`   - ${aliceRoot.id} (Alice's root - complex branch)`);
   console.log(
-    "   - " + response1ToAlice.id + " (Bob's response - multiple sub-branches)",
+    `   - ${response1ToAlice.id} (Bob's response - multiple sub-branches)`,
   );
-  console.log(
-    "   - " + nested1ToResponse1.id + " (Charlie's nested - deep thread)",
-  );
+  console.log(`   - ${nested1ToResponse1.id} (Charlie's nested - deep thread)`);
 }
 
 main()

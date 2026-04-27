@@ -13,6 +13,11 @@ import { ArgumentThreadItem } from "./argument-thread-item";
 
 type ThreadDialogMode = "thread" | "responses";
 
+type ThreadItem = {
+  argument: DebateWithDetails["participants"][0]["arguments"][0];
+  participant: DebateWithDetails["participants"][0];
+};
+
 interface ArgumentThreadDialogProps {
   argument: DebateWithDetails["participants"][0]["arguments"][0];
   debate: DebateWithDetails;
@@ -28,7 +33,7 @@ export function ArgumentThreadDialog({
   open,
   onOpenChange,
   onNavigateToArgument,
-  mode = "thread", // Default to thread mode
+  mode = "thread",
 }: ArgumentThreadDialogProps) {
   // Create a map of argument ID to participant (for quick lookup)
   const argumentToParticipantMap = new Map<
@@ -42,83 +47,97 @@ export function ArgumentThreadDialog({
     });
   });
 
+  // Safe participant lookup
+  const getParticipant = (argumentId: string) => {
+    return argumentToParticipantMap.get(argumentId) ?? null;
+  };
+
   // Get all arguments from all participants
   const allArguments = debate.participants.flatMap((p) => p.arguments);
 
-  // Build thread: ancestors for "thread" mode, responses for "responses" mode
-  const getThreadArguments = (targetArgId: string) => {
+  const getThreadArguments = (targetArgId: string): ThreadItem[] => {
     if (mode === "thread") {
-      // Thread mode: show ancestors (root to current argument)
-      const ancestors: DebateWithDetails["participants"][0]["arguments"][0][] =
-        [];
+      const ancestors: ThreadItem["argument"][] = [];
       let currentArgId: string | null = targetArgId;
 
-      // Traverse up the response chain
       while (currentArgId) {
         const currentArg = allArguments.find((arg) => arg.id === currentArgId);
         if (!currentArg) break;
-
-        ancestors.unshift(currentArg); // Add to beginning to maintain chronological order
+        ancestors.unshift(currentArg);
         currentArgId = currentArg.responseToId;
       }
 
-      return ancestors.map((arg) => ({
-        argument: arg,
-        participant: argumentToParticipantMap.get(arg.id)!,
-      }));
-    } else {
-      // Responses mode: show responses to this argument
-      const responses = allArguments
-        .filter((arg) => arg.responseToId === targetArgId)
-        .sort(
-          (a, b) =>
-            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-        );
-
-      return responses.map((response) => ({
-        argument: response,
-        participant: argumentToParticipantMap.get(response.id)!,
-      }));
+      return ancestors
+        .map((arg): ThreadItem | null => {
+          const participant = getParticipant(arg.id);
+          return participant ? { argument: arg, participant } : null;
+        })
+        .filter((item): item is ThreadItem => item !== null);
     }
+
+    // responses mode
+    const responses = allArguments
+      .filter((arg) => arg.responseToId === targetArgId)
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+
+    return responses
+      .map((response): ThreadItem | null => {
+        const participant = getParticipant(response.id);
+        return participant ? { argument: response, participant } : null;
+      })
+      .filter((item): item is ThreadItem => item !== null);
   };
 
   const threadArguments = getThreadArguments(argument.id);
+  const currentParticipant = getParticipant(argument.id);
 
   // Handle clicking on any argument in the thread
   const handleArgumentClick = (argumentId: string) => {
-    // Close the dialog
     onOpenChange(false);
-
-    // If a navigation callback is provided, use it to scroll to the argument
     if (onNavigateToArgument) {
-      // Small delay to ensure dialog is closed before scrolling
-      setTimeout(() => {
-        onNavigateToArgument(argumentId);
-      }, 100);
+      setTimeout(() => onNavigateToArgument(argumentId), 100);
     }
   };
 
-  // Calculate total arguments in the thread
   const totalArguments = threadArguments.length;
 
-  // Get dialog title and icon based on mode
-  const getDialogConfig = () => {
-    if (mode === "thread") {
-      return {
-        icon: MessageSquare,
-        title: "Argument Thread",
-        description: `${totalArguments} argument${totalArguments !== 1 ? "s" : ""} in this thread`,
-      };
-    } else {
-      return {
-        icon: Users,
-        title: "Argument Responses",
-        description: `${totalArguments} response${totalArguments !== 1 ? "s" : ""} to this argument`,
-      };
-    }
-  };
+  const dialogConfig =
+    mode === "thread"
+      ? {
+          icon: MessageSquare,
+          title: "Argument Thread",
+          description: `${totalArguments} argument${totalArguments !== 1 ? "s" : ""} in this thread`,
+        }
+      : {
+          icon: Users,
+          title: "Argument Responses",
+          description: `${totalArguments} response${totalArguments !== 1 ? "s" : ""} to this argument`,
+        };
 
-  const { icon: Icon, title, description } = getDialogConfig();
+  const { icon: Icon, title, description } = dialogConfig;
+
+  // Render the current/reference argument
+  const renderCurrentArgument = (label: string) => (
+    <div>
+      <div className="text-sm font-medium text-muted-foreground mb-2">
+        {label}
+      </div>
+      {currentParticipant ? (
+        <ArgumentThreadItem
+          argument={argument}
+          participant={currentParticipant}
+          onClick={() => handleArgumentClick(argument.id)}
+        />
+      ) : (
+        <div className="text-sm text-muted-foreground">
+          Participant data unavailable
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -130,14 +149,11 @@ export function ArgumentThreadDialog({
           </DialogTitle>
         </DialogHeader>
 
-        {/* Scrollable content area */}
         <div className="flex-1 overflow-hidden px-6 py-4">
           <ScrollArea className="h-full w-full">
             <div className="space-y-3 pb-4">
-              {/* For thread mode, show the current argument at the bottom */}
               {mode === "thread" && (
                 <>
-                  {/* Thread arguments (ancestors) */}
                   {threadArguments.length > 1 && (
                     <div className="mb-4 pb-4 border-b">
                       <div className="text-sm font-medium text-muted-foreground mb-2">
@@ -157,39 +173,15 @@ export function ArgumentThreadDialog({
                       </div>
                     </div>
                   )}
-
-                  {/* Current argument (the one you clicked on) */}
-                  <div>
-                    <div className="text-sm font-medium text-muted-foreground mb-2">
-                      Current argument:
-                    </div>
-                    <ArgumentThreadItem
-                      argument={
-                        threadArguments[threadArguments.length - 1]?.argument ||
-                        argument
-                      }
-                      participant={argumentToParticipantMap.get(argument.id)!}
-                      onClick={() => handleArgumentClick(argument.id)}
-                    />
-                  </div>
+                  {renderCurrentArgument("Current argument:")}
                 </>
               )}
 
-              {/* For responses mode, show the original argument first */}
               {mode === "responses" && (
                 <>
                   <div className="mb-4 pb-4 border-b">
-                    <div className="text-sm font-medium text-muted-foreground mb-2">
-                      Original argument:
-                    </div>
-                    <ArgumentThreadItem
-                      argument={argument}
-                      participant={argumentToParticipantMap.get(argument.id)!}
-                      onClick={() => handleArgumentClick(argument.id)}
-                    />
+                    {renderCurrentArgument("Original argument:")}
                   </div>
-
-                  {/* Responses to the argument */}
                   {threadArguments.length > 0 && (
                     <div>
                       <div className="text-sm font-medium text-muted-foreground mb-2">
@@ -215,7 +207,6 @@ export function ArgumentThreadDialog({
           </ScrollArea>
         </div>
 
-        {/* Dialog footer with actions */}
         <div className="px-6 py-4 border-t bg-muted/20 shrink-0">
           <div className="text-sm text-muted-foreground">{description}</div>
         </div>

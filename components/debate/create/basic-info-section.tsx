@@ -35,7 +35,7 @@ export function BasicInfoSection({
   ) => {
     const { name, value, type } = e.target;
     onUpdate({
-      [name]: type === "number" ? parseInt(value) || 0 : value,
+      [name]: type === "number" ? parseInt(value, 10) || 0 : value,
     });
     onClearError(name);
   };

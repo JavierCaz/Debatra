@@ -32,15 +32,12 @@ export async function applyRateLimit(
   const identifier = getClientIdentifier(req);
 
   try {
-    const rateLimitResult: RateLimiterRes = await checkRateLimit(
-      identifier,
-      type,
-    );
+    await checkRateLimit(identifier, type);
 
-    // Add rate limit headers to response
-    return null; // No error, continue
-  } catch (rateLimiterRes: any) {
-    // Rate limit exceeded
+    // No error, continue
+    return null;
+  } catch (error: unknown) {
+    const rateLimiterRes = error as RateLimiterRes;
     const retryAfter = Math.ceil(rateLimiterRes.msBeforeNext / 1000);
 
     return NextResponse.json(

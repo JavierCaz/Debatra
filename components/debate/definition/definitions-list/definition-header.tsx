@@ -1,4 +1,3 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { DefinitionUser } from "@/types/definitions";
 
 interface DefinitionHeaderProps {
