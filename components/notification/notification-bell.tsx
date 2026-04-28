@@ -36,6 +36,10 @@ export function NotificationBell() {
     }
   }
 
+  function handleClose() {
+    setIsOpen(false);
+  }
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -49,7 +53,7 @@ export function NotificationBell() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96">
-        <NotificationList onUpdate={loadUnreadCount} />
+        <NotificationList onUpdate={loadUnreadCount} onClose={handleClose} />
       </DropdownMenuContent>
     </DropdownMenu>
   );

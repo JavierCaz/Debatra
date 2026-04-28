@@ -37,7 +37,13 @@ type Notification = {
   } | null;
 };
 
-export function NotificationList({ onUpdate }: { onUpdate?: () => void }) {
+export function NotificationList({
+  onUpdate,
+  onClose,
+}: {
+  onUpdate?: () => void;
+  onClose?: () => void;
+}) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -77,6 +83,7 @@ export function NotificationList({ onUpdate }: { onUpdate?: () => void }) {
         handleMarkAsRead(notification.id);
       }
       if (notification.link) {
+        onClose?.();
         router.push(notification.link);
       }
     };
