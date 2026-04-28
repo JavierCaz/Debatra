@@ -4,7 +4,11 @@ import { revalidatePath } from "next/cache";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth/options";
 import { prisma } from "@/lib/prisma/client";
-import type { NotificationMetadata } from "@/types/notifications";
+import {
+  type NotificationDTO,
+  type NotificationMetadata,
+  notificationListInclude,
+} from "@/types/notifications";
 import type { NotificationType, Prisma } from "../generated/prisma";
 
 export async function getUnreadNotificationCount() {
@@ -23,7 +27,10 @@ export async function getUnreadNotificationCount() {
   return { count };
 }
 
-export async function getNotifications(limit = 20, skip = 0) {
+export async function getNotifications(
+  limit = 20,
+  skip = 0,
+): Promise<{ notifications: NotificationDTO[]; total: number }> {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     return { notifications: [], total: 0 };
@@ -34,22 +41,7 @@ export async function getNotifications(limit = 20, skip = 0) {
       where: {
         userId: session.user.id,
       },
-      include: {
-        actor: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-          },
-        },
-        debate: {
-          select: {
-            id: true,
-            title: true,
-            status: true,
-          },
-        },
-      },
+      include: notificationListInclude,
       orderBy: {
         createdAt: "desc",
       },
