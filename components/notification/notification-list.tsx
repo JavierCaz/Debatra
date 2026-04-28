@@ -15,27 +15,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
-
-type Notification = {
-  id: string;
-  type: string;
-  status: string;
-  title: string;
-  message: string | null;
-  link: string | null;
-  createdAt: Date;
-  readAt: Date | null;
-  actor: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  } | null;
-  debate: {
-    id: string;
-    title: string;
-    status: string;
-  } | null;
-};
+import type { NotificationDTO } from "@/types/notifications";
 
 export function NotificationList({
   onUpdate,
@@ -44,14 +24,14 @@ export function NotificationList({
   onUpdate?: () => void;
   onClose?: () => void;
 }) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
     const { notifications } = await getNotifications(20);
-    setNotifications(notifications as Notification[]);
+    setNotifications(notifications);
     setLoading(false);
   }, []);
 
@@ -77,7 +57,7 @@ export function NotificationList({
     onUpdate?.();
   }
 
-  const handleNotificationInteraction = (notification: Notification) => {
+  const handleNotificationInteraction = (notification: NotificationDTO) => {
     return () => {
       if (notification.status === "UNREAD") {
         handleMarkAsRead(notification.id);

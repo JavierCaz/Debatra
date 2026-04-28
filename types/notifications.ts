@@ -1,4 +1,4 @@
-import type { NotificationType } from "@/app/generated/prisma";
+import type { NotificationType, Prisma } from "@/app/generated/prisma";
 
 export type BaseNotificationMetadata = Record<string, unknown> & {
   type: string;
@@ -110,3 +110,12 @@ export function createNotificationMetadata<T extends NotificationMetadata>(
     ...data,
   } as T;
 }
+
+export const notificationListInclude = {
+  actor: { select: { id: true, name: true, image: true } },
+  debate: { select: { id: true, title: true, status: true } },
+} as const;
+
+export type NotificationDTO = Prisma.NotificationGetPayload<{
+  include: typeof notificationListInclude;
+}>;
