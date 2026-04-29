@@ -1,8 +1,10 @@
 .
 ├── app
 │   ├── actions
+│   │   ├── arguments.ts
 │   │   ├── debate-request.ts
 │   │   ├── debates.ts
+│   │   ├── definitions.ts
 │   │   ├── notifications.ts
 │   │   └── users.ts
 │   ├── api
@@ -19,6 +21,9 @@
 │   │   │   ├── reset-password
 │   │   │   │   └── route.ts
 │   │   │   └── signup
+│   │   │       └── route.ts
+│   │   ├── cron
+│   │   │   └── check-timeouts
 │   │   │       └── route.ts
 │   │   ├── debates
 │   │   │   └── route.ts
@@ -110,6 +115,9 @@
 │   ├── debate
 │   │   ├── argument
 │   │   │   ├── argument-list
+│   │   │   │   ├── argument-thread
+│   │   │   │   │   ├── argument-thread-dialog.tsx
+│   │   │   │   │   └── argument-thread-item.tsx
 │   │   │   │   ├── argument-definition-references.tsx
 │   │   │   │   ├── argument-references.tsx
 │   │   │   │   ├── argument-stats.tsx
@@ -152,6 +160,7 @@
 │   │   │   │   ├── join-request.tsx
 │   │   │   │   ├── role-selection.tsx
 │   │   │   │   ├── status-summary.tsx
+│   │   │   │   ├── turn-countdown.tsx
 │   │   │   │   └── user-requests.tsx
 │   │   │   ├── arguments-response-section.tsx
 │   │   │   ├── debate-content-section.tsx
@@ -183,7 +192,6 @@
 │       ├── alert.tsx
 │       ├── avatar.tsx
 │       ├── badge.tsx
-│       ├── breadcrumb.tsx
 │       ├── button.tsx
 │       ├── card.tsx
 │       ├── collapsible.tsx
@@ -205,12 +213,16 @@
 │       ├── textarea.tsx
 │       ├── theme-toggle.tsx
 │       ├── tiptap-editor.tsx
+│       ├── toggle.tsx
 │       └── tooltip.tsx
 ├── .github
-│   └── ci.yml
+│   └── workflows
+│       ├── ci.yml
+│       └── cron-check-timeouts.yml
 ├── hooks
 │   ├── use-accordion-items.ts
-│   └── use-auth.ts
+│   ├── use-auth.ts
+│   └── use-debate-submission.ts
 ├── lib
 │   ├── auth
 │   │   ├── auth-guard.ts
@@ -222,6 +234,8 @@
 │   ├── email
 │   │   ├── service.ts
 │   │   └── templates.tsx
+│   ├── jobs
+│   │   └── check-debate-timeouts.ts
 │   ├── prisma
 │   │   └── client.ts
 │   ├── rate-limit
@@ -231,34 +245,11 @@
 │   ├── utils
 │   │   └── reference-types.ts
 │   ├── vote
-│   │   ├── config.ts
 │   │   └── handler.ts
 │   └── utils.ts
 ├── prisma
 │   ├── migrations
-│   │   ├── 20251018010317_init
-│   │   │   └── migration.sql
-│   │   ├── 20251020134228_add_password_reset_token
-│   │   │   └── migration.sql
-│   │   ├── 20251029023415_multiple_topics
-│   │   │   └── migration.sql
-│   │   ├── 20251029234619_add_notifications_system
-│   │   │   └── migration.sql
-│   │   ├── 20251030021223_add_debate_requests
-│   │   │   └── migration.sql
-│   │   ├── 20251031001227_add_turn_fields_to_debate
-│   │   │   └── migration.sql
-│   │   ├── 20251101024247_replace_rebuttals_with_responses
-│   │   │   └── migration.sql
-│   │   ├── 20251104153656_remove_neutral_role
-│   │   │   └── migration.sql
-│   │   ├── 20251106143910_definition_model_added
-│   │   │   └── migration.sql
-│   │   ├── 20251108025618_definition_references_addes
-│   │   │   └── migration.sql
-│   │   ├── 20251113022909_add_definition_vote_notification_type
-│   │   │   └── migration.sql
-│   │   ├── 20251117215905_add_notification_preferences
+│   │   ├── 20260421215007_init
 │   │   │   └── migration.sql
 │   │   └── migration_lock.toml
 │   ├── schema.prisma
@@ -296,6 +287,8 @@
 ├── prisma.config.ts
 ├── README.md
 ├── STRUCTURE.md
-└── tsconfig.json
+├── tsconfig.json
+├── tsconfig.tsbuildinfo
+└── vercel.json
 
-85 directories, 214 files
+79 directories, 213 files
