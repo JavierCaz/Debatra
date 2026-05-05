@@ -183,15 +183,15 @@ export function SingleArgument({
         <SafeContentRenderer content={argument.content} />
 
         {/* Argument Metadata */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             <span className="text-xs text-muted-foreground">
               {format(new Date(argument.createdAt), "PPp")}
             </span>
 
             {/* Thread & Responses Buttons - Only show if debate is provided and this argument has ancestors or responses */}
             {debate && (hasAncestors || hasResponses || isReply) && (
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {/* Thread button (shows ancestors) - Only show if there are ancestors */}
                 {hasAncestors && (
                   <Button

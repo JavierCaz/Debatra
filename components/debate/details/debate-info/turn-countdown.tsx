@@ -60,18 +60,41 @@ export function TurnCountdown({
     }
   };
 
+  const getUrgentThreshold = () => {
+    if (!turnTimeLimitHours) return 0;
+    return turnTimeLimitHours * 60 * 60 * 1000 * 0.3; // 30% of total time
+  };
+
+  const getCriticalThreshold = () => {
+    if (!turnTimeLimitHours) return 0;
+    return turnTimeLimitHours * 60 * 60 * 1000 * 0.1; // 10% of total time
+  };
+
   const getColorClass = () => {
     if (!turnTimeLimitHours) return "secondary";
 
-    const hoursRemaining = timeRemaining / (1000 * 60 * 60);
-
     if (isExpired) return "destructive";
-    if (hoursRemaining < 1) return "destructive";
-    if (hoursRemaining < 6) return "default";
+    if (timeRemaining < getCriticalThreshold()) return "destructive";
+    if (timeRemaining < getUrgentThreshold()) return "default";
     return "secondary";
   };
 
-  const isUrgent = timeRemaining < 6 * 60 * 60 * 1000 && !isExpired;
+  const isUrgent = timeRemaining < getUrgentThreshold() && !isExpired;
+  const isCritical = timeRemaining < getCriticalThreshold() && !isExpired;
+
+  // Format the urgent warning message
+  const getUrgentMessage = () => {
+    if (!turnTimeLimitHours) return "";
+
+    const totalHours = turnTimeLimitHours;
+
+    if (totalHours <= 1) {
+      return `Hurry! You have only ${formatTime(timeRemaining)} left to respond or you may forfeit this turn.`;
+    }
+
+    const urgentTimeFormatted = formatTime(getUrgentThreshold());
+    return `Hurry! You have less than ${urgentTimeFormatted} to respond or you may forfeit this turn.`;
+  };
 
   // No time limit set
   if (!turnTimeLimitHours) {
@@ -114,7 +137,9 @@ export function TurnCountdown({
           variant={getColorClass()}
           className={
             isUrgent
-              ? "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-100 dark:border-yellow-800"
+              ? isCritical
+                ? "bg-red-100 text-red-800 border-red-200 dark:bg-red-950 dark:text-red-100 dark:border-red-800"
+                : "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950 dark:text-yellow-100 dark:border-yellow-800"
               : ""
           }
         >
@@ -125,12 +150,29 @@ export function TurnCountdown({
       {isUrgent && canSubmitArguments && (
         <Alert
           variant="default"
-          className="bg-yellow-50 border-yellow-200 dark:bg-yellow-950/50 dark:border-yellow-800"
+          className={
+            isCritical
+              ? "bg-red-50 border-red-200 dark:bg-red-950/50 dark:border-red-800"
+              : "bg-yellow-50 border-yellow-200 dark:bg-yellow-950/50 dark:border-yellow-800"
+          }
         >
-          <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-          <AlertDescription className="text-yellow-800 dark:text-yellow-200">
-            Hurry! You have less than 6 hours to respond or you may forfeit this
-            turn.
+          <AlertTriangle
+            className={
+              isCritical
+                ? "h-4 w-4 text-red-600 dark:text-red-400"
+                : "h-4 w-4 text-yellow-600 dark:text-yellow-400"
+            }
+          />
+          <AlertDescription
+            className={
+              isCritical
+                ? "text-red-800 dark:text-red-200"
+                : "text-yellow-800 dark:text-yellow-200"
+            }
+          >
+            {isCritical
+              ? `Critical! You have only ${formatTime(timeRemaining)} left! Submit your argument immediately or you may forfeit this turn.`
+              : getUrgentMessage()}
           </AlertDescription>
         </Alert>
       )}

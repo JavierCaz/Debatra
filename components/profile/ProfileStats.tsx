@@ -35,16 +35,17 @@ export function ProfileStats({ stats }: ProfileStatsProps) {
       {statItems.map((stat) => {
         const IconComponent = stat.icon;
         return (
-          <Card key={stat.label} className="flex flex-col">
-            <CardHeader className="pb-2">
-              <CardDescription className="flex items-center">
-                <IconComponent className="mr-2 h-4 w-4" />
+          <Card
+            key={stat.label}
+            className="flex flex-col items-center text-center p-4"
+          >
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mb-2">
+              <IconComponent className="h-4 w-4 flex-shrink-0" />
+              <span className="text-sm text-muted-foreground">
                 {stat.label}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="flex-1 flex items-end">
-              <div className="text-3xl font-bold">{stat.value}</div>
-            </CardContent>
+              </span>
+            </div>
+            <div className="text-3xl font-bold">{stat.value}</div>
           </Card>
         );
       })}
