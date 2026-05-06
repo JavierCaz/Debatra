@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { Accordion } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
@@ -23,9 +24,13 @@ interface ArgumentsSectionProps {
   title?: string;
   description?: string;
   showStatusIndicators?: boolean;
-  isReply?: boolean;
   replyToArgumentId?: string;
+  replyContextMap?: Map<
+    string,
+    { userName: string; argumentNumber: number; turnNumber: number }
+  >;
   isForfeit?: boolean;
+  replyFocusKey?: number;
 }
 
 export function ArgumentsSubmitter({
@@ -40,9 +45,10 @@ export function ArgumentsSubmitter({
   title = "Arguments",
   description = "Add your arguments with supporting evidence",
   showStatusIndicators = true,
-  isReply = false,
   replyToArgumentId,
+  replyContextMap,
   isForfeit = false,
+  replyFocusKey = 0,
 }: ArgumentsSectionProps) {
   const {
     expandedItems,
@@ -55,11 +61,44 @@ export function ArgumentsSubmitter({
     isExpanded,
   } = useAccordionItems(initialArguments, onArgumentsChange);
 
-  // Find the reply argument if it exists
-  const replyArgument =
-    isReply && replyToArgumentId
-      ? initialArguments.find((arg) => arg.responseToId === replyToArgumentId)
-      : null;
+  const replyArgIdRef = useRef<number | null>(null);
+  const prevFocusKeyRef = useRef(0);
+
+  useEffect(() => {
+    const prevId = replyArgIdRef.current;
+    const prevFocusKey = prevFocusKeyRef.current;
+    prevFocusKeyRef.current = replyFocusKey;
+
+    let currentId: number | null = null;
+    if (replyToArgumentId) {
+      const replyArg = initialArguments.find(
+        (a) => a.responseToId === replyToArgumentId,
+      );
+      currentId = replyArg ? replyArg.id : null;
+    }
+    replyArgIdRef.current = currentId;
+
+    if (
+      currentId !== null &&
+      (currentId !== prevId || replyFocusKey !== prevFocusKey)
+    ) {
+      const focusEditor = () => {
+        const proseMirror = document.querySelector(
+          `[data-argument-id="${currentId}"] .ProseMirror`,
+        );
+        if (proseMirror instanceof HTMLElement) {
+          proseMirror.scrollIntoView({ behavior: "smooth", block: "center" });
+          proseMirror.focus({ preventScroll: true });
+        }
+      };
+
+      if (currentId !== prevId) {
+        setTimeout(focusEditor, 250);
+      } else {
+        focusEditor();
+      }
+    }
+  });
 
   const addArgument = () => {
     if (initialArguments.length >= maxArguments || isForfeit) return;
@@ -135,23 +174,6 @@ export function ArgumentsSubmitter({
         </div>
       )}
 
-      {/* Reply Indicator Banner - hide in forfeit mode */}
-      {isReply && replyArgument && !isForfeit && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 dark:bg-blue-900/20 dark:border-blue-800">
-          <div className="flex items-center gap-2">
-            <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-              You are replying to an argument
-            </p>
-          </div>
-          <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-            One of your arguments below is specifically replying to another
-            argument and will be linked in the discussion thread. You can also
-            add regular arguments alongside your reply.
-          </p>
-        </div>
-      )}
-
       {/* Accordion Section Header - hide in forfeit mode */}
       {!isForfeit && (
         <AccordionSectionHeader
@@ -208,9 +230,11 @@ export function ArgumentsSubmitter({
           {initialArguments.map((argument, index) => {
             const hasArgumentContent = hasContent(argument);
             const hasArgumentReferences = hasReferences(argument);
-            const isReplyArgument = replyToArgumentId
-              ? argument.responseToId === replyToArgumentId
-              : false;
+            const isReplyArgument = !!argument.responseToId;
+            const argReplyContext =
+              isReplyArgument && replyContextMap && argument.responseToId
+                ? replyContextMap.get(argument.responseToId)
+                : undefined;
 
             return (
               <AccordionItemWrapper
@@ -218,7 +242,9 @@ export function ArgumentsSubmitter({
                 id={argument.id}
                 title={
                   isReplyArgument
-                    ? `Reply to Argument`
+                    ? argReplyContext
+                      ? `Reply to ${argReplyContext.userName}'s Argument ${argReplyContext.argumentNumber} in Turn ${argReplyContext.turnNumber}`
+                      : "Reply to Argument"
                     : mode === "create"
                       ? `Argument ${index + 1}`
                       : `Your Argument ${index + 1}`
@@ -235,23 +261,15 @@ export function ArgumentsSubmitter({
                 {/* Reply Indicator */}
                 {isReplyArgument && (
                   <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 dark:bg-blue-900/20 dark:border-blue-800">
-                    <div className="flex items-start gap-2">
-                      <div className="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-1.5"></div>
-                      <div>
-                        <p className="text-sm font-medium text-blue-800 dark:text-blue-300">
-                          This argument is a reply
-                        </p>
-                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                          Make sure to address the points in the original
-                          argument you're responding to. This argument will be
-                          linked to the original in the discussion thread.
-                        </p>
-                      </div>
-                    </div>
+                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                      Make sure to address the points in the original argument
+                      you're responding to. This argument will be linked to the
+                      original in the discussion thread.
+                    </p>
                   </div>
                 )}
 
-                <div className="space-y-2">
+                <div className="space-y-2" data-argument-id={argument.id}>
                   <Label>
                     {isReplyArgument ? "Reply Content" : "Argument Content"}{" "}
                     <span className="text-destructive">*</span>

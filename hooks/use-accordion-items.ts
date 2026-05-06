@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { BaseItem } from "@/types/submitters";
 
 export function useAccordionItems<T extends BaseItem>(
@@ -8,6 +8,15 @@ export function useAccordionItems<T extends BaseItem>(
   const [expandedItems, setExpandedItems] = useState<string[]>(
     initialItems.map((item) => item.id.toString()),
   );
+
+  useEffect(() => {
+    setExpandedItems((prev) => {
+      const currentIds = initialItems.map((item) => item.id.toString());
+      const newIds = currentIds.filter((id) => !prev.includes(id));
+      if (newIds.length === 0) return prev;
+      return [...prev, ...newIds];
+    });
+  }, [initialItems]);
 
   const addItem = (newItem: T) => {
     onItemsChange([...initialItems, newItem]);

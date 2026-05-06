@@ -60,6 +60,7 @@ export function DebateContentSection({
   const [replyToArgumentId, setReplyToArgumentId] = useState<string | null>(
     null,
   );
+  const [replyFocusKey, setReplyFocusKey] = useState(0);
 
   const argumentsByTurn = groupArgumentsByTurn(debate);
   const turnNumbers = Object.keys(argumentsByTurn)
@@ -207,6 +208,7 @@ export function DebateContentSection({
   // Handler for reply button clicks
   const handleReply = (argumentId: string) => {
     setReplyToArgumentId(argumentId);
+    setReplyFocusKey((prev) => prev + 1);
 
     // Scroll to arguments response section
     const responseSection = document.getElementById(
@@ -217,12 +219,6 @@ export function DebateContentSection({
         behavior: "smooth",
         block: "start",
       });
-
-      // Optional: Add a highlight effect
-      responseSection.classList.add("bg-blue-50", "dark:bg-blue-900/20");
-      setTimeout(() => {
-        responseSection.classList.remove("bg-blue-50", "dark:bg-blue-900/20");
-      }, 2000);
     }
   };
 
@@ -272,6 +268,7 @@ export function DebateContentSection({
             debate={debate}
             replyToArgumentId={replyToArgumentId}
             onReplyComplete={handleReplyComplete}
+            replyFocusKey={replyFocusKey}
           />
         </TabsContent>
 

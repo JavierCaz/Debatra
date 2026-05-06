@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
@@ -14,12 +14,14 @@ interface ArgumentsResponseSectionProps {
   debate: DebateWithDetails;
   replyToArgumentId?: string | null;
   onReplyComplete?: () => void;
+  replyFocusKey?: number;
 }
 
 export function ArgumentsResponseSection({
   debate,
   replyToArgumentId = null,
   onReplyComplete,
+  replyFocusKey = 0,
 }: ArgumentsResponseSectionProps) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -48,35 +50,23 @@ export function ArgumentsResponseSection({
   // Update argumentsList when replyToArgumentId changes
   useEffect(() => {
     if (replyToArgumentId) {
-      // Check if we already have a reply argument for this target
-      const existingReplyIndex = argumentsList.findIndex(
-        (arg) => arg.responseToId === replyToArgumentId,
-      );
-
-      if (existingReplyIndex === -1) {
-        // Add a new reply argument to the existing list
-        const newReplyArgument: InitialArgument = {
-          id: Date.now(),
-          content: "",
-          references: [],
-          responseToId: replyToArgumentId,
-        };
-        setArgumentsList((prev) => [...prev, newReplyArgument]);
-      }
+      setArgumentsList((prev) => {
+        const existing = prev.find(
+          (arg) => arg.responseToId === replyToArgumentId,
+        );
+        if (existing) return prev;
+        return [
+          ...prev,
+          {
+            id: Date.now(),
+            content: "",
+            references: [],
+            responseToId: replyToArgumentId,
+          },
+        ];
+      });
     }
-  }, [replyToArgumentId, argumentsList]);
-
-  // Function to remove a specific reply argument
-  const removeReplyArgument = () => {
-    if (replyToArgumentId) {
-      setArgumentsList((prev) =>
-        prev.filter((arg) => arg.responseToId !== replyToArgumentId),
-      );
-      if (onReplyComplete) {
-        onReplyComplete();
-      }
-    }
-  };
+  }, [replyToArgumentId]);
 
   // Handle forfeit toggle change
   const handleForfeitToggle = (checked: boolean) => {
@@ -92,6 +82,28 @@ export function ArgumentsResponseSection({
       ]);
     }
   };
+
+  const replyContextMap = useMemo(() => {
+    const map = new Map<
+      string,
+      { userName: string; argumentNumber: number; turnNumber: number }
+    >();
+    for (const participant of debate.participants) {
+      const sortedArgs = [...participant.arguments].sort(
+        (a, b) =>
+          a.turnNumber - b.turnNumber ||
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      );
+      sortedArgs.forEach((arg, index) => {
+        map.set(arg.id, {
+          userName: participant.user.name || "Unknown",
+          argumentNumber: index + 1,
+          turnNumber: arg.turnNumber,
+        });
+      });
+    }
+    return map;
+  }, [debate]);
 
   const isInReplyMode = !!replyToArgumentId;
 
@@ -233,22 +245,14 @@ export function ArgumentsResponseSection({
           }
           disabled={!canSubmitArguments}
           disabledMessage={getDisabledMessage()}
-          isReply={isInReplyMode}
           replyToArgumentId={replyToArgumentId || undefined}
-          isForfeit={isForfeit} // Pass forfeit state here
+          replyContextMap={replyContextMap}
+          isForfeit={isForfeit}
+          replyFocusKey={replyFocusKey}
         />
 
         {canSubmitArguments && (
           <div className="flex justify-end gap-2">
-            {isInReplyMode && !isForfeit && (
-              <Button
-                variant="outline"
-                onClick={removeReplyArgument}
-                disabled={isLoading}
-              >
-                Remove Reply
-              </Button>
-            )}
             <Button
               onClick={handleSubmit}
               disabled={isLoading}
