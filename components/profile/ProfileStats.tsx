@@ -1,5 +1,5 @@
 import { Handshake, MessageSquare, Trophy } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader } from "../ui/card";
+import { Card } from "../ui/card";
 
 interface ProfileStatsProps {
   stats: {
