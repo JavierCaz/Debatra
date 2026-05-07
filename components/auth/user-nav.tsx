@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,6 +22,7 @@ import { useAuth } from "@/hooks/use-auth";
 export function UserNav() {
   const { user, isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
+  const { t } = useTranslation();
   const [isSignOutDialogOpen, setIsSignOutDialogOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -49,10 +51,10 @@ export function UserNav() {
     return (
       <div className="flex items-center gap-1">
         <Button asChild variant="ghost" size="sm" className="h-9 px-2 text-xs">
-          <Link href="/auth/signin">Sign in</Link>
+          <Link href="/auth/signin">{t("auth.signIn")}</Link>
         </Button>
         <Button asChild size="sm" className="h-9 px-2 text-xs">
-          <Link href="/auth/signup">Sign up</Link>
+          <Link href="/auth/signup">{t("auth.signUp")}</Link>
         </Button>
       </div>
     );
@@ -91,15 +93,14 @@ export function UserNav() {
             className="text-sm font-medium flex items-center gap-1 h-9 px-2"
           >
             <LogOut className="h-4 w-4" />
-            <span className="hidden sm:inline">Sign out</span>
+            <span className="hidden sm:inline">{t("auth.signOut")}</span>
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Confirm Sign Out</DialogTitle>
+            <DialogTitle>{t("auth.confirmSignOut")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to sign out? You'll need to sign in again to
-              access your account.
+              {t("auth.confirmSignOutMessage")}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex flex-col sm:flex-row gap-3">
@@ -109,7 +110,7 @@ export function UserNav() {
               onClick={() => setIsSignOutDialogOpen(false)}
               disabled={isSigningOut}
             >
-              Cancel
+              {t("auth.cancel")}
             </Button>
             <Button
               type="button"
@@ -120,12 +121,12 @@ export function UserNav() {
               {isSigningOut ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
-                  Signing out...
+                  {t("auth.signingOut")}
                 </>
               ) : (
                 <>
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sign out
+                  {t("auth.signOut")}
                 </>
               )}
             </Button>

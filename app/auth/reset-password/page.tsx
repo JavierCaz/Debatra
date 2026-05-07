@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -19,24 +20,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const resetPasswordSchema = z
-  .object({
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(/[A-Z]/, "Password must contain at least one uppercase letter")
-      .regex(/[a-z]/, "Password must contain at least one lowercase letter")
-      .regex(/[0-9]/, "Password must contain at least one number"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords don't match",
-    path: ["confirmPassword"],
-  });
-
-type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
-
 function ResetPasswordForm() {
+  const { t } = useTranslation();
+  const resetPasswordSchema = z
+    .object({
+      password: z
+        .string()
+        .min(8, t("validation.passwordMinLength"))
+        .regex(/[A-Z]/, t("validation.passwordUppercase"))
+        .regex(/[a-z]/, t("validation.passwordLowercase"))
+        .regex(/[0-9]/, t("validation.passwordNumber")),
+      confirmPassword: z.string(),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t("validation.passwordsDontMatch"),
+      path: ["confirmPassword"],
+    });
+
+  type ResetPasswordFormData = z.infer<typeof resetPasswordSchema>;
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
@@ -55,13 +56,13 @@ function ResetPasswordForm() {
 
   useEffect(() => {
     if (!token) {
-      setError("Invalid reset link. Please request a new password reset.");
+      setError(t("resetPassword.invalidLink"));
     }
-  }, [token]);
+  }, [token, t]);
 
   const onSubmit = async (data: ResetPasswordFormData) => {
     if (!token) {
-      setError("Invalid reset token");
+      setError(t("resetPassword.invalidToken"));
       return;
     }
 
@@ -81,7 +82,7 @@ function ResetPasswordForm() {
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || "Something went wrong");
+        setError(result.error || t("auth.somethingWentWrong"));
         return;
       }
 
@@ -92,7 +93,7 @@ function ResetPasswordForm() {
         router.push("/auth/signin");
       }, 2000);
     } catch (_error) {
-      setError("Something went wrong. Please try again.");
+      setError(t("auth.somethingWentWrong"));
     } finally {
       setIsLoading(false);
     }
@@ -108,10 +109,10 @@ function ResetPasswordForm() {
             </div>
             <div className="space-y-2">
               <CardTitle className="text-2xl">
-                Password reset successful!
+                {t("resetPassword.successful")}
               </CardTitle>
               <CardDescription>
-                Your password has been changed. Redirecting to sign in...
+                {t("resetPassword.redirecting")}
               </CardDescription>
             </div>
           </CardHeader>
@@ -124,8 +125,8 @@ function ResetPasswordForm() {
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl">Set new password</CardTitle>
-          <CardDescription>Enter your new password below.</CardDescription>
+          <CardTitle className="text-2xl">{t("resetPassword.title")}</CardTitle>
+          <CardDescription>{t("resetPassword.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -137,14 +138,14 @@ function ResetPasswordForm() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="password">New password</Label>
+              <Label htmlFor="password">{t("resetPassword.newPassword")}</Label>
               <Input
                 {...register("password")}
                 type="password"
                 id="password"
                 autoComplete="new-password"
                 className={errors.password ? "border-destructive" : ""}
-                placeholder="Enter your new password"
+                placeholder={t("resetPassword.newPasswordPlaceholder")}
               />
               {errors.password && (
                 <p className="text-sm text-destructive">
@@ -152,20 +153,21 @@ function ResetPasswordForm() {
                 </p>
               )}
               <p className="text-xs text-muted-foreground">
-                Must be at least 8 characters with uppercase, lowercase, and
-                numbers
+                {t("resetPassword.passwordRequirements")}
               </p>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm new password</Label>
+              <Label htmlFor="confirmPassword">
+                {t("resetPassword.confirmNewPassword")}
+              </Label>
               <Input
                 {...register("confirmPassword")}
                 type="password"
                 id="confirmPassword"
                 autoComplete="new-password"
                 className={errors.confirmPassword ? "border-destructive" : ""}
-                placeholder="Confirm your new password"
+                placeholder={t("resetPassword.confirmNewPasswordPlaceholder")}
               />
               {errors.confirmPassword && (
                 <p className="text-sm text-destructive">
@@ -182,12 +184,12 @@ function ResetPasswordForm() {
               {isLoading ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
-                  Resetting password...
+                  {t("resetPassword.resettingPassword")}
                 </>
               ) : (
                 <>
                   <KeyRound className="mr-2 h-4 w-4" />
-                  Reset password
+                  {t("resetPassword.resetPassword")}
                 </>
               )}
             </Button>
@@ -196,7 +198,7 @@ function ResetPasswordForm() {
               <Button asChild variant="link" className="text-sm">
                 <Link href="/auth/signin">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to sign in
+                  {t("forgotPassword.backToSignIn")}
                 </Link>
               </Button>
             </div>
@@ -208,6 +210,7 @@ function ResetPasswordForm() {
 }
 
 export default function ResetPasswordPage() {
+  const { t } = useTranslation();
   return (
     <Suspense
       fallback={
@@ -216,7 +219,9 @@ export default function ResetPasswordPage() {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center space-y-4">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <p className="text-sm text-muted-foreground">Loading...</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("common.loading")}
+                </p>
               </div>
             </CardContent>
           </Card>

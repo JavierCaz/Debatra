@@ -10,6 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { T } from "@/components/ui/translated-text";
 import type { ExtendedRequest } from "@/types/debate-requests";
 
 interface InvitationsTabProps {
@@ -39,7 +40,9 @@ export function InvitationsTab({
     <>
       {/* Search Section */}
       <div className="space-y-4">
-        <h4 className="text-sm font-medium">Invite Users</h4>
+        <h4 className="text-sm font-medium">
+          <T k="debate.info.inviteUsers" />
+        </h4>
 
         <div className="flex gap-2">
           <Input
@@ -56,12 +59,14 @@ export function InvitationsTab({
             <div className="flex flex-col items-center justify-center py-8">
               <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mb-2" />
               <p className="text-sm text-muted-foreground">
-                Searching users...
+                <T k="debate.info.searching" />
               </p>
             </div>
           ) : searchResults.length > 0 ? (
             <div className="space-y-2">
-              <h5 className="text-sm font-medium">Search Results</h5>
+              <h5 className="text-sm font-medium">
+                <T k="debate.info.searchResults" />
+              </h5>
               {searchResults.map((user) => (
                 <div
                   key={user.id}
@@ -97,16 +102,18 @@ export function InvitationsTab({
           ) : searchQuery && !isSearching && searchResults.length === 0 ? (
             <div className="text-center py-6">
               <Users className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">No users found</p>
+              <p className="text-sm text-muted-foreground">
+                <T k="debate.info.noUsersFound" />
+              </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Try searching by email address
+                <T k="debate.info.searchHint" />
               </p>
             </div>
           ) : !searchQuery ? (
             <div className="text-center py-4">
               <Search className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
               <p className="text-sm text-muted-foreground">
-                Start typing to search for users
+                <T k="debate.info.typeToSearch" />
               </p>
             </div>
           ) : null}
@@ -115,10 +122,12 @@ export function InvitationsTab({
 
       {/* Pending Invitations Section */}
       <div className="space-y-4">
-        <h4 className="text-sm font-medium">Pending Invitations</h4>
+        <h4 className="text-sm font-medium">
+          <T k="debate.info.pendingInvitations" />
+        </h4>
         {pendingInvitations.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No pending invitations
+            <T k="debate.info.noPendingInvitations" />
           </p>
         ) : (
           pendingInvitations.map((request) => (
@@ -139,7 +148,10 @@ export function InvitationsTab({
                     {request.user.name || request.user.email}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Invited as {request.role.toLowerCase()}
+                    <T
+                      k="debate.info.invitedAs"
+                      values={{ role: request.role.toLowerCase() }}
+                    />
                   </p>
                   {request.message && (
                     <p className="text-xs text-muted-foreground mt-1">
@@ -168,7 +180,9 @@ export function InvitationsTab({
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Cancel invitation</p>
+                      <p>
+                        <T k="debate.info.cancelInvitation" />
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

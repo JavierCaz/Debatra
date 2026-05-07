@@ -3,6 +3,7 @@
 import { Loader2 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useMemo, useState, useTransition } from "react";
+import { useTranslation } from "react-i18next";
 import { useDebouncedCallback } from "use-debounce";
 import { DebateFilters } from "./debate-filters";
 
@@ -23,6 +24,7 @@ export function DebateFiltersClient({
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const { t } = useTranslation();
 
   const [searchTerm, setSearchTerm] = useState(initialSearch);
 
@@ -85,7 +87,7 @@ export function DebateFiltersClient({
         <div className="absolute inset-0 bg-background/50 rounded-lg flex items-center justify-center">
           <div className="flex items-center space-x-2 text-sm text-muted-foreground">
             <Loader2 className="h-4 w-4 animate-spin" />
-            <span>Updating...</span>
+            <span>{t("debates.updating")}</span>
           </div>
         </div>
       )}

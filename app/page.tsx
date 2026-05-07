@@ -1,3 +1,5 @@
+"use client";
+
 import {
   BookCheck,
   Clock,
@@ -8,47 +10,44 @@ import {
   Vote,
 } from "lucide-react";
 import Link from "next/link";
-import { getServerSession } from "next-auth";
+import { useSession } from "next-auth/react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { authOptions } from "@/lib/auth/options";
 
-export default async function Home() {
-  const session = await getServerSession(authOptions);
+export default function Home() {
+  const { data: session } = useSession();
+  const { t } = useTranslation();
 
   const steps = [
     {
       number: "01",
-      title: "Choose a Topic",
-      description:
-        "Browse existing debates or create your own topic. Select a position - For or Against.",
+      title: t("home.step1Title"),
+      description: t("home.step1Desc"),
       icon: Search,
       color: "text-blue-600",
       bgColor: "bg-blue-100 dark:bg-blue-950",
     },
     {
       number: "02",
-      title: "Submit Your Position",
-      description:
-        "Make your opening statement with credible evidence. All arguments require verifiable references and sources.",
+      title: t("home.step2Title"),
+      description: t("home.step2Desc"),
       icon: FileText,
       color: "text-green-600",
       bgColor: "bg-green-100 dark:bg-green-950",
     },
     {
       number: "03",
-      title: "Respond to Opponents",
-      description:
-        "Take your time to craft thoughtful rebuttals. Asynchronous format means no rush - quality over speed.",
+      title: t("home.step3Title"),
+      description: t("home.step3Desc"),
       icon: MessageSquare,
       color: "text-purple-600",
       bgColor: "bg-purple-100 dark:bg-purple-950",
     },
     {
       number: "04",
-      title: "Community Votes",
-      description:
-        "The community votes on the strongest arguments. Clear win conditions determine the debate winner.",
+      title: t("home.step4Title"),
+      description: t("home.step4Desc"),
       icon: Vote,
       color: "text-amber-600",
       bgColor: "bg-amber-100 dark:bg-amber-950",
@@ -61,11 +60,10 @@ export default async function Home() {
         {/* Hero Section */}
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
-            Evidence-Based Debates
+            {t("home.title")}
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Engage in structured, asynchronous debates with mandatory references
-            and clear win conditions. Quality over speed.
+            {t("home.subtitle")}
           </p>
         </div>
 
@@ -74,30 +72,30 @@ export default async function Home() {
           <div className="flex flex-col items-center text-center space-y-1">
             <BookCheck className="h-5 w-5 text-blue-500/70" />
             <div className="text-sm font-medium text-foreground/80">
-              Evidence-Based
+              {t("home.evidenceBased")}
             </div>
             <p className="text-xs text-muted-foreground">
-              All arguments require credible references
+              {t("home.evidenceBasedDesc")}
             </p>
           </div>
 
           <div className="flex flex-col items-center text-center space-y-1">
             <Clock className="h-5 w-5 text-green-500/70" />
             <div className="text-sm font-medium text-foreground/80">
-              Turn-Based
+              {t("home.turnBased")}
             </div>
             <p className="text-xs text-muted-foreground">
-              Asynchronous, thoughtful responses
+              {t("home.turnBasedDesc")}
             </p>
           </div>
 
           <div className="flex flex-col items-center text-center space-y-1">
             <Trophy className="h-5 w-5 text-amber-500/70" />
             <div className="text-sm font-medium text-foreground/80">
-              Clear Outcomes
+              {t("home.clearOutcomes")}
             </div>
             <p className="text-xs text-muted-foreground">
-              Community voting decides winners
+              {t("home.clearOutcomesDesc")}
             </p>
           </div>
         </div>
@@ -106,10 +104,10 @@ export default async function Home() {
         <div className="mt-18">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
-              How It Works
+              {t("home.howItWorks")}
             </h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Four simple steps to engaging, evidence-based debates
+              {t("home.howItWorksDesc")}
             </p>
           </div>
 
@@ -131,7 +129,8 @@ export default async function Home() {
                       </div>
                       {/* Step Number */}
                       <div className="text-sm font-mono text-muted-foreground mb-2">
-                        Step {step.number}
+                        {"Step "}
+                        {step.number}
                       </div>
                       <CardTitle className="text-xl">{step.title}</CardTitle>
                     </CardHeader>
@@ -157,7 +156,7 @@ export default async function Home() {
           <div className="text-center mt-12">
             <Button asChild size="lg" variant="default">
               <Link href={session ? "/debates" : "/auth/signup"}>
-                {session ? "Start Debating Now" : "Join the Community"}
+                {session ? t("home.startDebating") : t("home.joinCommunity")}
               </Link>
             </Button>
           </div>

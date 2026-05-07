@@ -1,5 +1,6 @@
 import type { User } from "@/app/generated/prisma";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { T } from "@/components/ui/translated-text";
 import type { ExtendedRequest } from "@/types/debate-requests";
 import { InvitationsTab } from "./invitations-tab";
 import { JoinRequestsTab } from "./join-requests-tab";
@@ -35,9 +36,17 @@ export function CreatorInviterSections({
   return (
     <Tabs defaultValue="join" className="w-full">
       <TabsList className="grid w-full grid-cols-2">
-        <TabsTrigger value="join">Requests ({joinRequests.length})</TabsTrigger>
+        <TabsTrigger value="join">
+          <T
+            k="debate.info.requestsTab"
+            values={{ count: joinRequests.length }}
+          />
+        </TabsTrigger>
         <TabsTrigger value="invite">
-          Invitations ({invitations.length})
+          <T
+            k="debate.info.invitationsTab"
+            values={{ count: invitations.length }}
+          />
         </TabsTrigger>
       </TabsList>
 

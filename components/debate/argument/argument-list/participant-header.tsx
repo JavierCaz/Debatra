@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { getRoleBadgeColor } from "@/lib/debate/formatters";
@@ -12,6 +15,7 @@ export function ParticipantHeader({
   participant,
   argumentsCount,
 }: ParticipantHeaderProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg">
       <Avatar>
@@ -31,7 +35,7 @@ export function ParticipantHeader({
                 {participant.role}
               </Badge>
               <span className="text-xs text-muted-foreground">
-                {argumentsCount} argument(s) this turn
+                {t("debate.argument.argsThisTurn", { count: argumentsCount })}
               </span>
             </div>
           </div>

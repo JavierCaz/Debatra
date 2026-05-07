@@ -1,6 +1,7 @@
 "use client";
 
 import { Reply } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { DebateWithDetails } from "@/types/debate";
 
 interface ResponseIndicatorProps {
@@ -29,6 +30,7 @@ export function ResponseIndicator({
   responseTo,
   responseType = "rebuttal",
 }: ResponseIndicatorProps) {
+  const { t } = useTranslation();
   if (!responseTo) return null;
 
   // Determine styling and text based on response type
@@ -46,7 +48,9 @@ export function ResponseIndicator({
     ? "dark:text-green-300"
     : "dark:text-blue-300";
 
-  const actionText = isSupport ? "Adding to" : "Rebutting to";
+  const actionText = isSupport
+    ? t("debate.argument.addingTo")
+    : t("debate.argument.rebuttingTo");
   const icon = isSupport ? (
     <Reply className="w-4 h-4 transform rotate-180" />
   ) : (
@@ -63,10 +67,13 @@ export function ResponseIndicator({
         >
           {icon}
           <span className="text-sm font-medium">
-            {actionText}{" "}
-            {responseTo.participant.user.name ||
-              responseTo.participant.user.email}
-            's argument from Turn {responseTo.turnNumber}
+            {t("debate.argument.responseIndicator", {
+              action: actionText,
+              name:
+                responseTo.participant.user.name ||
+                responseTo.participant.user.email,
+              turn: responseTo.turnNumber,
+            })}
           </span>
         </div>
       </div>

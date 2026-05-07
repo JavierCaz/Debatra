@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { T } from "@/components/ui/translated-text";
 import { prisma } from "@/lib/prisma/client";
 import type { DebateStatus, DebateTopic } from "@/types/debate";
 
@@ -198,7 +199,7 @@ export default async function ProfilePage({
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <CardTitle className="text-3xl">
-                    {user.name || "Anonymous User"}
+                    {user.name || <T k="profile.anonymousUser" />}
                   </CardTitle>
                   <CardDescription className="text-base mt-1">
                     {user.email}
@@ -224,7 +225,7 @@ export default async function ProfilePage({
           <div className="flex items-center text-sm text-muted-foreground">
             <Calendar className="mr-2 h-4 w-4" />
             <span>
-              Member since{" "}
+              <T k="profile.memberSince" />{" "}
               {new Date(user.createdAt).toLocaleDateString("en-US", {
                 month: "long",
                 year: "numeric",
@@ -243,24 +244,29 @@ export default async function ProfilePage({
               <div className="sticky top-4 space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Filter Debates</CardTitle>
+                    <CardTitle>
+                      <T k="profile.filterDebates" />
+                    </CardTitle>
                     <CardDescription>
-                      Narrow down debates by status, topic, or search
+                      <T k="profile.filterDescription" />
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Tabs Navigation inside CardContent */}
                     <TabsList className="grid w-full grid-cols-2">
                       <TabsTrigger value="created">
-                        Created ({user._count.debatesCreated})
+                        <T k="profile.created" /> ({user._count.debatesCreated})
                       </TabsTrigger>
                       <TabsTrigger value="participated">
-                        Participated ({user._count.debateParticipants})
+                        <T k="profile.participated" /> (
+                        {user._count.debateParticipants})
                       </TabsTrigger>
                     </TabsList>
 
                     <div className="pt-2">
-                      <h3 className="text-sm font-medium mb-3">Filters</h3>
+                      <h3 className="text-sm font-medium mb-3">
+                        <T k="profile.filters" />
+                      </h3>
                       <DebateFiltersClient
                         initialStatus={status}
                         initialSearch={search}
@@ -276,25 +282,32 @@ export default async function ProfilePage({
               <TabsContent value="created" className="mt-0">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Created Debates</CardTitle>
+                    <CardTitle>
+                      <T k="profile.createdDebates" />
+                    </CardTitle>
                     <CardDescription>
-                      Debates created by {user.name || "this user"}
+                      <T
+                        k="profile.debatesCreatedBy"
+                        values={{ name: user.name || "this user" }}
+                      />
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {user.debatesCreated.length === 0 ? (
                       <div className="text-center py-8">
                         <p className="text-muted-foreground">
-                          No debates found
+                          <T k="profile.noDebatesFound" />
                         </p>
                         {status !== "ALL" || search || topic !== "ALL" ? (
                           <p className="text-sm text-muted-foreground mt-2">
-                            Try adjusting your filters
+                            <T k="profile.adjustFilters" />
                           </p>
                         ) : (
                           <p className="text-sm text-muted-foreground mt-2">
-                            {user.name || "This user"} hasn't created any
-                            debates yet
+                            <T
+                              k="profile.notCreatedYet"
+                              values={{ name: user.name || "This user" }}
+                            />
                           </p>
                         )}
                       </div>
@@ -309,25 +322,32 @@ export default async function ProfilePage({
               <TabsContent value="participated" className="mt-0">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Participated Debates</CardTitle>
+                    <CardTitle>
+                      <T k="profile.participatedDebates" />
+                    </CardTitle>
                     <CardDescription>
-                      Debates {user.name || "this user"} has participated in
+                      <T
+                        k="profile.debatesParticipatedBy"
+                        values={{ name: user.name || "this user" }}
+                      />
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     {user.debateParticipants.length === 0 ? (
                       <div className="text-center py-8">
                         <p className="text-muted-foreground">
-                          No debates found
+                          <T k="profile.noDebatesFound" />
                         </p>
                         {status !== "ALL" || search || topic !== "ALL" ? (
                           <p className="text-sm text-muted-foreground mt-2">
-                            Try adjusting your filters
+                            <T k="profile.adjustFilters" />
                           </p>
                         ) : (
                           <p className="text-sm text-muted-foreground mt-2">
-                            {user.name || "This user"} hasn't participated in
-                            any debates yet
+                            <T
+                              k="profile.notParticipatedYet"
+                              values={{ name: user.name || "This user" }}
+                            />
                           </p>
                         )}
                       </div>

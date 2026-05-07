@@ -5,6 +5,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import { T } from "@/components/ui/translated-text";
 import { StatusIndicators } from "./status-indicators";
 
 interface AccordionItemWrapperProps {
@@ -75,7 +76,10 @@ export function AccordionItemWrapper({
           <p className="text-sm text-muted-foreground">{preview}</p>
           {hasReferences && (
             <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-              {referencesCount} reference(s)
+              <T
+                k="debate.definition.referencesCount"
+                values={{ count: referencesCount }}
+              />
             </p>
           )}
         </div>

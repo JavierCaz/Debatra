@@ -5,6 +5,7 @@ import { AlertCircle, CheckCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import {
   Dialog,
@@ -46,6 +47,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   const {
     register,
@@ -76,7 +78,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to update profile");
+        throw new Error(errorData.error || t("editProfile.failedToUpdate"));
       }
 
       setSuccess(true);
@@ -86,7 +88,9 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
         setSuccess(false);
       }, 1500);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(
+        err instanceof Error ? err.message : t("editProfile.anErrorOccurred"),
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -95,13 +99,13 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Edit Profile</Button>
+        <Button variant="outline">{t("editProfile.editProfile")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit profile</DialogTitle>
+          <DialogTitle>{t("editProfile.editProfileTitle")}</DialogTitle>
           <DialogDescription>
-            Make changes to your profile here. Click save when you&apos;re done.
+            {t("editProfile.editProfileDesc")}
           </DialogDescription>
         </DialogHeader>
 
@@ -121,7 +125,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
             <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
               <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-300">
-                Profile updated successfully!
+                {t("editProfile.success")}
               </AlertDescription>
             </Alert>
           )}
@@ -129,7 +133,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
           {!success && (
             <>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t("editProfile.email")}</Label>
                 <Input
                   id="email"
                   type="email"
@@ -138,12 +142,12 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
                   className="bg-muted text-muted-foreground cursor-not-allowed"
                 />
                 <p className="text-sm text-muted-foreground">
-                  Email cannot be changed
+                  {t("editProfile.emailCannotBeChanged")}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="name">Name *</Label>
+                <Label htmlFor="name">{t("editProfile.name")}</Label>
                 <Input
                   id="name"
                   type="text"
@@ -159,11 +163,11 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bio">Bio</Label>
+                <Label htmlFor="bio">{t("editProfile.bio")}</Label>
                 <Textarea
                   id="bio"
                   {...register("bio")}
-                  placeholder="Tell us about yourself..."
+                  placeholder={t("editProfile.bioPlaceholder")}
                   className={errors.bio ? "border-destructive" : ""}
                   rows={4}
                 />
@@ -173,17 +177,19 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">
-                  Maximum 500 characters
+                  {t("editProfile.bioMaxLength")}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="image">Profile Image URL</Label>
+                <Label htmlFor="image">
+                  {t("editProfile.profileImageUrl")}
+                </Label>
                 <Input
                   id="image"
                   type="url"
                   {...register("image")}
-                  placeholder="https://example.com/your-image.jpg"
+                  placeholder={t("editProfile.imagePlaceholder")}
                   className={errors.image ? "border-destructive" : ""}
                 />
                 {errors.image && (
@@ -192,7 +198,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
                   </p>
                 )}
                 <p className="text-sm text-muted-foreground">
-                  Enter a URL to your profile image
+                  {t("editProfile.imageDescription")}
                 </p>
               </div>
             </>
@@ -203,7 +209,7 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
           <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Cancel
+                {t("editProfile.cancel")}
               </Button>
             </DialogClose>
             <Button
@@ -211,7 +217,9 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
               form="edit-profile-form"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting
+                ? t("editProfile.saving")
+                : t("editProfile.saveChanges")}
             </Button>
           </DialogFooter>
         )}

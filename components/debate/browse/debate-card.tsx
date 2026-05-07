@@ -1,7 +1,12 @@
+"use client";
+
 import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
 import { MessageSquare, Users } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import type { DebateTopicEnum } from "@/app/generated/prisma";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -11,8 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { getStatusBadgeColor } from "@/lib/debate/formatters";
-import { type DebateTopic, getTopicDisplayName } from "@/types/debate";
+import {
+  getStatusBadgeColor,
+  getStatusTranslationKey,
+} from "@/lib/debate/formatters";
+import { type DebateTopic, getTopicTranslationKey } from "@/types/debate";
 
 interface DebateCardProps {
   debate: {
@@ -34,15 +42,10 @@ interface DebateCardProps {
   };
 }
 
-const statusLabels = {
-  DRAFT: "Draft",
-  OPEN: "Open",
-  IN_PROGRESS: "In Progress",
-  COMPLETED: "Completed",
-  CANCELLED: "Cancelled",
-};
-
 export function DebateCard({ debate }: DebateCardProps) {
+  const { t } = useTranslation();
+  const { language } = useLanguage();
+
   // Limit displayed topics to prevent overflow
   const displayTopics = debate.topics.slice(0, 3);
   const hasMoreTopics = debate.topics.length > 3;
@@ -59,7 +62,7 @@ export function DebateCard({ debate }: DebateCardProps) {
               <CardDescription className="flex flex-wrap items-center gap-2">
                 {/* Status Badge */}
                 <Badge className={getStatusBadgeColor(debate.status)}>
-                  {statusLabels[debate.status as keyof typeof statusLabels]}
+                  {t(getStatusTranslationKey(debate.status))}
                 </Badge>
 
                 {/* Topics Badges - removed max-width and truncate */}
@@ -69,14 +72,16 @@ export function DebateCard({ debate }: DebateCardProps) {
                     variant="secondary"
                     className="whitespace-normal break-words"
                   >
-                    {getTopicDisplayName(topic as DebateTopic)}
+                    {t(getTopicTranslationKey(topic as DebateTopic))}
                   </Badge>
                 ))}
 
                 {/* Show "+X more" if there are additional topics */}
                 {hasMoreTopics && (
                   <Badge variant="outline" className="text-xs">
-                    +{debate.topics.length - 3} more
+                    {t("debates.moreTopics", {
+                      count: debate.topics.length - 3,
+                    })}
                   </Badge>
                 )}
               </CardDescription>
@@ -95,7 +100,7 @@ export function DebateCard({ debate }: DebateCardProps) {
                   </AvatarFallback>
                 </Avatar>
                 <span className="text-xs sm:text-sm">
-                  {debate.creator.name || "Anonymous"}
+                  {debate.creator.name || t("debates.anonymous")}
                 </span>
               </div>
 
@@ -120,6 +125,7 @@ export function DebateCard({ debate }: DebateCardProps) {
               <span className="text-xs sm:text-sm bg-muted px-2 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0">
                 {formatDistanceToNow(new Date(debate.createdAt), {
                   addSuffix: true,
+                  locale: language === "es" ? es : undefined,
                 })}
               </span>
             </div>

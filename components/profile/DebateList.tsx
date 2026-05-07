@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -10,7 +13,9 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   getRoleBadgeColor,
+  getRoleTranslationKey,
   getStatusBadgeColor,
+  getStatusTranslationKey,
 } from "@/lib/debate/formatters";
 
 interface Debate {
@@ -38,14 +43,16 @@ interface DebateListProps {
 }
 
 export function DebateList({ items, type }: DebateListProps) {
+  const { t } = useTranslation();
+
   if (items.length === 0) {
     return (
       <Card>
         <CardContent className="pt-6">
           <p className="text-center text-muted-foreground">
             {type === "created"
-              ? "No debates created yet"
-              : "No debate participations yet"}
+              ? t("profile.noDebatesCreatedYet")
+              : t("profile.noDebatesParticipatedYet")}
           </p>
         </CardContent>
       </Card>
@@ -80,15 +87,15 @@ export function DebateList({ items, type }: DebateListProps) {
                   )}
                   {type === "participated" && participation && (
                     <CardDescription className="mt-2">
-                      Role:{" "}
+                      {t("profile.role")}{" "}
                       <Badge className={getRoleBadgeColor(participation.role)}>
-                        {participation.role}
+                        {t(getRoleTranslationKey(participation.role))}
                       </Badge>
                     </CardDescription>
                   )}
                 </div>
                 <Badge className={getStatusBadgeColor(debate.status)}>
-                  {debate.status.replace("_", " ")}
+                  {t(getStatusTranslationKey(debate.status))}
                 </Badge>
               </div>
             </CardHeader>
@@ -104,14 +111,22 @@ export function DebateList({ items, type }: DebateListProps) {
                       })}
                     </span>
                     <Separator orientation="vertical" className="h-4" />
-                    <span>{debate._count?.arguments || 0} arguments</span>
+                    <span>
+                      {t("profile.arguments", {
+                        count: debate._count?.arguments || 0,
+                      })}
+                    </span>
                     <Separator orientation="vertical" className="h-4" />
-                    <span>{debate.participants?.length || 0} participants</span>
+                    <span>
+                      {t("profile.participants", {
+                        count: debate.participants?.length || 0,
+                      })}
+                    </span>
                   </>
                 ) : (
                   <>
                     <span>
-                      Joined{" "}
+                      {t("profile.joined")}{" "}
                       {participation?.joinedAt
                         ? new Date(participation.joinedAt).toLocaleDateString(
                             "en-US",
@@ -124,7 +139,11 @@ export function DebateList({ items, type }: DebateListProps) {
                         : ""}
                     </span>
                     <Separator orientation="vertical" className="h-4" />
-                    <span>{debate._count?.arguments || 0} arguments</span>
+                    <span>
+                      {t("profile.arguments", {
+                        count: debate._count?.arguments || 0,
+                      })}
+                    </span>
                   </>
                 )}
               </div>

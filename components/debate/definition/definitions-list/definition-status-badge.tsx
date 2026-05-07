@@ -1,5 +1,6 @@
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { T } from "@/components/ui/translated-text";
 import type { Definition } from "@/types/definitions";
 
 interface DefinitionStatusBadgeProps {
@@ -42,13 +43,13 @@ export function DefinitionStatusBadge({
   const getStatusLabel = () => {
     switch (status) {
       case "ACCEPTED":
-        return "Accepted";
+        return <T k="debate.definition.accepted" />;
       case "PROPOSED":
-        return "Proposed";
+        return <T k="debate.definition.proposed" />;
       case "CONTESTED":
-        return "Contested";
+        return <T k="debate.definition.contested" />;
       case "DEPRECATED":
-        return "Deprecated";
+        return <T k="debate.definition.deprecated" />;
       default:
         return status;
     }

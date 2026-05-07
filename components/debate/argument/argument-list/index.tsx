@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionContent,
@@ -10,7 +11,10 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { getRoleBadgeColor, getRoleDisplayName } from "@/lib/debate/formatters";
+import {
+  getRoleBadgeColor,
+  getRoleTranslationKey,
+} from "@/lib/debate/formatters";
 import {
   getParticipantsInOrder,
   type groupArgumentsByTurn,
@@ -36,6 +40,7 @@ export function ArgumentsList({
   onVote,
   onReply,
 }: ArgumentsListProps) {
+  const { t } = useTranslation();
   const [openTurns, setOpenTurns] = useState<string[]>([]);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
@@ -152,10 +157,14 @@ export function ArgumentsList({
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center space-x-4">
                     <h3 className="text-lg font-semibold text-left">
-                      Turn {turnNumber}
+                      {t("debate.argumentList.turnLabel", {
+                        number: turnNumber,
+                      })}
                     </h3>
                     <Badge variant="secondary" className="ml-2">
-                      {totalArguments} argument{totalArguments !== 1 ? "s" : ""}
+                      {t("debate.argumentList.argsCount", {
+                        count: totalArguments,
+                      })}
                     </Badge>
                   </div>
                 </div>
@@ -171,29 +180,23 @@ export function ArgumentsList({
                             <div className="flex items-center justify-between">
                               <div className="flex items-center space-x-3">
                                 <Badge className={getRoleBadgeColor(role)}>
-                                  {getRoleDisplayName(role)}
+                                  {t(getRoleTranslationKey(role))}
                                 </Badge>
                                 <span className="text-sm text-muted-foreground">
-                                  {roleParticipants.length} participant
-                                  {roleParticipants.length !== 1 ? "s" : ""}
+                                  {t("debate.argumentList.participantCount", {
+                                    count: roleParticipants.length,
+                                  })}
                                 </span>
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                {roleParticipants.reduce(
-                                  (total, participant) =>
-                                    total +
-                                    turnData[participant.id].arguments.length,
-                                  0,
-                                )}{" "}
-                                argument
-                                {roleParticipants.reduce(
-                                  (total, participant) =>
-                                    total +
-                                    turnData[participant.id].arguments.length,
-                                  0,
-                                ) !== 1
-                                  ? "s"
-                                  : ""}
+                                {t("debate.argumentList.argsCount", {
+                                  count: roleParticipants.reduce(
+                                    (total, participant) =>
+                                      total +
+                                      turnData[participant.id].arguments.length,
+                                    0,
+                                  ),
+                                })}
                               </div>
                             </div>
                           </CardHeader>
@@ -225,11 +228,10 @@ export function ArgumentsList({
                                           participant.user.email}
                                       </p>
                                       <p className="text-xs text-muted-foreground mt-1">
-                                        {participantData.arguments.length}{" "}
-                                        argument
-                                        {participantData.arguments.length !== 1
-                                          ? "s"
-                                          : ""}
+                                        {t("debate.argumentList.argsCount", {
+                                          count:
+                                            participantData.arguments.length,
+                                        })}
                                       </p>
                                     </div>
                                   </div>
@@ -280,7 +282,7 @@ export function ArgumentsList({
         <Card>
           <CardContent className="py-8">
             <p className="text-center text-muted-foreground">
-              No arguments submitted yet. Be the first to start the debate!
+              {t("debate.argumentList.emptyState")}
             </p>
           </CardContent>
         </Card>

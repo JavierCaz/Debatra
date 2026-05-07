@@ -1,4 +1,7 @@
+"use client";
+
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +17,7 @@ import type { DebateFormData } from "@/types/debate";
 import {
   ALL_DEBATE_TOPICS,
   type DebateTopic,
-  getTopicDisplayName,
+  getTopicTranslationKey,
 } from "@/types/debate";
 
 interface BasicInfoSectionProps {
@@ -30,6 +33,7 @@ export function BasicInfoSection({
   onUpdate,
   onClearError,
 }: BasicInfoSectionProps) {
+  const { t } = useTranslation();
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -63,19 +67,22 @@ export function BasicInfoSection({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold mb-4">Basic Information</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          {t("debate.create.basicInfo")}
+        </h3>
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="title">
-          Debate Title <span className="text-destructive">*</span>
+          {t("debate.create.debateTitle")}{" "}
+          <span className="text-destructive">*</span>
         </Label>
         <Input
           id="title"
           name="title"
           value={formData.title}
           onChange={handleInputChange}
-          placeholder="Enter a clear, descriptive title"
+          placeholder={t("debate.create.titlePlaceholder")}
           className="w-full" // Ensure full width
         />
         {errors.title && (
@@ -84,8 +91,8 @@ export function BasicInfoSection({
       </div>
 
       <div className="space-y-2">
-        <Label>
-          Topics <span className="text-destructive">*</span>
+        <Label htmlFor="title">
+          {t("debate.create.topic")} <span className="text-destructive">*</span>
         </Label>
 
         {/* Selected Topics Display */}
@@ -93,7 +100,7 @@ export function BasicInfoSection({
           <div className="flex flex-wrap gap-2 mb-3">
             {formData.topics.map((topic) => (
               <Badge key={topic} variant="secondary" className="px-3 py-1">
-                {getTopicDisplayName(topic)}
+                {t(getTopicTranslationKey(topic))}
                 <button
                   type="button"
                   onClick={() => handleRemoveTopic(topic)}
@@ -111,19 +118,19 @@ export function BasicInfoSection({
           <SelectTrigger className="w-full">
             {" "}
             {/* Add w-full here */}
-            <SelectValue placeholder="Add a topic category" />
+            <SelectValue placeholder={t("debate.create.topicPlaceholder")} />
           </SelectTrigger>
           <SelectContent className="w-full">
             {" "}
             {/* Ensure content matches width */}
             {availableTopics.length === 0 ? (
               <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                All topics selected
+                {t("debate.create.allTopicsSelected")}
               </div>
             ) : (
               availableTopics.map((topic) => (
                 <SelectItem key={topic} value={topic}>
-                  {getTopicDisplayName(topic)}
+                  {t(getTopicTranslationKey(topic))}
                 </SelectItem>
               ))
             )}
@@ -134,19 +141,21 @@ export function BasicInfoSection({
           <p className="text-sm text-destructive">{errors.topics}</p>
         )}
         <p className="text-xs text-muted-foreground">
-          Choose one or more relevant topic categories (max 3 recommended)
+          {t("debate.create.topicHelp")}
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
+        <Label htmlFor="description">
+          {t("debate.create.descriptionLabel")}
+        </Label>
         <Textarea
           id="description"
           name="description"
           value={formData.description}
           onChange={handleInputChange}
           rows={3}
-          placeholder="Provide context and background for this debate"
+          placeholder={t("debate.create.descPlaceholder")}
           className="w-full" // Ensure full width
         />
       </div>

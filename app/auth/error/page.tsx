@@ -4,6 +4,7 @@ import { AlertCircle, Home, LogIn } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,26 +15,27 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const errorMessages: Record<string, string> = {
-  Configuration: "There is a problem with the server configuration.",
-  AccessDenied: "You do not have permission to sign in.",
-  Verification: "The verification token has expired or has already been used.",
-  OAuthSignin: "Error in constructing an authorization URL.",
-  OAuthCallback: "Error in handling the response from an OAuth provider.",
-  OAuthCreateAccount: "Could not create OAuth provider user in the database.",
-  EmailCreateAccount: "Could not create email provider user in the database.",
-  Callback: "Error in the OAuth callback handler route.",
-  OAuthAccountNotLinked: "Email already exists with a different provider.",
-  EmailSignin: "Check your email address.",
-  CredentialsSignin:
-    "Sign in failed. Check the details you provided are correct.",
-  SessionRequired: "Please sign in to access this page.",
-  default: "Unable to sign in.",
-};
-
 function AuthErrorContent() {
+  const { t } = useTranslation();
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+
+  const errorMessages: Record<string, string> = {
+    Configuration: t("authError.Configuration"),
+    AccessDenied: t("authError.AccessDenied"),
+    Verification: t("authError.Verification"),
+    OAuthSignin: t("authError.OAuthSignin"),
+    OAuthCallback: t("authError.OAuthCallback"),
+    OAuthCreateAccount: t("authError.OAuthCreateAccount"),
+    EmailCreateAccount: t("authError.EmailCreateAccount"),
+    Callback: t("authError.Callback"),
+    OAuthAccountNotLinked: t("authError.OAuthAccountNotLinked"),
+    EmailSignin: t("authError.EmailSignin"),
+    CredentialsSignin: t("authError.CredentialsSignin"),
+    SessionRequired: t("authError.SessionRequired"),
+    default: t("authError.default"),
+  };
+
   const errorMessage = error
     ? errorMessages[error] || errorMessages.default
     : errorMessages.default;
@@ -46,7 +48,7 @@ function AuthErrorContent() {
             <AlertCircle className="h-6 w-6 text-destructive" />
           </div>
           <div className="space-y-2">
-            <CardTitle className="text-2xl">Authentication Error</CardTitle>
+            <CardTitle className="text-2xl">{t("authError.title")}</CardTitle>
             <CardDescription>{errorMessage}</CardDescription>
           </div>
         </CardHeader>
@@ -54,7 +56,7 @@ function AuthErrorContent() {
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              {error && `Error code: ${error}`}
+              {error && t("authError.errorCode", { code: error })}
             </AlertDescription>
           </Alert>
 
@@ -62,13 +64,13 @@ function AuthErrorContent() {
             <Button asChild className="w-full">
               <Link href="/auth/signin">
                 <LogIn className="mr-2 h-4 w-4" />
-                Back to Sign In
+                {t("authError.backToSignIn")}
               </Link>
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link href="/">
                 <Home className="mr-2 h-4 w-4" />
-                Go Home
+                {t("authError.goHome")}
               </Link>
             </Button>
           </div>
@@ -79,6 +81,7 @@ function AuthErrorContent() {
 }
 
 export default function AuthErrorPage() {
+  const { t } = useTranslation();
   return (
     <Suspense
       fallback={
@@ -87,7 +90,9 @@ export default function AuthErrorPage() {
             <CardContent className="pt-6">
               <div className="flex flex-col items-center space-y-4">
                 <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <p className="text-sm text-muted-foreground">Loading...</p>
+                <p className="text-sm text-muted-foreground">
+                  {t("common.loading")}
+                </p>
               </div>
             </CardContent>
           </Card>

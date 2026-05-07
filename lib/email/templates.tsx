@@ -9,42 +9,40 @@ import {
   Section,
   Text,
 } from "@react-email/components";
+import { getEmailTexts, type Locale } from "./translations";
 
 interface PasswordResetEmailProps {
   resetUrl: string;
   userName?: string;
+  locale?: Locale;
 }
 
 export function PasswordResetEmail({
   resetUrl,
   userName,
+  locale = "en",
 }: PasswordResetEmailProps) {
+  const texts = getEmailTexts(locale).passwordReset;
   return (
     <Html>
       <Head />
       <Body style={main}>
         <Container style={container}>
           <Section style={box}>
-            <Text style={heading}>Password Reset Request</Text>
+            <Text style={heading}>{texts.heading}</Text>
             <Text style={paragraph}>
-              {userName ? `Hi ${userName},` : "Hi,"}
+              {userName
+                ? texts.greetingName.replace("{{name}}", userName)
+                : texts.greeting}
             </Text>
-            <Text style={paragraph}>
-              You recently requested to reset your password for your Debate
-              Platform account. Click the button below to reset it.
-            </Text>
+            <Text style={paragraph}>{texts.body}</Text>
             <Button style={button} href={resetUrl}>
-              Reset Password
+              {texts.buttonText}
             </Button>
-            <Text style={paragraph}>
-              Or copy and paste this URL into your browser:
-            </Text>
+            <Text style={paragraph}>{texts.copyUrl}</Text>
             <Text style={link}>{resetUrl}</Text>
             <Hr style={hr} />
-            <Text style={footer}>
-              This link will expire in 24 hours. If you didn't request this, you
-              can safely ignore this email.
-            </Text>
+            <Text style={footer}>{texts.footer}</Text>
           </Section>
         </Container>
       </Body>
@@ -55,37 +53,43 @@ export function PasswordResetEmail({
 interface WelcomeEmailProps {
   userName: string;
   loginUrl: string;
+  locale?: Locale;
 }
 
-export function WelcomeEmail({ userName, loginUrl }: WelcomeEmailProps) {
+export function WelcomeEmail({
+  userName,
+  loginUrl,
+  locale = "en",
+}: WelcomeEmailProps) {
+  const texts = getEmailTexts(locale).welcome;
   return (
     <Html>
       <Head />
       <Body style={main}>
         <Container style={container}>
           <Section style={box}>
-            <Text style={heading}>Welcome to Debate Platform! 🎉</Text>
-            <Text style={paragraph}>Hi {userName},</Text>
+            <Text style={heading}>{texts.heading}</Text>
             <Text style={paragraph}>
-              Thanks for joining Debate Platform! We're excited to have you as
-              part of our community of evidence-based debaters.
+              {texts.greeting.replace("{{name}}", userName)}
+            </Text>
+            <Text style={paragraph}>{texts.body}</Text>
+            <Text style={paragraph}>
+              <strong>{texts.whatYouCanDo}</strong>
             </Text>
             <Text style={paragraph}>
-              <strong>Here's what you can do:</strong>
-            </Text>
-            <Text style={paragraph}>
-              ✓ Browse ongoing debates and vote on arguments
-              <br />✓ Create your own debates on topics you care about
-              <br />✓ Support arguments with credible references
-              <br />✓ Engage in evidence-based discussions
+              {texts.bullet1}
+              <br />
+              {texts.bullet2}
+              <br />
+              {texts.bullet3}
+              <br />
+              {texts.bullet4}
             </Text>
             <Button style={button} href={loginUrl}>
-              Get Started
+              {texts.buttonText}
             </Button>
             <Hr style={hr} />
-            <Text style={footer}>
-              If you have any questions, feel free to reply to this email.
-            </Text>
+            <Text style={footer}>{texts.footer}</Text>
           </Section>
         </Container>
       </Body>
@@ -98,6 +102,7 @@ interface DebateInvitationEmailProps {
   debateTitle: string;
   inviterName: string;
   debateUrl: string;
+  locale?: Locale;
 }
 
 export function DebateInvitationEmail({
@@ -105,31 +110,30 @@ export function DebateInvitationEmail({
   debateTitle,
   inviterName,
   debateUrl,
+  locale = "en",
 }: DebateInvitationEmailProps) {
+  const texts = getEmailTexts(locale).invitation;
   return (
     <Html>
       <Head />
       <Body style={main}>
         <Container style={container}>
           <Section style={box}>
-            <Text style={heading}>You've Been Invited to a Debate!</Text>
-            <Text style={paragraph}>Hi {userName},</Text>
+            <Text style={heading}>{texts.heading}</Text>
             <Text style={paragraph}>
-              <strong>{inviterName}</strong> has invited you to participate in
-              the debate:
+              {texts.greeting.replace("{{name}}", userName)}
+            </Text>
+            <Text style={paragraph}>
+              <strong>{inviterName}</strong>{" "}
+              {texts.body.replace("{{inviter}}", inviterName)}
             </Text>
             <Text style={title}>"{debateTitle}"</Text>
-            <Text style={paragraph}>
-              This is your chance to engage in an evidence-based discussion and
-              share your perspective.
-            </Text>
+            <Text style={paragraph}>{texts.description}</Text>
             <Button style={button} href={debateUrl}>
-              View Debate
+              {texts.buttonText}
             </Button>
             <Hr style={hr} />
-            <Text style={footer}>
-              You can accept or decline this invitation from the debate page.
-            </Text>
+            <Text style={footer}>{texts.footer}</Text>
           </Section>
         </Container>
       </Body>
@@ -143,15 +147,18 @@ interface NotificationEmailProps {
   linkUrl?: string;
   linkText?: string;
   userName?: string;
+  locale?: Locale;
 }
 
 export function NotificationEmail({
   title,
   message,
   linkUrl,
-  linkText = "View Details",
+  linkText,
   userName,
+  locale = "en",
 }: NotificationEmailProps) {
+  const texts = getEmailTexts(locale).notification;
   return (
     <Html>
       <Head />
@@ -160,31 +167,28 @@ export function NotificationEmail({
           <Section style={box}>
             <Text style={heading}>{title}</Text>
             <Text style={paragraph}>
-              {userName ? `Hi ${userName},` : "Hi,"}
+              {userName
+                ? texts.greeting.replace("{{name}}", userName)
+                : texts.greetingGeneric}
             </Text>
             {message && <Text style={paragraph}>{message}</Text>}
-            {link && (
+            {linkUrl && (
               <>
                 <Button style={button} href={linkUrl}>
-                  {linkText}
+                  {linkText || texts.viewButton}
                 </Button>
-                <Text style={paragraph}>
-                  Or copy and paste this URL into your browser:
-                </Text>
+                <Text style={paragraph}>{texts.copyUrl}</Text>
                 <Text style={link}>{linkUrl}</Text>
               </>
             )}
             <Hr style={hr} />
-            <Text style={footer}>
-              You received this email because you're participating in a debate
-              on Debate Platform.
-            </Text>
+            <Text style={footer}>{texts.footer}</Text>
             <Text style={footer}>
               <Link
                 href={`${process.env.NEXTAUTH_URL}/settings/notifications`}
                 style={footerLink}
               >
-                Manage notification preferences
+                {texts.managePrefs}
               </Link>
             </Text>
           </Section>

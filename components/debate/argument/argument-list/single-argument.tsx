@@ -3,6 +3,7 @@
 import { format } from "date-fns";
 import { MessageSquare, Reply, Users } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useDebateSubmission } from "@/hooks/use-debate-submission";
@@ -65,6 +66,7 @@ export function SingleArgument({
   onNavigateToArgument,
   onReply,
 }: SingleArgumentProps) {
+  const { t } = useTranslation();
   const [showThread, setShowThread] = useState(false);
   const [showResponses, setShowResponses] = useState(false);
   const [threadArgumentId, setThreadArgumentId] = useState<string | null>(null);
@@ -201,7 +203,7 @@ export function SingleArgument({
                     onClick={() => handleOpenThread(argument.id)}
                   >
                     <MessageSquare className="h-3 w-3 mr-1" />
-                    Thread ({ancestorCount})
+                    {t("debate.argument.thread")} ({ancestorCount})
                   </Button>
                 )}
 
@@ -214,7 +216,7 @@ export function SingleArgument({
                     onClick={() => setShowResponses(true)}
                   >
                     <Users className="h-3 w-3 mr-1" />
-                    Responses ({responseCount})
+                    {t("debate.argument.responses")} ({responseCount})
                   </Button>
                 )}
               </div>
@@ -231,7 +233,7 @@ export function SingleArgument({
                 onClick={handleReply}
               >
                 <Reply className="h-3 w-3 mr-1" />
-                Reply
+                {t("debate.argument.reply")}
               </Button>
             )}
 

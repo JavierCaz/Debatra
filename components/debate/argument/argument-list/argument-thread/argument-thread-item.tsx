@@ -1,10 +1,14 @@
 "use client";
 
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getRoleBadgeColor, getRoleDisplayName } from "@/lib/debate/formatters";
+import {
+  getRoleBadgeColor,
+  getRoleTranslationKey,
+} from "@/lib/debate/formatters";
 import { cn } from "@/lib/utils";
 import type { DebateWithDetails } from "@/types/debate";
 import { SafeContentRenderer } from "../safe-content-renderer";
@@ -20,9 +24,10 @@ export function ArgumentThreadItem({
   participant,
   onClick,
 }: ArgumentThreadItemProps) {
+  const { t } = useTranslation();
   // Safe user data extraction with better fallbacks
   const user = participant?.user;
-  const userName = user?.name || user?.email || "Unknown User";
+  const userName = user?.name || user?.email || t("debate.content.unknownUser");
   const userInitial = userName.charAt(0).toUpperCase();
   const userRole = participant?.role || "OPPOSER";
 
@@ -62,11 +67,13 @@ export function ArgumentThreadItem({
                 variant="outline"
                 className={cn("text-xs", getRoleBadgeColor(userRole))}
               >
-                {getRoleDisplayName(userRole)}
+                {t(getRoleTranslationKey(userRole))}
               </Badge>
 
               <span className="text-xs text-muted-foreground">
-                Turn {argument.turnNumber}
+                {t("debate.argumentList.turnLabel", {
+                  number: argument.turnNumber,
+                })}
               </span>
 
               <span className="text-xs text-muted-foreground">

@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ALL_DEBATE_TOPICS, getTopicDisplayName } from "@/types/debate";
+import { ALL_DEBATE_TOPICS, getTopicTranslationKey } from "@/types/debate";
 
 interface DebateFiltersProps {
   status: string;
@@ -30,17 +31,19 @@ export function DebateFilters({
   onSearchChange,
   onTopicChange,
 }: DebateFiltersProps) {
+  const { t } = useTranslation();
+
   return (
     <div className="space-y-6">
       {/* Search */}
       <div className="space-y-2">
-        <Label htmlFor="search">Search Debates</Label>
+        <Label htmlFor="search">{t("debates.searchDebates")}</Label>
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             id="search"
             type="text"
-            placeholder="Search by title or description..."
+            placeholder={t("debates.searchPlaceholder")}
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             className="pl-10"
@@ -50,16 +53,16 @@ export function DebateFilters({
 
       {/* Topic Filter */}
       <div className="space-y-2">
-        <Label htmlFor="topic-select">Topic</Label>
+        <Label htmlFor="topic-select">{t("debates.topic")}</Label>
         <Select value={topic} onValueChange={onTopicChange}>
           <SelectTrigger id="topic-select">
-            <SelectValue placeholder="Select a topic" />
+            <SelectValue placeholder={t("debates.selectTopic")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">All Topics</SelectItem>
+            <SelectItem value="ALL">{t("debates.allTopics")}</SelectItem>
             {ALL_DEBATE_TOPICS.map((topicValue) => (
               <SelectItem key={topicValue} value={topicValue}>
-                {getTopicDisplayName(topicValue)}
+                {t(getTopicTranslationKey(topicValue))}
               </SelectItem>
             ))}
           </SelectContent>
@@ -68,30 +71,30 @@ export function DebateFilters({
 
       {/* Status Filter */}
       <div className="space-y-2">
-        <Label>Status</Label>
+        <Label>{t("debates.status")}</Label>
         <RadioGroup value={status} onValueChange={onStatusChange}>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="ALL" id="all" />
             <Label htmlFor="all" className="font-normal cursor-pointer">
-              All Debates
+              {t("debates.allDebates")}
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="OPEN" id="open" />
             <Label htmlFor="open" className="font-normal cursor-pointer">
-              Open for Participants
+              {t("debates.openForParticipants")}
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="IN_PROGRESS" id="in-progress" />
             <Label htmlFor="in-progress" className="font-normal cursor-pointer">
-              Active Debates
+              {t("debates.activeDebates")}
             </Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="COMPLETED" id="completed" />
             <Label htmlFor="completed" className="font-normal cursor-pointer">
-              Concluded Debates
+              {t("debates.concludedDebates")}
             </Label>
           </div>
         </RadioGroup>

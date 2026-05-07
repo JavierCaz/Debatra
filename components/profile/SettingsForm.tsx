@@ -2,6 +2,7 @@
 
 import { AlertCircle, CheckCircle, Settings } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { updateNotificationPreferences } from "@/app/actions/notifications";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
   const [success, setSuccess] = useState(false);
   const [preferences, setPreferences] = useState(initialPreferences);
   const [hasChanges, setHasChanges] = useState(false);
+  const { t } = useTranslation();
 
   const handlePreferenceChange = (
     key: keyof typeof preferences,
@@ -62,10 +64,10 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
           setSuccess(false);
         }, 1500);
       } else {
-        setError(result.error || "Failed to update preferences");
+        setError(result.error || t("settings.failedToUpdate"));
       }
     } catch (_err) {
-      setError("An error occurred while updating preferences");
+      setError(t("settings.updateError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -98,11 +100,9 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Settings className="h-5 w-5" />
-            Settings
+            {t("settings.title")}
           </DialogTitle>
-          <DialogDescription>
-            Control how you receive notifications from Debate Platform
-          </DialogDescription>
+          <DialogDescription>{t("settings.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">
@@ -117,7 +117,7 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
             <Alert className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
               <CheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
               <AlertDescription className="text-green-800 dark:text-green-300">
-                Preferences updated successfully!
+                {t("settings.success")}
               </AlertDescription>
             </Alert>
           )}
@@ -131,10 +131,10 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
                     htmlFor="in-app-notifications"
                     className="text-base font-medium"
                   >
-                    In-App Notifications
+                    {t("settings.inAppNotifications")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Show notification badges and alerts within the app
+                    {t("settings.inAppDescription")}
                   </p>
                 </div>
                 <Switch
@@ -156,10 +156,10 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
                     htmlFor="email-notifications"
                     className="text-base font-medium"
                   >
-                    Email Notifications
+                    {t("settings.emailNotifications")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Receive email notifications for debate updates and responses
+                    {t("settings.emailDescription")}
                   </p>
                 </div>
                 <Switch
@@ -181,10 +181,10 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
                     htmlFor="push-notifications"
                     className="text-base font-medium"
                   >
-                    Push Notifications
+                    {t("settings.pushNotifications")}
                   </Label>
                   <p className="text-sm text-muted-foreground">
-                    Browser push notifications (coming soon)
+                    {t("settings.pushDescription")}
                   </p>
                 </div>
                 <Switch
@@ -200,8 +200,8 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
               {/* Help Text */}
               <div className="bg-muted/50 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Note:</strong> Critical account-related emails will
-                  always be sent regardless of these settings.
+                  <strong>{t("settings.note")}</strong>{" "}
+                  {t("settings.criticalEmailsNote")}
                 </p>
               </div>
             </>
@@ -213,7 +213,7 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
             <>
               <DialogClose asChild>
                 <Button type="button" variant="outline" onClick={handleClose}>
-                  Close
+                  {t("settings.close")}
                 </Button>
               </DialogClose>
               <Button
@@ -221,12 +221,14 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
                 onClick={handleSaveChanges}
                 disabled={isSubmitting || !hasChanges}
               >
-                {isSubmitting ? "Saving..." : "Save Changes"}
+                {isSubmitting
+                  ? t("settings.saving")
+                  : t("settings.saveChanges")}
               </Button>
             </>
           ) : (
             <DialogClose asChild>
-              <Button type="button">Close</Button>
+              <Button type="button">{t("settings.close")}</Button>
             </DialogClose>
           )}
         </DialogFooter>

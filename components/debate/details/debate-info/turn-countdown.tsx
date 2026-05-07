@@ -4,6 +4,7 @@ import { AlertTriangle, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { T } from "@/components/ui/translated-text";
 
 interface TurnCountdownProps {
   lastArgumentTime: Date | null;
@@ -84,16 +85,14 @@ export function TurnCountdown({
 
   // Format the urgent warning message
   const getUrgentMessage = () => {
-    if (!turnTimeLimitHours) return "";
+    if (!turnTimeLimitHours) return null;
 
-    const totalHours = turnTimeLimitHours;
-
-    if (totalHours <= 1) {
-      return `Hurry! You have only ${formatTime(timeRemaining)} left to respond or you may forfeit this turn.`;
-    }
-
-    const urgentTimeFormatted = formatTime(getUrgentThreshold());
-    return `Hurry! You have less than ${urgentTimeFormatted} to respond or you may forfeit this turn.`;
+    return (
+      <T
+        k="debate.status.hurryRespond"
+        values={{ time: formatTime(timeRemaining) }}
+      />
+    );
   };
 
   // No time limit set
@@ -101,7 +100,9 @@ export function TurnCountdown({
     return (
       <div className="flex items-center gap-2">
         <Clock className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">No time limit</span>
+        <span className="text-sm text-muted-foreground">
+          <T k="debate.status.noTimeLimit" />
+        </span>
       </div>
     );
   }
@@ -111,7 +112,9 @@ export function TurnCountdown({
     return (
       <div className="flex items-center gap-2">
         <Clock className="h-4 w-4 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">Turn starts soon</span>
+        <span className="text-sm text-muted-foreground">
+          <T k="debate.status.turnStartsSoon" />
+        </span>
       </div>
     );
   }
@@ -121,9 +124,11 @@ export function TurnCountdown({
       <Alert variant="destructive" className="mb-4">
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
-          {canSubmitArguments
-            ? "Your time has expired! You may forfeit this turn soon."
-            : "Opponent's time has expired! They may forfeit this turn soon."}
+          {canSubmitArguments ? (
+            <T k="debate.status.yourTimeExpired" />
+          ) : (
+            <T k="debate.status.opponentTimeExpired" />
+          )}
         </AlertDescription>
       </Alert>
     );
@@ -132,7 +137,9 @@ export function TurnCountdown({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-medium">Turn countdown:</span>
+        <span className="text-sm font-medium">
+          <T k="debate.status.turnCountdown" />
+        </span>
         <Badge
           variant={getColorClass()}
           className={
@@ -143,7 +150,10 @@ export function TurnCountdown({
               : ""
           }
         >
-          {formatTime(timeRemaining)} remaining
+          <T
+            k="debate.status.timeRemaining"
+            values={{ time: formatTime(timeRemaining) }}
+          />
         </Badge>
       </div>
 
@@ -170,9 +180,14 @@ export function TurnCountdown({
                 : "text-yellow-800 dark:text-yellow-200"
             }
           >
-            {isCritical
-              ? `Critical! You have only ${formatTime(timeRemaining)} left! Submit your argument immediately or you may forfeit this turn.`
-              : getUrgentMessage()}
+            {isCritical ? (
+              <T
+                k="debate.status.criticalTime"
+                values={{ time: formatTime(timeRemaining) }}
+              />
+            ) : (
+              getUrgentMessage()
+            )}
           </AlertDescription>
         </Alert>
       )}

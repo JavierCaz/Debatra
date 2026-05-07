@@ -2,6 +2,7 @@
 
 import { FileText } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -34,6 +35,7 @@ export function CreateDebateForm({
   onSubmit,
   isSubmitting,
 }: CreateDebateFormProps) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState<DebateFormData>({
     title: "",
     topics: [],
@@ -63,9 +65,9 @@ export function CreateDebateForm({
     const newErrors: Record<string, string> = {};
 
     // Basic form validation
-    if (!formData.title) newErrors.title = "Title is required";
+    if (!formData.title) newErrors.title = t("debate.create.titleRequired");
     if (formData.topics.length === 0)
-      newErrors.topics = "At least one topic is required";
+      newErrors.topics = t("debate.create.topicRequired");
 
     // Validate initial arguments
     const hasValidArguments = initialArguments.some((arg) => {
@@ -74,8 +76,7 @@ export function CreateDebateForm({
     });
 
     if (!hasValidArguments) {
-      newErrors.initialArguments =
-        "At least one valid initial argument is required (minimum 10 characters)";
+      newErrors.initialArguments = t("debate.create.argRequired");
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -102,11 +103,10 @@ export function CreateDebateForm({
         <div className="flex items-center justify-between">
           <div className="space-y-2">
             <CardTitle className="text-3xl font-bold tracking-tight">
-              Create a New Debate
+              {t("debate.create.title")}
             </CardTitle>
             <CardDescription className="text-muted-foreground max-w-md">
-              Define the format, structure arguments, and establish key
-              definitions before publishing.
+              {t("debate.create.description")}
             </CardDescription>
           </div>
 

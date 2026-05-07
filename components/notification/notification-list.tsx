@@ -1,15 +1,18 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
+import { es } from "date-fns/locale";
 import { Check, CheckCheck, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   deleteNotification,
   getNotifications,
   markAllNotificationsAsRead,
   markNotificationAsRead,
 } from "@/app/actions/notifications";
+import { useLanguage } from "@/components/providers/language-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -27,6 +30,8 @@ export function NotificationList({
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { t } = useTranslation();
+  const { language } = useLanguage();
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
@@ -93,7 +98,9 @@ export function NotificationList({
   if (notifications.length === 0) {
     return (
       <div className="p-8 text-center">
-        <p className="text-sm text-muted-foreground">No notifications yet</p>
+        <p className="text-sm text-muted-foreground">
+          {t("notifications.noNotifications")}
+        </p>
       </div>
     );
   }
@@ -101,7 +108,7 @@ export function NotificationList({
   return (
     <div className="w-full">
       <div className="flex items-center justify-between p-4 border-b">
-        <h3 className="font-semibold">Notifications</h3>
+        <h3 className="font-semibold">{t("notifications.title")}</h3>
         <Button
           variant="ghost"
           size="sm"
@@ -109,7 +116,7 @@ export function NotificationList({
           className="text-xs"
         >
           <CheckCheck className="h-4 w-4 mr-1" />
-          Mark all read
+          {t("notifications.markAllRead")}
         </Button>
       </div>
 
@@ -154,7 +161,7 @@ export function NotificationList({
                           e.stopPropagation();
                           handleMarkAsRead(notification.id);
                         }}
-                        aria-label="Mark notification as read"
+                        aria-label={t("notifications.markAsRead")}
                       >
                         <Check className="h-3 w-3" />
                       </Button>
@@ -167,7 +174,7 @@ export function NotificationList({
                         e.stopPropagation();
                         handleDelete(notification.id);
                       }}
-                      aria-label="Delete notification"
+                      aria-label={t("notifications.delete")}
                     >
                       <X className="h-3 w-3" />
                     </Button>
@@ -183,6 +190,7 @@ export function NotificationList({
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(notification.createdAt), {
                     addSuffix: true,
+                    locale: language === "es" ? es : undefined,
                   })}
                 </p>
               </div>

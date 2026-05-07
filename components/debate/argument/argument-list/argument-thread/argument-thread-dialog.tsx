@@ -1,6 +1,7 @@
 "use client";
 
 import { MessageSquare, Users } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export function ArgumentThreadDialog({
   onNavigateToArgument,
   mode = "thread",
 }: ArgumentThreadDialogProps) {
+  const { t } = useTranslation();
   // Create a map of argument ID to participant (for quick lookup)
   const argumentToParticipantMap = new Map<
     string,
@@ -108,13 +110,17 @@ export function ArgumentThreadDialog({
     mode === "thread"
       ? {
           icon: MessageSquare,
-          title: "Argument Thread",
-          description: `${totalArguments} argument${totalArguments !== 1 ? "s" : ""} in this thread`,
+          title: t("debate.argument.argThread"),
+          description: t("debate.argument.argThreadDesc", {
+            count: totalArguments,
+          }),
         }
       : {
           icon: Users,
-          title: "Argument Responses",
-          description: `${totalArguments} response${totalArguments !== 1 ? "s" : ""} to this argument`,
+          title: t("debate.argument.argResponses"),
+          description: t("debate.argument.argResponsesDesc", {
+            count: totalArguments,
+          }),
         };
 
   const { icon: Icon, title, description } = dialogConfig;
@@ -133,7 +139,7 @@ export function ArgumentThreadDialog({
         />
       ) : (
         <div className="text-sm text-muted-foreground">
-          Participant data unavailable
+          {t("debate.argument.participantDataUnavailable")}
         </div>
       )}
     </div>
@@ -157,7 +163,7 @@ export function ArgumentThreadDialog({
                   {threadArguments.length > 1 && (
                     <div className="mb-4 pb-4 border-b">
                       <div className="text-sm font-medium text-muted-foreground mb-2">
-                        Previous arguments:
+                        {t("debate.argument.previousArgs")}
                       </div>
                       <div className="space-y-3">
                         {threadArguments
@@ -173,19 +179,19 @@ export function ArgumentThreadDialog({
                       </div>
                     </div>
                   )}
-                  {renderCurrentArgument("Current argument:")}
+                  {renderCurrentArgument(t("debate.argument.currentArg"))}
                 </>
               )}
 
               {mode === "responses" && (
                 <>
                   <div className="mb-4 pb-4 border-b">
-                    {renderCurrentArgument("Original argument:")}
+                    {renderCurrentArgument(t("debate.argument.originalArg"))}
                   </div>
                   {threadArguments.length > 0 && (
                     <div>
                       <div className="text-sm font-medium text-muted-foreground mb-2">
-                        Responses:
+                        {t("debate.argument.responsesLabel")}
                       </div>
                       <div className="space-y-3">
                         {threadArguments.map(

@@ -1,6 +1,10 @@
+"use client";
+
 import { Info, Shield, User } from "lucide-react";
-import { redirect } from "next/navigation";
-import { getServerSession } from "next-auth";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,14 +14,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { authOptions } from "@/lib/auth/options";
 
-export default async function DashboardPage() {
-  const session = await getServerSession(authOptions);
+export default function DashboardPage() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { t } = useTranslation();
 
-  if (!session) {
-    redirect("/auth/signin");
-  }
+  useEffect(() => {
+    if (!session) router.push("/auth/signin");
+  }, [session, router]);
+
+  if (!session) return null;
 
   return (
     <div className="min-h-screen bg-background py-12 px-4">
@@ -27,22 +34,26 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-2">
               <Shield className="h-6 w-6 text-primary" />
               <CardTitle className="text-3xl">
-                Welcome, {session.user.name || session.user.email}!
+                {t("dashboard.welcome", {
+                  name: session.user.name || session.user.email,
+                })}
               </CardTitle>
             </div>
-            <CardDescription>
-              This is a protected page. Only authenticated users can see this.
-            </CardDescription>
+            <CardDescription>{t("dashboard.protectedPage")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary" className="flex items-center gap-1">
                 <User className="h-3 w-3" />
-                {session.user.name ? "Name provided" : "Email only"}
+                {session.user.name
+                  ? t("dashboard.nameProvided")
+                  : t("dashboard.emailOnly")}
               </Badge>
               <Badge variant="outline">{session.user.email}</Badge>
               {session.user.image && (
-                <Badge variant="outline">Has profile image</Badge>
+                <Badge variant="outline">
+                  {t("dashboard.hasProfileImage")}
+                </Badge>
               )}
             </div>
           </CardContent>
@@ -50,7 +61,7 @@ export default async function DashboardPage() {
 
         <Alert>
           <Info className="h-4 w-4" />
-          <AlertTitle>Your Session Information</AlertTitle>
+          <AlertTitle>{t("dashboard.sessionInfo")}</AlertTitle>
           <AlertDescription>
             <pre className="text-sm mt-2 overflow-auto bg-muted/50 p-4 rounded-md w-full">
               {JSON.stringify(session, null, 2)}
@@ -64,13 +75,12 @@ export default async function DashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Shield className="h-5 w-5 text-green-600" />
-                Authentication Status
+                {t("dashboard.authStatus")}
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                You are successfully authenticated and have access to this
-                protected dashboard.
+                {t("dashboard.authStatusDesc")}
               </p>
             </CardContent>
           </Card>
@@ -79,26 +89,32 @@ export default async function DashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5 text-blue-600" />
-                Account Details
+                {t("dashboard.accountDetails")}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Name:</span>
+                <span className="text-muted-foreground">
+                  {t("dashboard.name")}
+                </span>
                 <span className="font-medium">
-                  {session.user.name || "Not provided"}
+                  {session.user.name || t("dashboard.notProvided")}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Email:</span>
+                <span className="text-muted-foreground">
+                  {t("dashboard.email")}
+                </span>
                 <span className="font-medium">{session.user.email}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Session expires:</span>
+                <span className="text-muted-foreground">
+                  {t("dashboard.sessionExpires")}
+                </span>
                 <span className="font-medium">
                   {session.expires
                     ? new Date(session.expires).toLocaleDateString()
-                    : "Unknown"}
+                    : t("dashboard.unknown")}
                 </span>
               </div>
             </CardContent>

@@ -1,4 +1,7 @@
+"use client";
+
 import { BookOpen } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { DefinitionStatus } from "@/app/generated/prisma";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -21,6 +24,7 @@ export function ArgumentDefinitionReferences({
 }: {
   definitions: ArgumentWithDefinitions["definitionReferences"];
 }) {
+  const { t } = useTranslation();
   if (!definitions || definitions.length === 0) return null;
 
   return (
@@ -28,8 +32,7 @@ export function ArgumentDefinitionReferences({
       <div className="flex items-center gap-2 mb-2">
         <BookOpen className="h-4 w-4 text-muted-foreground" />
         <span className="text-sm font-medium text-muted-foreground">
-          References {definitions.length} definition
-          {definitions.length !== 1 ? "s" : ""}
+          {t("debate.reference.referencesDefs", { count: definitions.length })}
         </span>
       </div>
       <div className="flex flex-wrap gap-2">
