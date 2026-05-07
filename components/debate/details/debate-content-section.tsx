@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DefinitionsResponseSection } from "@/components/debate/details/definitions-response-section";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { groupArgumentsByTurn } from "@/lib/debate/stats";
@@ -53,6 +54,7 @@ export function DebateContentSection({
   isParticipant = false,
   isUsersTurn = false,
 }: DebateContentSectionProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("arguments");
   const [supersedeDefinitionId, setSupersedeDefinitionId] = useState<
     string | null
@@ -82,7 +84,7 @@ export function DebateContentSection({
         createdAt: def.createdAt,
         proposer: {
           id: def.proposer.id,
-          name: def.proposer.name || "Unknown User",
+          name: def.proposer.name || t("debate.content.unknownUser"),
           image: def.proposer.image || undefined,
         },
         references: def.references.map((ref) => ({
@@ -237,7 +239,7 @@ export function DebateContentSection({
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="arguments" className="relative">
-            Arguments
+            {t("debate.content.arguments")}
             {Object.keys(argumentsByTurn).length > 0 && (
               <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-primary-foreground bg-primary rounded-full">
                 {Object.keys(argumentsByTurn).length}
@@ -245,7 +247,7 @@ export function DebateContentSection({
             )}
           </TabsTrigger>
           <TabsTrigger value="definitions" className="relative">
-            Definitions
+            {t("debate.content.definitions")}
             {uniqueDefinitionTerms > 0 && (
               <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-primary-foreground bg-primary rounded-full">
                 {uniqueDefinitionTerms}

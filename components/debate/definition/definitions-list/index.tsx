@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionContent,
@@ -27,6 +28,7 @@ export function DefinitionsList({
   isParticipant = false,
   isUsersTurn = false,
 }: DefinitionsListProps) {
+  const { t } = useTranslation();
   const [selectedDefinitionId, setSelectedDefinitionId] = useState<
     string | null
   >(null);
@@ -100,8 +102,9 @@ export function DefinitionsList({
       {/* Expand/Collapse Controls */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-muted-foreground">
-          {Object.keys(definitionsByTerm).length} term
-          {Object.keys(definitionsByTerm).length !== 1 ? "s" : ""} defined
+          {t("debate.definition.termCount", {
+            count: Object.keys(definitionsByTerm).length,
+          })}
         </div>
         <div className="flex space-x-2">
           <Button
@@ -114,7 +117,7 @@ export function DefinitionsList({
               Object.keys(definitionsByTerm).length
             }
           >
-            Expand All
+            {t("debate.definition.expandAll")}
           </Button>
           <Button
             type="button"
@@ -123,7 +126,7 @@ export function DefinitionsList({
             onClick={collapseAll}
             disabled={expandedDefinitions.length === 0}
           >
-            Collapse All
+            {t("debate.definition.collapseAll")}
           </Button>
         </div>
       </div>
@@ -200,7 +203,7 @@ export function DefinitionsList({
                   {/* Definition Text */}
                   <div>
                     <h4 className="text-sm font-semibold text-muted-foreground mb-2">
-                      Definition
+                      {t("debate.definition.term")}
                     </h4>
                     <p className="text-base leading-relaxed">
                       {currentDefinition.definition}

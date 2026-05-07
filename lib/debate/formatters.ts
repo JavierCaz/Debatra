@@ -25,12 +25,12 @@ export const getRoleBadgeColor = (role: string) => {
   }
 };
 
-export const getRoleDisplayName = (role: string) => {
+export const getRoleTranslationKey = (role: string): string => {
   switch (role) {
     case "PROPOSER":
-      return "Proposers";
+      return "debate.info.proposers";
     case "OPPOSER":
-      return "Opposers";
+      return "debate.info.opposers";
     default:
       return role;
   }
@@ -48,6 +48,17 @@ export function getFormatLabel(format: string): string {
       return format;
   }
 }
+
+export const getStatusTranslationKey = (status: string) => {
+  const map: Record<string, string> = {
+    DRAFT: "debates.statusDraft",
+    OPEN: "debates.statusOpen",
+    IN_PROGRESS: "debates.statusInProgress",
+    COMPLETED: "debates.statusCompleted",
+    CANCELLED: "debates.statusCancelled",
+  };
+  return map[status] || status;
+};
 
 export function formatTimeLimit(turnTimeLimit: number | null): string {
   return turnTimeLimit ? `${turnTimeLimit}h` : "No limit";

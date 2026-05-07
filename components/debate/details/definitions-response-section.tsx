@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DefinitionsSubmitter } from "@/components/debate/definition/definitions-submitter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,6 +20,7 @@ export function DefinitionsResponseSection({
   supersedeDefinitionId,
   onSupersedeComplete,
 }: DefinitionsResponseSectionProps) {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [definitions, setDefinitions] = useState<InitialDefinition[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,7 +70,7 @@ export function DefinitionsResponseSection({
 
   const submitDefinitions = async () => {
     if (definitions.length === 0) {
-      setError("At least one definition is required");
+      setError(t("debate.definition.atLeastOneRequired"));
       return;
     }
 
@@ -92,7 +94,7 @@ export function DefinitionsResponseSection({
         const result = await response.json();
 
         if (!result.success) {
-          setError(result.error || "Failed to submit improved definition");
+          setError(result.error || t("debate.definition.failedSubmitImproved"));
         } else {
           // Success - clear form and call completion callback
           setDefinitions([]);
@@ -118,7 +120,7 @@ export function DefinitionsResponseSection({
         const hasError = results.some((result) => !result.success);
 
         if (hasError) {
-          setError("Some definitions failed to submit");
+          setError(t("debate.definition.someFailed"));
         } else {
           // Success - clear form and show success message
           setDefinitions([]);
@@ -126,7 +128,7 @@ export function DefinitionsResponseSection({
         }
       }
     } catch (error) {
-      setError("Failed to submit definitions");
+      setError(t("debate.definition.failedSubmit"));
       console.error("Error submitting definitions:", error);
     } finally {
       setIsSubmitting(false);
@@ -134,24 +136,26 @@ export function DefinitionsResponseSection({
   };
 
   const title = supersedeDefinitionId
-    ? "Improve Definition"
-    : "Propose New Definitions";
+    ? t("debate.definition.improveDefinition")
+    : t("debate.definition.proposeNew");
 
   const description = supersedeDefinitionId
-    ? "Modify and improve this definition. Your new version will replace the existing one."
-    : `Define key terms and concepts for turn ${debate.currentTurnNumber}. You can propose multiple definitions during your turn.`;
+    ? t("debate.definition.improveDesc")
+    : t("debate.definition.proposeDesc", {
+        turnNumber: debate.currentTurnNumber,
+      });
 
   const submitButtonText = supersedeDefinitionId
-    ? `Submit Improved Definition`
-    : `Submit ${definitions.length} Definition${definitions.length > 1 ? "s" : ""}`;
+    ? t("debate.definition.submitImproved")
+    : t("debate.definition.submitDefinitions", { count: definitions.length });
 
   const disabledMessage = !currentUserParticipant
-    ? "You are not a participant in this debate"
+    ? t("debate.disabled.notParticipant")
     : !isCurrentTurn
-      ? `It's not your turn. Current turn: ${debate.currentTurnSide}`
+      ? t("debate.disabled.notYourTurn", { side: debate.currentTurnSide })
       : debate.status !== "IN_PROGRESS"
-        ? "This debate is not currently in progress"
-        : "Definition submission is not available";
+        ? t("debate.disabled.notInProgress")
+        : t("debate.disabled.submissionNotAvailable");
 
   return (
     <Card className="mb-6">
@@ -179,11 +183,13 @@ export function DefinitionsResponseSection({
                 onClick={onSupersedeComplete}
                 disabled={isSubmitting}
               >
-                Cancel
+                {t("debate.definition.cancel")}
               </Button>
             )}
             <Button onClick={submitDefinitions} disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : submitButtonText}
+              {isSubmitting
+                ? t("debate.definition.submitting")
+                : submitButtonText}
             </Button>
           </div>
         )}

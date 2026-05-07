@@ -2,6 +2,7 @@
 
 import { Link, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ export function ReferencesSection({
   references,
   onReferencesChange,
 }: ReferencesSectionProps) {
+  const { t } = useTranslation();
   const [newReference, setNewReference] = useState({ title: "", url: "" });
   const [errors, setErrors] = useState<{ title?: string; url?: string }>({});
 
@@ -32,13 +34,13 @@ export function ReferencesSection({
     const newErrors: { title?: string; url?: string } = {};
 
     if (!newReference.title.trim()) {
-      newErrors.title = "Title is required";
+      newErrors.title = t("debate.create.refTitleRequired");
     }
 
     if (!newReference.url.trim()) {
-      newErrors.url = "URL is required";
+      newErrors.url = t("debate.create.refUrlRequired");
     } else if (!isValidUrl(newReference.url)) {
-      newErrors.url = "Please enter a valid URL (include http:// or https://)";
+      newErrors.url = t("debate.create.refUrlInvalid");
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -65,7 +67,9 @@ export function ReferencesSection({
   return (
     <div className="space-y-4">
       <div>
-        <h4 className="text-md font-medium mb-2">References & Sources</h4>
+        <h4 className="text-md font-medium mb-2">
+          {t("debate.create.references")}
+        </h4>
       </div>
 
       <Card className="bg-muted/50">
@@ -75,7 +79,7 @@ export function ReferencesSection({
               <Input
                 value={newReference.title}
                 onChange={(e) => handleReferenceChange("title", e.target.value)}
-                placeholder="Reference title"
+                placeholder={t("debate.create.refTitlePlaceholder")}
                 className={errors.title ? "border-destructive" : ""}
               />
               {errors.title && (
@@ -89,7 +93,7 @@ export function ReferencesSection({
                   type="url"
                   value={newReference.url}
                   onChange={(e) => handleReferenceChange("url", e.target.value)}
-                  placeholder="https://example.com"
+                  placeholder={t("debate.create.refUrlPlaceholder")}
                   className={`flex-1 ${errors.url ? "border-destructive" : ""}`}
                 />
                 <Button type="button" onClick={addReference} size="icon">
@@ -100,7 +104,7 @@ export function ReferencesSection({
                 <p className="text-sm text-destructive">{errors.url}</p>
               ) : (
                 <p className="text-xs text-muted-foreground">
-                  Include http:// or https:// in the URL
+                  {t("debate.create.refUrlHelp")}
                 </p>
               )}
             </div>

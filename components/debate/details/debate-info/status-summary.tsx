@@ -1,4 +1,5 @@
 import { CheckCircle, Clock, Edit, Users, XCircle } from "lucide-react";
+import { T } from "@/components/ui/translated-text";
 import type { ParticipantRole } from "@/types/debate";
 import type { DebateRequestsPanelProps } from "@/types/debate-requests";
 
@@ -22,50 +23,57 @@ export function StatusSummary({
           icon: Edit,
           iconColor: "text-gray-600",
           titleColor: "text-gray-800",
-          message: "Draft Debate",
-          description: "This debate is still being set up",
+          message: <T k="debate.status.draft" />,
+          description: <T k="debate.status.draftDesc" />,
         };
       case "OPEN":
         return {
           icon: Users,
           iconColor: "text-blue-600",
           titleColor: "text-blue-800",
-          message: "Open for Participants",
-          description: "Waiting for participants to join",
+          message: <T k="debate.status.open" />,
+          description: <T k="debate.status.openDesc" />,
         };
       case "IN_PROGRESS":
         return {
           icon: Clock,
           iconColor: "text-yellow-600",
           titleColor: "text-yellow-800",
-          message: "Debate in Progress",
-          description: `Turn ${currentTurn} of ${totalPossibleTurns}`,
+          message: <T k="debate.status.inProgress" />,
+          description: (
+            <T
+              k="debate.status.inProgressDesc"
+              values={{ current: currentTurn, total: totalPossibleTurns }}
+            />
+          ),
         };
       case "COMPLETED":
         return {
           icon: CheckCircle,
           iconColor: "text-green-600",
           titleColor: "text-green-800",
-          message: "Debate Completed",
-          description: debate.winCondition
-            ? `${debate.winCondition.type.toLowerCase().replace("_", " ")}`
-            : "Debate has concluded",
+          message: <T k="debate.status.completed" />,
+          description: debate.winCondition ? (
+            `${debate.winCondition.type.toLowerCase().replace("_", " ")}`
+          ) : (
+            <T k="debate.status.completedDesc" />
+          ),
         };
       case "CANCELLED":
         return {
           icon: XCircle,
           iconColor: "text-red-600",
           titleColor: "text-red-800",
-          message: "Debate Cancelled",
-          description: "This debate has been cancelled",
+          message: <T k="debate.status.cancelled" />,
+          description: <T k="debate.status.cancelledDesc" />,
         };
       default:
         return {
           icon: Edit,
           iconColor: "text-gray-600",
           titleColor: "text-gray-800",
-          message: "Unknown Status",
-          description: "This debate has an unknown status",
+          message: <T k="debate.status.unknown" />,
+          description: <T k="debate.status.unknownDesc" />,
         };
     }
   };
@@ -76,11 +84,11 @@ export function StatusSummary({
   const getWinningSideDisplay = (winningRole: ParticipantRole) => {
     switch (winningRole) {
       case "PROPOSER":
-        return "Proposers";
+        return <T k="debate.info.proposers" />;
       case "OPPOSER":
-        return "Opposers";
+        return <T k="debate.info.opposers" />;
       default:
-        return "Winning Side";
+        return <T k="debate.status.winningSide" />;
     }
   };
 
@@ -110,7 +118,7 @@ export function StatusSummary({
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                Progress: {Math.round(debateProgress)}%
+                <T k="debate.status.progress" /> {Math.round(debateProgress)}%
               </span>
             </div>
             <div className="w-full bg-secondary rounded-full h-2">
@@ -125,7 +133,7 @@ export function StatusSummary({
         {/* Updated winner display for COMPLETED debates */}
         {debate.status === "COMPLETED" && debate.winCondition?.winningRole && (
           <div className="text-xs text-muted-foreground">
-            Winners:{" "}
+            <T k="debate.status.winners" />{" "}
             {getWinningSideDisplay(
               debate.winCondition.winningRole as ParticipantRole,
             )}
@@ -137,15 +145,20 @@ export function StatusSummary({
         {/* Additional info for OPEN debates */}
         {debate.status === "OPEN" && (
           <div className="text-xs text-muted-foreground">
-            {debate.participants.length} of {debate.maxParticipants}{" "}
-            participants joined
+            <T
+              k="debate.status.participantsJoined"
+              values={{
+                count: debate.participants.length,
+                max: debate.maxParticipants,
+              }}
+            />
           </div>
         )}
 
         {/* Additional info for DRAFT debates */}
         {debate.status === "DRAFT" && (
           <div className="text-xs text-muted-foreground">
-            Only visible to the creator
+            <T k="debate.info.onlyVisibleToCreator" />
           </div>
         )}
       </div>

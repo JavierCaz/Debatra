@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
@@ -23,6 +24,7 @@ export function ArgumentsResponseSection({
   onReplyComplete,
   replyFocusKey = 0,
 }: ArgumentsResponseSectionProps) {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const router = useRouter();
   const [argumentsList, setArgumentsList] = useState<InitialArgument[]>([
@@ -172,28 +174,32 @@ export function ArgumentsResponseSection({
 
   const getDisabledMessage = () => {
     if (!currentUserParticipant) {
-      return "You are not a participant in this debate";
+      return t("debate.argument.notParticipant");
     }
     if (!isCurrentTurn) {
-      return `It's not your turn. Current turn: ${debate.currentTurnSide}`;
+      return t("debate.argument.notYourTurn", { side: debate.currentTurnSide });
     }
     if (hasSubmittedThisTurn) {
-      return "You have already submitted your arguments for this turn";
+      return t("debate.argument.alreadySubmitted");
     }
     if (debate.status !== "IN_PROGRESS") {
-      return "This debate is not currently in progress";
+      return t("debate.argument.notInProgress");
     }
-    return "Argument submission is not available";
+    return t("debate.argument.submissionNotAvailable");
   };
 
   const getSubmitButtonText = () => {
     if (isLoading) {
-      return isForfeit ? "Forfeiting..." : "Submitting...";
+      return isForfeit
+        ? t("debate.argument.forfeiting")
+        : t("debate.argument.submitting");
     }
     if (isForfeit) {
-      return "Forfeit Debate";
+      return t("debate.argument.forfeitDebate");
     }
-    return isInReplyMode ? "Submit Arguments & Reply" : "Submit Arguments";
+    return isInReplyMode
+      ? t("debate.argument.submitArgsReply")
+      : t("debate.argument.submitArgs");
   };
 
   const getSubmitButtonVariant = () => {
@@ -206,7 +212,7 @@ export function ArgumentsResponseSection({
   return (
     <Card id="arguments-response-section" className="mb-6">
       <CardHeader>
-        <CardTitle>Submit Your Arguments</CardTitle>
+        <CardTitle>{t("debate.argument.yourArgs")}</CardTitle>
         <p className="text-sm text-muted-foreground">
           {isInReplyMode
             ? `You are replying to an argument. Your response will be linked to the original argument.`
@@ -225,7 +231,7 @@ export function ArgumentsResponseSection({
               variant="outline"
               className="data-[state=on]:bg-destructive data-[state=on]:text-destructive-foreground data-[state=on]:border-destructive"
             >
-              Forfeit
+              {t("debate.argument.forfeit")}
             </Toggle>
           </div>
         )}
@@ -237,7 +243,11 @@ export function ArgumentsResponseSection({
           error={error}
           onArgumentsChange={setArgumentsList}
           mode="respond"
-          title={isInReplyMode ? "Your Arguments & Reply" : "Your Arguments"}
+          title={
+            isInReplyMode
+              ? t("debate.argument.yourArgsReply")
+              : t("debate.argument.yourArgs")
+          }
           description={
             isInReplyMode
               ? "You can add multiple arguments. One of them is specifically replying to another argument."

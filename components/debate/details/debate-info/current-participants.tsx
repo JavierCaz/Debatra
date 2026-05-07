@@ -1,6 +1,7 @@
 import { CheckCircle, Clock, Flag, Trophy } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { T } from "@/components/ui/translated-text";
 import type { DebateRequestsPanelProps } from "@/types/debate-requests";
 import { TurnCountdown } from "./turn-countdown";
 
@@ -88,7 +89,7 @@ export function CurrentParticipants({
               </p>
               {isCreator && (
                 <Badge variant="outline" className="text-xs">
-                  Creator
+                  <T k="debate.info.creator" />
                 </Badge>
               )}
             </div>
@@ -126,14 +127,16 @@ export function CurrentParticipants({
         </div>
       )}
 
-      <h4 className="text-sm font-medium mb-3">Current Participants</h4>
+      <h4 className="text-sm font-medium mb-3">
+        <T k="debate.info.currentParticipants" />
+      </h4>
 
       <div className="space-y-4">
         {/* Proposers Team */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant="default" className="text-xs">
-              Proposers
+              <T k="debate.info.proposers" />
             </Badge>
             <span className="text-xs text-muted-foreground">
               ({proposers.length})
@@ -148,7 +151,7 @@ export function CurrentParticipants({
             ))}
             {proposers.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-2 border rounded-lg">
-                No proposers yet
+                <T k="debate.info.noProposers" />
               </p>
             )}
           </div>
@@ -158,7 +161,7 @@ export function CurrentParticipants({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs">
-              Opposers
+              <T k="debate.info.opposers" />
             </Badge>
             <span className="text-xs text-muted-foreground">
               ({opposers.length})
@@ -173,7 +176,7 @@ export function CurrentParticipants({
             ))}
             {opposers.length === 0 && (
               <p className="text-sm text-muted-foreground text-center py-2 border rounded-lg">
-                No opposers yet
+                <T k="debate.info.noOpposers" />
               </p>
             )}
           </div>
@@ -182,7 +185,7 @@ export function CurrentParticipants({
         {/* Empty state */}
         {debate.participants.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-4">
-            No participants yet. Invite users to join the debate.
+            <T k="debate.info.noParticipants" />
           </p>
         )}
       </div>

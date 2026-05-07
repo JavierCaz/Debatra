@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { T } from "@/components/ui/translated-text";
 import type { ExtendedRequest } from "@/types/debate-requests";
 
 interface JoinRequestsTabProps {
@@ -22,10 +23,12 @@ export function JoinRequestsTab({
 }: JoinRequestsTabProps) {
   return (
     <>
-      <h4 className="text-sm font-medium">Pending Join Requests</h4>
+      <h4 className="text-sm font-medium">
+        <T k="debate.info.pendingJoinRequests" />
+      </h4>
       {joinRequests.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-4">
-          No pending join requests
+          <T k="debate.info.noPendingRequests" />
         </p>
       ) : (
         joinRequests.map((request) => (
@@ -45,7 +48,10 @@ export function JoinRequestsTab({
                   {request.user.name || request.user.email}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Wants to join as {request.role.toLowerCase()}
+                  <T
+                    k="debate.info.wantsToJoin"
+                    values={{ role: request.role.toLowerCase() }}
+                  />
                 </p>
                 {request.message && (
                   <p className="text-xs text-muted-foreground mt-1">
@@ -67,7 +73,9 @@ export function JoinRequestsTab({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Accept request</p>
+                    <p>
+                      <T k="debate.info.acceptRequest" />
+                    </p>
                   </TooltipContent>
                 </Tooltip>
 
@@ -83,7 +91,9 @@ export function JoinRequestsTab({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Decline request</p>
+                    <p>
+                      <T k="debate.info.declineRequest" />
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>

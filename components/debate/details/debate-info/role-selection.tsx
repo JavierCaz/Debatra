@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { T } from "@/components/ui/translated-text";
 
 interface RoleOption {
   value: ParticipantRole;
@@ -27,7 +28,9 @@ export function RoleSelection({
 }: RoleSelectionProps) {
   return (
     <div>
-      <h4 className="text-sm font-medium mb-3">Roles</h4>
+      <h4 className="text-sm font-medium mb-3">
+        <T k="debate.info.roles" />
+      </h4>
       <RadioGroup
         value={selectedRole}
         onValueChange={(value: "PROPOSER" | "OPPOSER") => onRoleChange(value)}
@@ -66,7 +69,9 @@ export function RoleSelection({
                 </TooltipTrigger>
                 {role.taken && (
                   <TooltipContent>
-                    <p>This role is already taken</p>
+                    <p>
+                      <T k="debate.info.roleTaken" />
+                    </p>
                   </TooltipContent>
                 )}
               </Tooltip>

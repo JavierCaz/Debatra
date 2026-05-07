@@ -4,6 +4,7 @@ import { getDebates } from "@/app/actions/debates";
 import { DebateCard } from "@/components/debate/browse/debate-card";
 import { DebateFiltersClient } from "@/components/debate/browse/debate-filters-client";
 import { Button } from "@/components/ui/button";
+import { T } from "@/components/ui/translated-text";
 import type { DebateStatus, DebateTopic } from "@/types/debate";
 
 interface PageProps {
@@ -28,15 +29,17 @@ export default async function DebatesPage({ searchParams }: PageProps) {
     <div className="container mx-auto py-8 px-4">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-4xl font-bold">Debates</h1>
+          <h1 className="text-4xl font-bold">
+            <T k="debates.title" />
+          </h1>
           <p className="text-muted-foreground mt-2">
-            Browse and participate in evidence-based debates
+            <T k="debates.subtitle" />
           </p>
         </div>
         <Link href="/debates/create">
           <Button>
             <Plus className="h-4 w-4 mr-2" />
-            Create Debate
+            <T k="debates.createDebate" />
           </Button>
         </Link>
       </div>
@@ -57,14 +60,18 @@ export default async function DebatesPage({ searchParams }: PageProps) {
         <main className="lg:col-span-3">
           {!result.success ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">Failed to load debates</p>
+              <p className="text-muted-foreground">
+                <T k="debates.failedToLoad" />
+              </p>
             </div>
           ) : !result.debates || result.debates.length === 0 ? (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No debates found</p>
+              <p className="text-muted-foreground">
+                <T k="debates.noDebatesFound" />
+              </p>
               {(status !== "ALL" || search) && (
                 <p className="text-sm text-muted-foreground mt-2">
-                  Try adjusting your filters or search query
+                  <T k="debates.adjustFilters" />
                 </p>
               )}
             </div>

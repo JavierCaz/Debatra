@@ -4,6 +4,7 @@ import { ParticipantRole, type User } from "@prisma";
 import { Users } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useDebounce } from "use-debounce";
 import {
   cancelRequest,
@@ -16,7 +17,7 @@ import { searchUsers } from "@/app/actions/users";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { DebateTopic, DebateWithDetails } from "@/types/debate";
-import { getTopicDisplayName } from "@/types/debate";
+import { getTopicTranslationKey } from "@/types/debate";
 import type { ExtendedRequest } from "@/types/debate-requests";
 import { CreatorInviterSections } from "./creator-inviter";
 import { CurrentParticipants } from "./current-participants";
@@ -39,6 +40,7 @@ export function DebateInfo({
   debateProgress,
   totalPossibleTurns,
 }: DebateInfoProps) {
+  const { t } = useTranslation();
   const { data: session } = useSession();
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<User[]>([]);
@@ -66,16 +68,16 @@ export function DebateInfo({
     () => [
       {
         value: ParticipantRole.PROPOSER,
-        label: "Proposer",
+        label: t("debate.info.roleProposer"),
         taken: isProposerTaken,
       },
       {
         value: ParticipantRole.OPPOSER,
-        label: "Opposer",
+        label: t("debate.info.roleOpposer"),
         taken: isOpposerTaken,
       },
     ],
-    [isProposerTaken, isOpposerTaken],
+    [isProposerTaken, isOpposerTaken, t],
   );
 
   const getDefaultSelectedRole = () => {
@@ -239,7 +241,7 @@ export function DebateInfo({
               {/* Topics Badges */}
               {debate.topics.map(({ topic }) => (
                 <Badge key={topic} variant="secondary">
-                  {getTopicDisplayName(topic as DebateTopic)}
+                  {t(getTopicTranslationKey(topic as DebateTopic))}
                 </Badge>
               ))}
             </div>
@@ -262,10 +264,12 @@ export function DebateInfo({
         <div className="pt-6 border-t">
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5" />
-            <h3 className="text-lg font-semibold">Debate Participants</h3>
+            <h3 className="text-lg font-semibold">
+              {t("debate.info.debateParticipants")}
+            </h3>
           </div>
           <p className="text-sm text-muted-foreground mb-6">
-            Manage invitations and join requests for this debate
+            {t("debate.info.participantsDesc")}
           </p>
 
           <div className="space-y-6">
@@ -327,8 +331,9 @@ export function DebateInfo({
             ) : (
               <div className="p-4 bg-muted rounded-lg text-center">
                 <p className="text-sm text-muted-foreground">
-                  This debate has reached the maximum number of participants (
-                  {debate.maxParticipants})
+                  {t("debate.info.maxReached", {
+                    count: debate.maxParticipants,
+                  })}
                 </p>
               </div>
             )}
@@ -336,7 +341,7 @@ export function DebateInfo({
             {!currentUser && (
               <div className="p-4 bg-muted rounded-lg text-center">
                 <p className="text-sm text-muted-foreground">
-                  Please sign in to join this debate or manage invitations
+                  {t("debate.info.signInToJoin")}
                 </p>
               </div>
             )}

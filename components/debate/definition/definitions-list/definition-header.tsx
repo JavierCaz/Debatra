@@ -1,3 +1,4 @@
+import { T } from "@/components/ui/translated-text";
 import type { DefinitionUser } from "@/types/definitions";
 
 interface DefinitionHeaderProps {
@@ -14,7 +15,12 @@ export function DefinitionHeader({
   return (
     <div className="flex items-center gap-4 text-xs text-muted-foreground">
       <div className="flex items-center gap-1">
-        <span>by {proposer.name}</span>
+        <span>
+          <T
+            k="debate.definition.byProposer"
+            values={{ name: proposer.name }}
+          />
+        </span>
       </div>
       <span>•</span>
       <span>{new Date(createdAt).toLocaleDateString()}</span>
@@ -22,7 +28,10 @@ export function DefinitionHeader({
         <>
           <span>•</span>
           <span>
-            {referencesCount} reference{referencesCount !== 1 ? "s" : ""}
+            <T
+              k="debate.definition.referencesCount"
+              values={{ count: referencesCount }}
+            />
           </span>
         </>
       )}

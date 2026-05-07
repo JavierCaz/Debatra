@@ -41,6 +41,31 @@ export enum ParticipantRole {
   OPPOSER = "OPPOSER",
 }
 
+export function getTopicTranslationKey(topic: DebateTopic): string {
+  const keys: Record<DebateTopic, string> = {
+    [DebateTopic.POLITICS]: "debate.topic.politics",
+    [DebateTopic.ECONOMICS]: "debate.topic.economics",
+    [DebateTopic.TECHNOLOGY]: "debate.topic.technology",
+    [DebateTopic.SCIENCE]: "debate.topic.science",
+    [DebateTopic.HEALTH_MEDICINE]: "debate.topic.healthMedicine",
+    [DebateTopic.EDUCATION]: "debate.topic.education",
+    [DebateTopic.SOCIETY_CULTURE]: "debate.topic.societyCulture",
+    [DebateTopic.PHILOSOPHY]: "debate.topic.philosophy",
+    [DebateTopic.LAW_JUSTICE]: "debate.topic.lawJustice",
+    [DebateTopic.INTERNATIONAL_RELATIONS]:
+      "debate.topic.internationalRelations",
+    [DebateTopic.ARTS]: "debate.topic.arts",
+    [DebateTopic.ENTERTAINMENT]: "debate.topic.entertainment",
+    [DebateTopic.SPORTS]: "debate.topic.sports",
+    [DebateTopic.RELIGION_SPIRITUALITY]: "debate.topic.religionSpirituality",
+    [DebateTopic.PSYCHOLOGY_BEHAVIOR]: "debate.topic.psychologyBehavior",
+    [DebateTopic.ENVIRONMENT_CLIMATE]: "debate.topic.environmentClimate",
+    [DebateTopic.HISTORY]: "debate.topic.history",
+  };
+
+  return keys[topic];
+}
+
 export function getTopicDisplayName(topic: DebateTopic): string {
   const displayNames: Record<DebateTopic, string> = {
     [DebateTopic.POLITICS]: "Politics",

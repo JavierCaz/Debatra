@@ -22,6 +22,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { name, email, password } = signinSchema.parse(body);
+    const locale = body.locale || "en";
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
     });
 
     try {
-      await sendWelcomeEmail(user.email, user.name || "User");
+      await sendWelcomeEmail(user.email, user.name || "User", locale);
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
       // Don't fail registration if email fails

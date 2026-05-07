@@ -6,6 +6,7 @@ import { getDebateById } from "@/app/actions/debates";
 import { DebateContentSection } from "@/components/debate/details/debate-content-section";
 import { DebateInfo } from "@/components/debate/details/debate-info";
 import { Button } from "@/components/ui/button";
+import { T } from "@/components/ui/translated-text";
 import { authOptions } from "@/lib/auth/options";
 import { calculateDebateProgress } from "@/lib/debate/stats";
 
@@ -46,7 +47,7 @@ export default async function DebateDetailPage({
         <Link href="/debates">
           <Button variant="ghost" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Debates
+            <T k="debateDetail.backToDebates" />
           </Button>
         </Link>
       </div>

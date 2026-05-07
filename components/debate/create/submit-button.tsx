@@ -1,4 +1,7 @@
+"use client";
+
 import { Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { DebateStatus } from "@/types/debate";
 
@@ -8,6 +11,7 @@ interface SubmitButtonsProps {
 }
 
 export function SubmitButtons({ isSubmitting, onSubmit }: SubmitButtonsProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex justify-end gap-3 pt-4 border-t">
       {/* <Button
@@ -25,7 +29,7 @@ export function SubmitButtons({ isSubmitting, onSubmit }: SubmitButtonsProps) {
         disabled={isSubmitting}
       >
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-        Create Debate
+        {t("debate.create.submitButton")}
       </Button>
     </div>
   );

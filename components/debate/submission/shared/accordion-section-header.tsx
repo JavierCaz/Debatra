@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { T } from "@/components/ui/translated-text";
 import type { AccordionItemConfig } from "@/types/submitters";
 
 interface AccordionSectionHeaderProps {
@@ -41,7 +42,7 @@ export function AccordionSectionHeader({
         {canAddItem && (
           <Button type="button" variant="outline" size="sm" onClick={onAddItem}>
             <Plus className="h-4 w-4 mr-2" />
-            Add {itemsLabel}
+            <T k="debate.submission.addLabel" values={{ label: itemsLabel }} />
           </Button>
         )}
       </div>
@@ -60,7 +61,7 @@ export function AccordionSectionHeader({
               onClick={expandAll}
               disabled={expandedItems.length === itemsCount}
             >
-              Expand All
+              <T k="debate.submission.expandAll" />
             </Button>
             <Button
               type="button"
@@ -69,7 +70,7 @@ export function AccordionSectionHeader({
               onClick={collapseAll}
               disabled={expandedItems.length === 0}
             >
-              Collapse All
+              <T k="debate.submission.collapseAll" />
             </Button>
           </div>
         </div>

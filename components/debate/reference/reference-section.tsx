@@ -1,6 +1,7 @@
 "use client";
 
 import { ExternalLink, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -20,6 +21,7 @@ export function ReferencesSection({
   disabled = false,
   minReferences = 0,
 }: ReferencesSectionProps) {
+  const { t } = useTranslation();
   const addReference = () => {
     const newReference: Reference = {
       id: Date.now(),
@@ -55,9 +57,11 @@ export function ReferencesSection({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h4 className="text-sm font-medium">References</h4>
+          <h4 className="text-sm font-medium">
+            {t("debate.reference.references")}
+          </h4>
           <p className="text-xs text-muted-foreground">
-            Add supporting references for your argument
+            {t("debate.reference.description")}
           </p>
         </div>
 
@@ -69,7 +73,7 @@ export function ReferencesSection({
             onClick={addReference}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Add Reference
+            {t("debate.reference.addReference")}
           </Button>
         )}
       </div>
@@ -79,7 +83,9 @@ export function ReferencesSection({
           <Card key={reference.id} className="relative">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm">Reference {index + 1}</CardTitle>
+                <CardTitle className="text-sm">
+                  {t("debate.reference.referenceN", { number: index + 1 })}
+                </CardTitle>
                 {!disabled && references.length > minReferences && (
                   <Button
                     type="button"
@@ -97,7 +103,8 @@ export function ReferencesSection({
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <Label htmlFor={`ref-title-${reference.id}`}>
-                  Title <span className="text-destructive">*</span>
+                  {t("debate.reference.title")}{" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id={`ref-title-${reference.id}`}
@@ -105,7 +112,7 @@ export function ReferencesSection({
                   onChange={(e) =>
                     updateReference(reference.id, { title: e.target.value })
                   }
-                  placeholder="Enter reference title"
+                  placeholder={t("debate.reference.titlePlaceholder")}
                   disabled={disabled}
                 />
               </div>
@@ -120,7 +127,7 @@ export function ReferencesSection({
                     onChange={(e) =>
                       updateReference(reference.id, { url: e.target.value })
                     }
-                    placeholder="https://example.com"
+                    placeholder={t("debate.reference.urlPlaceholder")}
                     disabled={disabled}
                     className="flex-1"
                   />
@@ -138,11 +145,11 @@ export function ReferencesSection({
                 </div>
                 {reference.url && !validateUrl(reference.url) && (
                   <p className="text-xs text-destructive">
-                    Please enter a valid URL
+                    {t("debate.reference.urlInvalid")}
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground">
-                  Provide a link to the source (optional but recommended)
+                  {t("debate.reference.urlHelp")}
                 </p>
               </div>
             </CardContent>
@@ -154,9 +161,9 @@ export function ReferencesSection({
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-8">
             <div className="text-center text-muted-foreground">
-              <p className="text-sm">No references added yet</p>
+              <p className="text-sm">{t("debate.reference.noReferences")}</p>
               <p className="text-xs mt-1">
-                Add supporting references to strengthen your argument
+                {t("debate.reference.noReferencesDesc")}
               </p>
             </div>
           </CardContent>

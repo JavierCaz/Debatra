@@ -1,5 +1,8 @@
+"use client";
+
 import { BookOpen, CheckCircle2, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import type { Definition } from "@/types/definitions";
 
@@ -31,6 +34,7 @@ export function DefinitionActions({
   onAccept,
   onSupersede,
 }: DefinitionActionsProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState<string | null>(null);
   const [isVoteSubmitting, setIsVoteSubmitting] = useState(false);
 
@@ -98,10 +102,10 @@ export function DefinitionActions({
                 onClick={() => handleAction("accept")}
                 onKeyDown={(e) => handleKeyDown(e, "accept")}
                 className="gap-1 text-green-600 border-green-200 hover:bg-green-50 dark:text-green-500 dark:border-green-800 dark:hover:bg-green-950/20"
-                aria-label="Accept this definition"
+                aria-label={t("debate.voting.accept")}
               >
                 <CheckCircle2 className="h-4 w-4" />
-                Accept
+                {t("debate.voting.accept")}
               </Button>
             )}
             {onSupersede && canImprove && (
@@ -112,10 +116,10 @@ export function DefinitionActions({
                 onClick={() => handleAction("supersede")}
                 onKeyDown={(e) => handleKeyDown(e, "supersede")}
                 className="gap-1 text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-500 dark:border-blue-800 dark:hover:bg-blue-950/20"
-                aria-label="Improve this definition"
+                aria-label={t("debate.voting.improve")}
               >
                 <BookOpen className="h-4 w-4" />
-                Improve
+                {t("debate.voting.improve")}
               </Button>
             )}
           </div>
@@ -132,7 +136,9 @@ export function DefinitionActions({
             onClick={() => handleVote(true)}
             onKeyDown={(e) => handleVoteKeyDown(e, true)}
             className="gap-1 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-950/20"
-            aria-label={`Support this definition. Currently has ${votes?.support || 0} supports`}
+            aria-label={t("debate.voting.supportDefAria", {
+              count: votes?.support || 0,
+            })}
           >
             <ThumbsUp className="h-4 w-4" />
             <span className="text-xs">{votes?.support || 0}</span>
@@ -144,7 +150,9 @@ export function DefinitionActions({
             onClick={() => handleVote(false)}
             onKeyDown={(e) => handleVoteKeyDown(e, false)}
             className="gap-1 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
-            aria-label={`Oppose this definition. Currently has ${votes?.oppose || 0} opposes`}
+            aria-label={t("debate.voting.opposeDefAria", {
+              count: votes?.oppose || 0,
+            })}
           >
             <ThumbsDown className="h-4 w-4" />
             <span className="text-xs">{votes?.oppose || 0}</span>

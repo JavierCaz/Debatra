@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { ExternalLink, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionContent,
@@ -20,6 +21,7 @@ const getReferenceTypeIcon = (_type: string) => {
 };
 
 export function ArgumentReferences({ references }: ArgumentReferencesProps) {
+  const { t } = useTranslation();
   if (references.length === 0) return null;
 
   return (
@@ -32,7 +34,9 @@ export function ArgumentReferences({ references }: ArgumentReferencesProps) {
                 <div className="flex items-center space-x-2">
                   <FileText className="w-4 h-4 text-muted-foreground" />
                   <span className="text-sm font-medium">
-                    References ({references.length})
+                    {t("debate.definitionList.references", {
+                      count: references.length,
+                    })}
                   </span>
                 </div>
               </div>
@@ -76,14 +80,16 @@ export function ArgumentReferences({ references }: ArgumentReferencesProps) {
                         rel="noopener noreferrer"
                         className="text-xs text-primary hover:underline flex items-center"
                       >
-                        View source
+                        {t("debate.reference.viewSource")}
                         <ExternalLink className="w-3 h-3 ml-1" />
                       </a>
                     )}
 
                     {reference.notes && (
                       <p className="text-xs text-muted-foreground italic">
-                        Note: {reference.notes}
+                        {t("debate.reference.notes", {
+                          notes: reference.notes,
+                        })}
                       </p>
                     )}
                   </div>

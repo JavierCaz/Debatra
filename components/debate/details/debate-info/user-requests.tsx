@@ -7,6 +7,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { T } from "@/components/ui/translated-text";
 import type { ExtendedRequest } from "@/types/debate-requests";
 
 interface UserRequestsSectionProps {
@@ -30,7 +31,9 @@ export function UserRequestsSection({
 
   return (
     <div className="space-y-4">
-      <h4 className="text-sm font-medium">Your Requests</h4>
+      <h4 className="text-sm font-medium">
+        <T k="debate.info.userRequests" />
+      </h4>
       {userRequests.map((request) => (
         <div
           key={request.id}
@@ -47,13 +50,28 @@ export function UserRequestsSection({
             </Avatar>
             <div>
               <p className="text-sm font-medium">
-                {request.type === "JOIN_REQUEST"
-                  ? "Join Request"
-                  : `Invitation from ${request.inviter?.name || request.inviter?.email || "someone"}`}
+                {request.type === "JOIN_REQUEST" ? (
+                  <T k="debate.info.joinRequest" />
+                ) : (
+                  <T
+                    k="debate.info.invitationFrom"
+                    values={{
+                      name:
+                        request.inviter?.name ||
+                        request.inviter?.email ||
+                        "someone",
+                    }}
+                  />
+                )}
               </p>
               <p className="text-xs text-muted-foreground">
-                Role: {request.role.toLowerCase()} • Status:{" "}
-                {request.status.toLowerCase()}
+                <T
+                  k="debate.info.requestMeta"
+                  values={{
+                    role: request.role.toLowerCase(),
+                    status: request.status.toLowerCase(),
+                  }}
+                />
               </p>
               {request.message && (
                 <p className="text-xs text-muted-foreground mt-1">
@@ -78,7 +96,9 @@ export function UserRequestsSection({
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Accept invitation</p>
+                        <p>
+                          <T k="debate.info.acceptInvitation" />
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -95,7 +115,9 @@ export function UserRequestsSection({
                         </Button>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>Decline invitation</p>
+                        <p>
+                          <T k="debate.info.declineInvitation" />
+                        </p>
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
@@ -114,7 +136,9 @@ export function UserRequestsSection({
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Cancel request</p>
+                      <p>
+                        <T k="debate.info.cancelRequest" />
+                      </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

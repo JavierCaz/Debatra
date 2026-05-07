@@ -1,4 +1,7 @@
+"use client";
+
 import { Handshake, MessageSquare, Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Card } from "../ui/card";
 
 interface ProfileStatsProps {
@@ -12,19 +15,21 @@ interface ProfileStatsProps {
 }
 
 export function ProfileStats({ stats }: ProfileStatsProps) {
+  const { t } = useTranslation();
+
   const statItems = [
     {
-      label: "Debates Created",
+      label: t("profile.debatesCreated"),
       value: stats.debatesCreated,
       icon: Trophy,
     },
     {
-      label: "Participated In",
+      label: t("profile.participatedIn"),
       value: stats.debateParticipants,
       icon: Handshake,
     },
     {
-      label: "Arguments Made",
+      label: t("profile.argumentsMade"),
       value: stats.arguments,
       icon: MessageSquare,
     },

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,23 +23,24 @@ export function DebateParametersSection({
   formData,
   onUpdate,
 }: DebateParametersSectionProps) {
+  const { t } = useTranslation();
   const debateFormats: DebateFormatType[] = [
     {
       value: DebateFormat.ONE_VS_ONE,
-      label: "One vs One",
-      description: "Two participants",
+      label: t("debate.create.formatOneVsOne"),
+      description: t("debate.create.formatOneVsOneDesc"),
       enabled: true,
     },
     {
       value: DebateFormat.ONE_VS_MANY,
-      label: "One vs Many",
-      description: "One person vs multiple (WIP)",
+      label: t("debate.create.formatOneVsMany"),
+      description: t("debate.create.formatOneVsManyDesc"),
       enabled: false, // Disabled for now until we polish the logic
     },
     {
       value: DebateFormat.MULTI_SIDED,
-      label: "Multi-sided",
-      description: "Multiple positions (WIP)",
+      label: t("debate.create.formatMulti"),
+      description: t("debate.create.formatMultiDesc"),
       enabled: false, // Disabled for now until we polish the logic
     },
   ];
@@ -51,11 +55,13 @@ export function DebateParametersSection({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold mb-4">Debate Parameters</h3>
+        <h3 className="text-lg font-semibold mb-4">
+          {t("debate.create.parameters")}
+        </h3>
       </div>
 
       <div className="space-y-2">
-        <Label>Debate Format</Label>
+        <Label>{t("debate.create.format")}</Label>
         <RadioGroup
           value={formData.format}
           onValueChange={(value: DebateFormData["format"]) =>
@@ -100,7 +106,9 @@ export function DebateParametersSection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {formData.format !== DebateFormat.ONE_VS_ONE && (
           <div className="space-y-2">
-            <Label htmlFor="maxParticipants">Maximum Participants</Label>
+            <Label htmlFor="maxParticipants">
+              {t("debate.create.maxParticipants")}
+            </Label>
             <Input
               type="number"
               id="maxParticipants"
@@ -114,7 +122,9 @@ export function DebateParametersSection({
         )}
 
         <div className="space-y-2">
-          <Label htmlFor="turnsPerSide">Turns Per Side</Label>
+          <Label htmlFor="turnsPerSide">
+            {t("debate.create.turnsPerSide")}
+          </Label>
           <Input
             type="number"
             id="turnsPerSide"
@@ -127,7 +137,7 @@ export function DebateParametersSection({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="turnTimeLimit">Time Limit Per Turn (hours)</Label>
+          <Label htmlFor="turnTimeLimit">{t("debate.create.timeLimit")}</Label>
           <Input
             type="number"
             id="turnTimeLimit"
@@ -140,7 +150,9 @@ export function DebateParametersSection({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="minReferences">Minimum References Required</Label>
+          <Label htmlFor="minReferences">
+            {t("debate.create.minReferences")}
+          </Label>
           <Input
             type="number"
             id="minReferences"

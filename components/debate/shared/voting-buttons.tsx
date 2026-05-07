@@ -1,5 +1,8 @@
+"use client";
+
 import { ThumbsDown, ThumbsUp } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface VotingButtonsProps {
@@ -22,6 +25,7 @@ export function VotingButtons({
   size = "sm",
   orientation = "horizontal",
 }: VotingButtonsProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   if (!currentUserId || !onVote) return null;
@@ -84,7 +88,9 @@ export function VotingButtons({
         }}
         onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, true)}
         className={`gap-1 hover:bg-green-50 hover:text-green-600 dark:hover:bg-green-950/20 ${getSizeClasses()}`}
-        aria-label={`Support this. Currently has ${votes?.support || 0} supports`}
+        aria-label={t("debate.voting.supportAria", {
+          count: votes?.support || 0,
+        })}
       >
         <ThumbsUp className={getIconSize()} />
         <span>{votes?.support || 0}</span>
@@ -99,7 +105,9 @@ export function VotingButtons({
         }}
         onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, false)}
         className={`gap-1 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20 ${getSizeClasses()}`}
-        aria-label={`Oppose this. Currently has ${votes?.oppose || 0} opposes`}
+        aria-label={t("debate.voting.opposeAria", {
+          count: votes?.oppose || 0,
+        })}
       >
         <ThumbsDown className={getIconSize()} />
         <span>{votes?.oppose || 0}</span>

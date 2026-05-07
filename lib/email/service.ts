@@ -8,6 +8,7 @@ import {
   PasswordResetEmail,
   WelcomeEmail,
 } from "./templates";
+import { getEmailTexts, type Locale } from "./translations";
 
 const resend = process.env.RESEND_API_KEY
   ? new Resend(process.env.RESEND_API_KEY)
@@ -17,6 +18,7 @@ export async function sendPasswordResetEmail(
   email: string,
   resetUrl: string,
   userName?: string,
+  locale: Locale = "en",
 ) {
   if (!resend) {
     console.warn("Resend not configured - skipping email send");
@@ -24,12 +26,15 @@ export async function sendPasswordResetEmail(
   }
 
   try {
-    const emailHtml = await render(PasswordResetEmail({ resetUrl, userName }));
+    const emailHtml = await render(
+      PasswordResetEmail({ resetUrl, userName, locale }),
+    );
+    const subject = getEmailTexts(locale).passwordReset.subject;
 
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "",
       to: email,
-      subject: "Reset Your Password",
+      subject,
       html: emailHtml,
     });
 
@@ -46,7 +51,11 @@ export async function sendPasswordResetEmail(
   }
 }
 
-export async function sendWelcomeEmail(email: string, userName: string) {
+export async function sendWelcomeEmail(
+  email: string,
+  userName: string,
+  locale: Locale = "en",
+) {
   if (!resend) {
     console.warn("Resend not configured - skipping email send");
     return null;
@@ -54,12 +63,15 @@ export async function sendWelcomeEmail(email: string, userName: string) {
 
   try {
     const loginUrl = `${process.env.NEXTAUTH_URL}/auth/signin`;
-    const emailHtml = await render(WelcomeEmail({ userName, loginUrl }));
+    const emailHtml = await render(
+      WelcomeEmail({ userName, loginUrl, locale }),
+    );
+    const subject = getEmailTexts(locale).welcome.subject;
 
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "",
       to: email,
-      subject: "Welcome to Debate Platform!",
+      subject,
       html: emailHtml,
     });
 
@@ -82,6 +94,7 @@ export async function sendDebateInvitationEmail(
   debateTitle: string,
   inviterName: string,
   debateId: string,
+  locale: Locale = "en",
 ) {
   if (!resend) {
     console.warn("Resend not configured - skipping email send");
@@ -96,13 +109,18 @@ export async function sendDebateInvitationEmail(
         debateTitle,
         inviterName,
         debateUrl,
+        locale,
       }),
+    );
+    const subject = getEmailTexts(locale).invitation.subject.replace(
+      "{{title}}",
+      debateTitle,
     );
 
     const { data, error } = await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL || "",
       to: email,
-      subject: `You've been invited to debate: ${debateTitle}`,
+      subject,
       html: emailHtml,
     });
 
@@ -160,6 +178,7 @@ export async function sendEmail({
 export async function sendNotificationEmail(
   userId: string,
   notificationData: NotificationEmailData,
+  locale: Locale = "en",
 ) {
   try {
     // Get user email and preferences
@@ -186,8 +205,8 @@ export async function sendNotificationEmail(
         linkUrl: notificationData.link
           ? `${process.env.NEXTAUTH_URL}${notificationData.link}`
           : undefined,
-        linkText: "View Notification",
         userName: user.name || undefined,
+        locale,
       }),
     );
 
@@ -208,10 +227,13 @@ export async function sendNotificationEmail(
 export async function sendBulkNotificationEmails(
   userIds: string[],
   notificationData: NotificationEmailData,
+  locale: Locale = "en",
 ) {
   // Process emails in background without blocking
   Promise.all(
-    userIds.map((userId) => sendNotificationEmail(userId, notificationData)),
+    userIds.map((userId) =>
+      sendNotificationEmail(userId, notificationData, locale),
+    ),
   ).catch((error) => {
     console.error("Error in bulk notification emails:", error);
   });
@@ -224,6 +246,7 @@ export async function notifyDebateParticipants(
   debateId: string,
   notificationData: NotificationEmailData,
   excludeUserIds: string[] = [],
+  locale: Locale = "en",
 ) {
   try {
     const participants = await prisma.debateParticipant.findMany({
@@ -243,10 +266,14 @@ export async function notifyDebateParticipants(
 
     if (participantIds.length === 0) return;
 
-    await sendBulkNotificationEmails(participantIds, {
-      ...notificationData,
-      link: notificationData.link || `/debates/${debateId}`,
-    });
+    await sendBulkNotificationEmails(
+      participantIds,
+      {
+        ...notificationData,
+        link: notificationData.link || `/debates/${debateId}`,
+      },
+      locale,
+    );
   } catch (error) {
     console.error("Error notifying debate participants:", error);
   }

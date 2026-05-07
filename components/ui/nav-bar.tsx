@@ -3,6 +3,7 @@
 import { LayoutDashboard, Menu, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -14,12 +15,14 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { UserNav } from "../auth/user-nav";
 import { NotificationBell } from "../notification/notification-bell";
+import { LanguageToggle } from "./language-toggle";
 import { Skeleton } from "./skeleton";
 import { ThemeToggle } from "./theme-toggle";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const { isAuthenticated, isLoading } = useAuth();
+  const { t } = useTranslation();
 
   if (isLoading) {
     return (
@@ -55,7 +58,7 @@ export function Navbar() {
                   href="/debates"
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors whitespace-nowrap"
                 >
-                  Debates
+                  {t("nav.debates")}
                 </Link>
               </div>
               {/* Mobile Menu - Only show for authenticated users */}
@@ -73,10 +76,10 @@ export function Navbar() {
                     >
                       <SheetHeader className="text-left pb-6 border-b">
                         <SheetTitle className="text-xl font-bold">
-                          Menu
+                          {t("nav.menu")}
                         </SheetTitle>
                         <p className="text-sm text-muted-foreground">
-                          Navigate through the app
+                          {t("nav.navigate")}
                         </p>
                       </SheetHeader>
 
@@ -89,7 +92,7 @@ export function Navbar() {
                           <div className="flex items-center justify-center w-8 h-8 rounded-md bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 group-hover:bg-blue-200 dark:group-hover:bg-blue-800/50 transition-colors">
                             <MessageSquare className="h-4 w-4" />
                           </div>
-                          <span>Debates</span>
+                          <span>{t("nav.debates")}</span>
                         </Link>
 
                         <Link
@@ -100,7 +103,7 @@ export function Navbar() {
                           <div className="flex items-center justify-center w-8 h-8 rounded-md bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 group-hover:bg-purple-200 dark:group-hover:bg-purple-800/50 transition-colors">
                             <LayoutDashboard className="h-4 w-4" />
                           </div>
-                          <span>Dashboard</span>
+                          <span>{t("nav.dashboard")}</span>
                         </Link>
                       </nav>
                     </SheetContent>
@@ -114,6 +117,7 @@ export function Navbar() {
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-2">
                 {isAuthenticated && <NotificationBell />}
+                <LanguageToggle />
                 <ThemeToggle />
                 <UserNav />
               </div>
@@ -121,6 +125,7 @@ export function Navbar() {
               {/* Mobile Actions */}
               <div className="flex md:hidden items-center gap-1">
                 {isAuthenticated && <NotificationBell />}
+                <LanguageToggle />
                 <ThemeToggle />
                 <UserNav />
               </div>

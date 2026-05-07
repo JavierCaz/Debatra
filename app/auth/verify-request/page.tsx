@@ -1,4 +1,9 @@
+"use client";
+
+import { useTranslation } from "react-i18next";
+
 export default function VerifyRequestPage() {
+  const { t } = useTranslation();
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -10,7 +15,7 @@ export default function VerifyRequestPage() {
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <title>Descriptive title</title>
+              <title>{t("common.descriptiveTitle")}</title>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -20,17 +25,16 @@ export default function VerifyRequestPage() {
             </svg>
           </div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Check your email
+            {t("verifyRequest.title")}
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            A sign in link has been sent to your email address.
+            {t("verifyRequest.description")}
           </p>
         </div>
 
         <div className="mt-8 bg-blue-50 border border-blue-200 rounded-md p-4">
           <p className="text-sm text-blue-800">
-            Click the link in the email to sign in to your account. The link
-            will expire in 24 hours.
+            {t("verifyRequest.instructions")}
           </p>
         </div>
       </div>

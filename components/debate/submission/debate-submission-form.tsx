@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ArgumentsSubmitter } from "@/components/debate/argument/arguments-submitter";
 import { DefinitionsSubmitter } from "@/components/debate/definition/definitions-submitter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,6 +28,7 @@ export function DebateSubmissionForm({
   onDefinitionsChange,
   definitionsError,
 }: DebateSubmissionFormProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<string>("arguments");
 
   const handleTabChange = (value: string) => {
@@ -54,7 +56,7 @@ export function DebateSubmissionForm({
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="arguments" className="relative">
-            Arguments
+            {t("debate.submission.arguments")}
             {completedArguments > 0 && (
               <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-primary-foreground bg-primary rounded-full dark:bg-primary/80">
                 {completedArguments}
@@ -62,7 +64,7 @@ export function DebateSubmissionForm({
             )}
           </TabsTrigger>
           <TabsTrigger value="definitions" className="relative">
-            Definitions
+            {t("debate.submission.definitions")}
             {completedDefinitions > 0 && (
               <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-medium text-primary-foreground bg-primary rounded-full dark:bg-primary/80">
                 {completedArguments}
@@ -76,10 +78,8 @@ export function DebateSubmissionForm({
             initialArguments={initialArguments}
             error={argumentsError}
             onArgumentsChange={onArgumentsChange}
-            title={"Opening Arguments"}
-            description={
-              "Present your initial arguments with supporting evidence"
-            }
+            title={t("debate.submission.openingArgs")}
+            description={t("debate.submission.openingArgsDesc")}
           />
         </TabsContent>
 
@@ -88,10 +88,8 @@ export function DebateSubmissionForm({
             definitions={definitions}
             error={definitionsError}
             onDefinitionsChange={onDefinitionsChange}
-            title={"Define Key Terms"}
-            description={
-              "Define important terms to establish a common understanding"
-            }
+            title={t("debate.submission.defineTerms")}
+            description={t("debate.submission.defineTermsDesc")}
           />
         </TabsContent>
       </Tabs>

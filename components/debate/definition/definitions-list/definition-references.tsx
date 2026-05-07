@@ -1,5 +1,8 @@
+"use client";
+
 import { ExternalLink } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Accordion,
   AccordionContent,
@@ -19,18 +22,19 @@ export function DefinitionReferences({
   references,
   definitionId,
 }: DefinitionReferencesProps) {
+  const { t } = useTranslation();
   const [expandedReferences, setExpandedReferences] = useState<string[]>([]);
 
   const getReferenceTypeLabel = (type: string) => {
     const labels: Record<string, string> = {
-      ACADEMIC_PAPER: "Academic Paper",
-      NEWS_ARTICLE: "News Article",
-      BOOK: "Book",
-      GOVERNMENT_DOCUMENT: "Government Document",
-      STATISTICS: "Statistics",
-      VIDEO: "Video",
-      WEBSITE: "Website",
-      OTHER: "Other",
+      ACADEMIC_PAPER: t("debate.definitionList.refTypeAcademic"),
+      NEWS_ARTICLE: t("debate.definitionList.refTypeNews"),
+      BOOK: t("debate.definitionList.refTypeBook"),
+      GOVERNMENT_DOCUMENT: t("debate.definitionList.refTypeGovernment"),
+      STATISTICS: t("debate.definitionList.refTypeStatistics"),
+      VIDEO: t("debate.definitionList.refTypeVideo"),
+      WEBSITE: t("debate.definitionList.refTypeWebsite"),
+      OTHER: t("debate.definitionList.refTypeOther"),
     };
     return labels[type] || type;
   };
@@ -47,7 +51,9 @@ export function DefinitionReferences({
         <AccordionItem value={definitionId} className="border-none">
           <AccordionTrigger className="hover:no-underline py-2">
             <h4 className="text-sm font-semibold text-muted-foreground">
-              References ({references.length})
+              {t("debate.definitionList.references", {
+                count: references.length,
+              })}
             </h4>
           </AccordionTrigger>
           <AccordionContent>
@@ -64,7 +70,9 @@ export function DefinitionReferences({
                           {getReferenceTypeLabel(reference.type)}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
-                          Reference {index + 1}
+                          {t("debate.definitionList.referenceN", {
+                            number: index + 1,
+                          })}
                         </span>
                       </div>
                       <h5 className="font-semibold text-sm text-foreground">

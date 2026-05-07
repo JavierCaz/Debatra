@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import "./styles/tiptap.css";
+import { LanguageProvider } from "@/components/providers/language-provider";
 import { AuthSessionProvider } from "@/components/providers/session-provider";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { Navbar } from "@/components/ui/nav-bar";
@@ -33,8 +34,10 @@ export default function RootLayout({
       >
         <AuthSessionProvider>
           <ThemeProvider defaultTheme="system" storageKey="debatra-ui-theme">
-            <Navbar />
-            {children}
+            <LanguageProvider>
+              <Navbar />
+              {children}
+            </LanguageProvider>
           </ThemeProvider>
         </AuthSessionProvider>
       </body>

@@ -2,11 +2,13 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { CreateDebateForm } from "@/components/debate/create/create-debate-form";
 import type { DebateFormData, InitialArgument } from "@/types/debate";
 import type { InitialDefinition } from "@/types/definitions";
 
 export function CreateDebateClient() {
+  const { t } = useTranslation();
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -40,7 +42,7 @@ export function CreateDebateClient() {
       router.push(`/debates/${debate.id}`);
     } catch (error) {
       console.error("Error:", error);
-      alert("Failed to create debate. Please try again.");
+      alert(t("debate.create.failedToCreate"));
     } finally {
       setIsSubmitting(false);
     }

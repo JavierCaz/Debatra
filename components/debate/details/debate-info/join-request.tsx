@@ -1,6 +1,7 @@
 import type { ParticipantRole } from "@prisma";
 import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { T } from "@/components/ui/translated-text";
 
 interface JoinRequestProps {
   selectedRole: ParticipantRole;
@@ -18,7 +19,9 @@ export function JoinRequest({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium">Join this Debate</h4>
+        <h4 className="text-sm font-medium">
+          <T k="debate.info.joinDebate" />
+        </h4>
       </div>
       <Button
         onClick={onJoinRequest}
@@ -26,7 +29,10 @@ export function JoinRequest({
         className="w-full"
       >
         <UserPlus className="w-4 h-4 mr-2" />
-        Request to Join as {selectedRole.toLowerCase()}
+        <T
+          k="debate.info.requestToJoin"
+          values={{ role: selectedRole.toLowerCase() }}
+        />
       </Button>
     </div>
   );

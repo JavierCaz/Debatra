@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Accordion } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import { TiptapEditor } from "@/components/ui/tiptap-editor";
@@ -39,17 +40,18 @@ export function ArgumentsSubmitter({
   onArgumentsChange,
   mode = "create",
   disabled = false,
-  disabledMessage = "Argument submission is not available at this time",
+  disabledMessage,
   maxArguments = 8,
   minArguments = 1,
-  title = "Arguments",
-  description = "Add your arguments with supporting evidence",
+  title,
+  description,
   showStatusIndicators = true,
   replyToArgumentId,
   replyContextMap,
   isForfeit = false,
   replyFocusKey = 0,
 }: ArgumentsSectionProps) {
+  const { t } = useTranslation();
   const {
     expandedItems,
     setExpandedItems,
@@ -127,7 +129,7 @@ export function ArgumentsSubmitter({
     const plainText = content.replace(/<[^>]*>/g, "").trim();
     return plainText.length > 100
       ? `${plainText.substring(0, 100)}...`
-      : plainText || "No content yet";
+      : plainText || t("debate.argument.noContent");
   };
 
   const hasContent = (argument: InitialArgument) => {
@@ -142,16 +144,22 @@ export function ArgumentsSubmitter({
   const canAddArgument =
     initialArguments.length < maxArguments && !disabled && !isForfeit;
 
+  const resolvedTitle = title ?? t("debate.content.arguments");
+  const resolvedDisabledMessage =
+    disabledMessage ?? t("debate.argument.submissionNotAvailable");
+
   const config = {
-    title: isForfeit ? "Forfeit Explanation (Optional)" : title,
+    title: isForfeit ? t("debate.argument.forfeitExplanation") : resolvedTitle,
     description: isForfeit
-      ? "You can provide an optional explanation for forfeiting the debate."
+      ? t("debate.argument.forfeitExplanationDesc")
       : description,
-    disabledMessage,
+    disabledMessage: resolvedDisabledMessage,
   };
 
   if (disabled) {
-    return <DisabledState title={title} message={disabledMessage} />;
+    return (
+      <DisabledState title={resolvedTitle} message={resolvedDisabledMessage} />
+    );
   }
 
   return (
@@ -162,14 +170,14 @@ export function ArgumentsSubmitter({
           <div className="flex items-center gap-2">
             <div className="flex-shrink-0 w-2 h-2 bg-destructive rounded-full animate-pulse"></div>
             <p className="text-sm font-medium text-destructive">
-              You are about to forfeit the debate
+              {t("debate.argument.forfeitWarning")}
             </p>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            This means you will concede the entire debate and your opponent will
-            win. This action cannot be undone.
-            {!initialArguments[0]?.content.trim() &&
-              " You can optionally provide an explanation below."}
+            {t("debate.argument.forfeitWarningDesc")}
+            {!initialArguments[0]?.content.trim() && (
+              <> {t("debate.argument.forfeitExplainOptional")}</>
+            )}
           </p>
         </div>
       )}
@@ -181,7 +189,7 @@ export function ArgumentsSubmitter({
           itemsCount={initialArguments.length}
           canAddItem={canAddArgument}
           onAddItem={addArgument}
-          itemsLabel="Argument"
+          itemsLabel={t("debate.argument.title")}
           expandAll={expandAll}
           collapseAll={collapseAll}
           expandedItems={expandedItems}
@@ -195,7 +203,7 @@ export function ArgumentsSubmitter({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label className="text-sm font-medium">
-              Forfeit Explanation (Optional)
+              {t("debate.argument.forfeitExplanation")}
             </Label>
             <TiptapEditor
               content={initialArguments[0]?.content || ""}
@@ -212,10 +220,10 @@ export function ArgumentsSubmitter({
                   updateItem(initialArguments[0].id, { content });
                 }
               }}
-              placeholder="Optional: Explain why you're forfeiting the debate..."
+              placeholder={t("debate.argument.forfeitPlaceholder")}
             />
             <p className="text-xs text-muted-foreground mt-1">
-              This explanation is optional and will be visible to your opponent.
+              {t("debate.argument.forfeitHint")}
             </p>
           </div>
         </div>
@@ -243,11 +251,15 @@ export function ArgumentsSubmitter({
                 title={
                   isReplyArgument
                     ? argReplyContext
-                      ? `Reply to ${argReplyContext.userName}'s Argument ${argReplyContext.argumentNumber} in Turn ${argReplyContext.turnNumber}`
-                      : "Reply to Argument"
+                      ? t("debate.argument.replyToUser", {
+                          name: argReplyContext.userName,
+                          argNum: argReplyContext.argumentNumber,
+                          turnNum: argReplyContext.turnNumber,
+                        })
+                      : t("debate.argument.replyToArg")
                     : mode === "create"
-                      ? `Argument ${index + 1}`
-                      : `Your Argument ${index + 1}`
+                      ? t("debate.argument.argN", { number: index + 1 })
+                      : t("debate.argument.yourArgN", { number: index + 1 })
                 }
                 preview={getPreviewText(argument.content)}
                 isExpanded={isExpanded(argument.id)}
@@ -262,16 +274,16 @@ export function ArgumentsSubmitter({
                 {isReplyArgument && (
                   <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 dark:bg-blue-900/20 dark:border-blue-800">
                     <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                      Make sure to address the points in the original argument
-                      you're responding to. This argument will be linked to the
-                      original in the discussion thread.
+                      {t("debate.argument.replyLinkHint")}
                     </p>
                   </div>
                 )}
 
                 <div className="space-y-2" data-argument-id={argument.id}>
                   <Label>
-                    {isReplyArgument ? "Reply Content" : "Argument Content"}{" "}
+                    {isReplyArgument
+                      ? t("debate.argument.replyContent")
+                      : t("debate.argument.argContent")}{" "}
                     <span className="text-destructive">*</span>
                   </Label>
                   <TiptapEditor
@@ -279,14 +291,14 @@ export function ArgumentsSubmitter({
                     onChange={(content) => updateItem(argument.id, { content })}
                     placeholder={
                       isReplyArgument
-                        ? "Write your response to the argument. Address specific points and provide counter-evidence..."
-                        : "Present your argument, evidence, and reasoning..."
+                        ? t("debate.argument.replyPlaceholder")
+                        : t("debate.argument.argPlaceholder")
                     }
                   />
                   <p className="text-xs text-muted-foreground">
                     {isReplyArgument
-                      ? "Provide a thoughtful response that addresses the original argument's points"
-                      : "Provide a well-reasoned argument with supporting evidence"}
+                      ? t("debate.argument.replyHelp")
+                      : t("debate.argument.argHelp")}
                   </p>
                 </div>
 

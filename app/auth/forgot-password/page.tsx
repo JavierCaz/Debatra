@@ -5,6 +5,7 @@ import { AlertCircle, ArrowLeft, CheckCircle, Mail } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -17,14 +18,15 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
-const forgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
-});
-
-type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
+import i18n from "@/lib/i18n/config";
 
 export default function ForgotPasswordPage() {
+  const { t } = useTranslation();
+  const forgotPasswordSchema = z.object({
+    email: z.string().email(t("validation.invalidEmail")),
+  });
+
+  type ForgotPasswordFormData = z.infer<typeof forgotPasswordSchema>;
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [error, setError] = useState<string>("");
@@ -47,13 +49,16 @@ export default function ForgotPasswordPage() {
       const response = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          email: data.email,
+          locale: i18n.language,
+        }),
       });
 
       const result = await response.json();
 
       if (!response.ok) {
-        setError(result.error || "Something went wrong");
+        setError(result.error || t("auth.somethingWentWrong"));
         return;
       }
 
@@ -64,7 +69,7 @@ export default function ForgotPasswordPage() {
         setResetUrl(result.resetUrl);
       }
     } catch (_error) {
-      setError("Something went wrong. Please try again.");
+      setError(t("auth.somethingWentWrong"));
     } finally {
       setIsLoading(false);
     }
@@ -79,11 +84,10 @@ export default function ForgotPasswordPage() {
               <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
             </div>
             <div className="space-y-2">
-              <CardTitle className="text-2xl">Check your email</CardTitle>
-              <CardDescription>
-                If an account exists with that email, we've sent a password
-                reset link.
-              </CardDescription>
+              <CardTitle className="text-2xl">
+                {t("forgotPassword.checkYourEmail")}
+              </CardTitle>
+              <CardDescription>{t("forgotPassword.emailSent")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -92,7 +96,7 @@ export default function ForgotPasswordPage() {
                 <AlertCircle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
                 <AlertDescription className="text-yellow-800 dark:text-yellow-300">
                   <p className="font-medium mb-1">
-                    Development Mode - Reset Link:
+                    {t("forgotPassword.devModeResetLink")}
                   </p>
                   <a
                     href={resetUrl}
@@ -106,7 +110,7 @@ export default function ForgotPasswordPage() {
             <Button asChild variant="outline" className="w-full">
               <Link href="/auth/signin">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to sign in
+                {t("forgotPassword.backToSignIn")}
               </Link>
             </Button>
           </CardContent>
@@ -119,11 +123,10 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-background py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
-          <CardTitle className="text-2xl">Reset your password</CardTitle>
-          <CardDescription>
-            Enter your email address and we'll send you a link to reset your
-            password.
-          </CardDescription>
+          <CardTitle className="text-2xl">
+            {t("forgotPassword.title")}
+          </CardTitle>
+          <CardDescription>{t("forgotPassword.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -135,13 +138,13 @@ export default function ForgotPasswordPage() {
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email address</Label>
+              <Label htmlFor="email">{t("auth.emailAddress")}</Label>
               <Input
                 {...register("email")}
                 type="email"
                 id="email"
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 className={errors.email ? "border-destructive" : ""}
               />
               {errors.email && (
@@ -155,12 +158,12 @@ export default function ForgotPasswordPage() {
               {isLoading ? (
                 <>
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-background border-t-transparent mr-2" />
-                  Sending...
+                  {t("forgotPassword.sending")}
                 </>
               ) : (
                 <>
                   <Mail className="mr-2 h-4 w-4" />
-                  Send reset link
+                  {t("forgotPassword.sendResetLink")}
                 </>
               )}
             </Button>
@@ -169,7 +172,7 @@ export default function ForgotPasswordPage() {
               <Button asChild variant="link" className="text-sm">
                 <Link href="/auth/signin">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  Back to sign in
+                  {t("forgotPassword.backToSignIn")}
                 </Link>
               </Button>
             </div>
