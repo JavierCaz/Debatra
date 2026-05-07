@@ -57,9 +57,9 @@ const emailTranslations = {
       subject: "Restablece tu contraseña",
     },
     welcome: {
-      heading: "¡Bienvenido a Datra! 🎉",
+      heading: "¡Bienvenido a Debatra! 🎉",
       greeting: "Hola {{name}},",
-      body: "¡Gracias por unirte a Datra! Estamos emocionados de tenerte como parte de nuestra comunidad de debatedores basados en evidencia.",
+      body: "¡Gracias por unirte a Debatra! Estamos emocionados de tenerte como parte de nuestra comunidad de debatedores basados en evidencia.",
       whatYouCanDo: "Esto es lo que puedes hacer:",
       bullet1: "✓ Explora debates en curso y vota en los argumentos",
       bullet2: "✓ Crea tus propios debates sobre temas que te importan",
@@ -67,7 +67,7 @@ const emailTranslations = {
       bullet4: "✓ Participa en discusiones basadas en evidencia",
       buttonText: "Comenzar",
       footer: "Si tienes alguna pregunta, no dudes en responder a este correo.",
-      subject: "¡Bienvenido a Datra!",
+      subject: "¡Bienvenido a Debatra!",
     },
     invitation: {
       heading: "¡Has sido invitado a un debate!",
