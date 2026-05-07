@@ -18,6 +18,10 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  getNotifMessage,
+  getNotifTitle,
+} from "@/lib/i18n/notification-translations";
 import type { NotificationDTO } from "@/types/notifications";
 
 export function NotificationList({
@@ -148,7 +152,7 @@ export function NotificationList({
               <div className="flex-1 space-y-1 text-left">
                 <div className="flex items-start justify-between gap-2">
                   <p className="text-sm font-medium leading-none">
-                    {notification.title}
+                    {getNotifTitle(notification, t)}
                   </p>
 
                   <div className="flex items-center gap-1">
@@ -181,11 +185,14 @@ export function NotificationList({
                   </div>
                 </div>
 
-                {notification.message && (
-                  <p className="text-sm text-muted-foreground line-clamp-2">
-                    {notification.message}
-                  </p>
-                )}
+                {(() => {
+                  const msg = getNotifMessage(notification, t);
+                  return msg ? (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {msg}
+                    </p>
+                  ) : null;
+                })()}
 
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(notification.createdAt), {

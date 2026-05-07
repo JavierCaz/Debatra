@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Toggle } from "@/components/ui/toggle";
 import { useDebateSubmission } from "@/hooks/use-debate-submission";
+import { translateSubmitError } from "@/lib/i18n/error-translations";
 import type { DebateWithDetails, InitialArgument } from "@/types/debate";
 import { ArgumentsSubmitter } from "../argument/arguments-submitter";
 
@@ -162,11 +163,8 @@ export function ArgumentsResponseSection({
         );
       }
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : `Failed to ${isForfeit ? "forfeit debate" : "submit arguments"}`,
-      );
+      const message = err instanceof Error ? err.message : "";
+      setError(translateSubmitError(message, t, isForfeit));
     } finally {
       setIsLoading(false);
     }

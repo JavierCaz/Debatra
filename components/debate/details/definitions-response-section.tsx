@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { DefinitionsSubmitter } from "@/components/debate/definition/definitions-submitter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { translateDefinitionError } from "@/lib/i18n/error-translations";
 import type { DebateWithDetails } from "@/types/debate";
 import type { InitialDefinition } from "@/types/definitions";
 
@@ -94,7 +95,11 @@ export function DefinitionsResponseSection({
         const result = await response.json();
 
         if (!result.success) {
-          setError(result.error || t("debate.definition.failedSubmitImproved"));
+          setError(
+            translateDefinitionError(result.error, t) ||
+              result.error ||
+              t("debate.definition.failedSubmitImproved"),
+          );
         } else {
           // Success - clear form and call completion callback
           setDefinitions([]);
