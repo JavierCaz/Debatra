@@ -81,6 +81,27 @@ export function CreateDebateForm({
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+
+      if (newErrors.title) {
+        const titleElement = document.getElementById("title");
+        if (titleElement) {
+          titleElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          titleElement.focus({ preventScroll: true });
+        }
+      } else if (newErrors.topics) {
+        const topicsElement = document.getElementById("topics-trigger");
+        if (topicsElement) {
+          topicsElement.scrollIntoView({ behavior: "smooth", block: "center" });
+          topicsElement.focus({ preventScroll: true });
+        }
+      } else if (newErrors.initialArguments) {
+        const argsSection = document.getElementById("arguments-section");
+        if (argsSection) {
+          argsSection.scrollIntoView({ behavior: "smooth", block: "center" });
+          argsSection.focus({ preventScroll: true });
+        }
+      }
+
       return;
     }
 
@@ -124,14 +145,16 @@ export function CreateDebateForm({
           onClearError={clearError}
         />
 
-        <DebateSubmissionForm
-          arguments={initialArguments}
-          onArgumentsChange={setInitialArguments}
-          argumentsError={errors.initialArguments}
-          definitions={initialDefinitions}
-          onDefinitionsChange={setInitialDefinitions}
-          definitionsError={errors.definitions}
-        />
+        <div id="arguments-section" tabIndex={-1} className="outline-none">
+          <DebateSubmissionForm
+            arguments={initialArguments}
+            onArgumentsChange={setInitialArguments}
+            argumentsError={errors.initialArguments}
+            definitions={initialDefinitions}
+            onDefinitionsChange={setInitialDefinitions}
+            definitionsError={errors.definitions}
+          />
+        </div>
 
         <DebateParametersSection
           formData={formData}

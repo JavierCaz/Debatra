@@ -115,7 +115,7 @@ export function BasicInfoSection({
 
         {/* Topic Selector - Make it full width */}
         <Select onValueChange={handleAddTopic} value="">
-          <SelectTrigger className="w-full">
+          <SelectTrigger id="topics-trigger" className="w-full">
             {" "}
             {/* Add w-full here */}
             <SelectValue placeholder={t("debate.create.topicPlaceholder")} />
