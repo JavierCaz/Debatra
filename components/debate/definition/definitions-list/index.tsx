@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import type { Definition, DefinitionsListProps } from "@/types/definitions";
+import { ReferenceList } from "../../reference/reference-list";
 import { DefinitionActions } from "./definition-actions";
 import { DefinitionHeader } from "./definition-header";
-import { DefinitionReferences } from "./definition-references";
 import { DefinitionStatusBadge } from "./definition-status-badge";
 import { DefinitionsEmptyState } from "./definitions-empty-state";
 import { StatusAlerts } from "./status-alerts";
@@ -157,7 +157,6 @@ export function DefinitionsList({
                     </span>
                     <DefinitionStatusBadge
                       status={currentDefinition.status}
-                      referencedCount={currentDefinition.referencedByArguments}
                       versionCount={
                         hasMultipleVersions ? termDefinitions.length : undefined
                       }
@@ -225,10 +224,7 @@ export function DefinitionsList({
                   />
 
                   {/* References */}
-                  <DefinitionReferences
-                    references={currentDefinition.references}
-                    definitionId={currentDefinition.id}
-                  />
+                  <ReferenceList references={currentDefinition.references} />
 
                   {/* Status-specific warnings */}
                   <StatusAlerts

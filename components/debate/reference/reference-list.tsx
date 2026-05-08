@@ -10,17 +10,23 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
-import type { DebateWithDetails } from "@/types/debate";
 
-interface ArgumentReferencesProps {
-  references: DebateWithDetails["participants"][0]["arguments"][0]["references"];
+export interface ReferenceListItem {
+  id: string;
+  type: string;
+  title: string;
+  url?: string | null;
+  author?: string | null;
+  publication?: string | null;
+  publishedAt?: string | Date | null;
+  notes?: string | null;
 }
 
-const getReferenceTypeIcon = (_type: string) => {
-  return <FileText className="w-3 h-3" />;
-};
+interface ReferenceListProps {
+  references: ReferenceListItem[];
+}
 
-export function ArgumentReferences({ references }: ArgumentReferencesProps) {
+export function ReferenceList({ references }: ReferenceListProps) {
   const { t } = useTranslation();
   if (references.length === 0) return null;
 
@@ -50,7 +56,7 @@ export function ArgumentReferences({ references }: ArgumentReferencesProps) {
                   key={reference.id}
                   className="flex items-start space-x-3 p-3 bg-background border rounded-lg"
                 >
-                  {getReferenceTypeIcon(reference.type)}
+                  <FileText className="w-3 h-3 mt-1 shrink-0" />
                   <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex items-start justify-between gap-2">
                       <p className="font-medium text-sm leading-relaxed">
@@ -64,10 +70,13 @@ export function ArgumentReferences({ references }: ArgumentReferencesProps) {
                       </Badge>
                     </div>
 
-                    {reference.author && (
+                    {(reference.author ||
+                      reference.publication ||
+                      reference.publishedAt) && (
                       <p className="text-xs text-muted-foreground">
                         {reference.author}
-                        {reference.publication && ` - ${reference.publication}`}
+                        {reference.author && reference.publication && " - "}
+                        {reference.publication}
                         {reference.publishedAt &&
                           ` (${format(new Date(reference.publishedAt), "yyyy")})`}
                       </p>
