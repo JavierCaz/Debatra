@@ -145,9 +145,9 @@ export function DefinitionsResponseSection({
     : t("debate.definition.proposeNew");
 
   const description = supersedeDefinitionId
-    ? t("debate.definition.improveDesc")
-    : t("debate.definition.proposeDesc", {
-        turnNumber: debate.currentTurnNumber,
+    ? t("debate.definition.improveDescription")
+    : t("debate.definition.proposeDescription", {
+        turn: debate.currentTurnNumber,
       });
 
   const submitButtonText = supersedeDefinitionId

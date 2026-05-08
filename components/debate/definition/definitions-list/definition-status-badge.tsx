@@ -5,13 +5,11 @@ import type { Definition } from "@/types/definitions";
 
 interface DefinitionStatusBadgeProps {
   status: Definition["status"];
-  referencedCount?: number;
   versionCount?: number;
 }
 
 export function DefinitionStatusBadge({
   status,
-  referencedCount,
   versionCount,
 }: DefinitionStatusBadgeProps) {
   const getStatusColor = () => {
@@ -61,12 +59,6 @@ export function DefinitionStatusBadge({
         {getStatusIcon()}
         <span className="ml-1">{getStatusLabel()}</span>
       </Badge>
-
-      {(referencedCount ?? 0) > 0 && (
-        <Badge variant="secondary" className="text-xs">
-          {referencedCount} reference{referencedCount !== 1 ? "s" : ""}
-        </Badge>
-      )}
 
       {versionCount && (versionCount ?? 0) > 1 && (
         <Badge variant="outline" className="text-xs">
