@@ -10,7 +10,6 @@ const forgotPasswordSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  // Apply rate limiting
   const rateLimitResponse = await applyRateLimit(req, "passwordReset");
 
   if (rateLimitResponse) {
@@ -22,13 +21,10 @@ export async function POST(req: Request) {
     const { email } = forgotPasswordSchema.parse(body);
     const locale = body.locale || "en";
 
-    // Check if user exists
     const user = await prisma.user.findUnique({
       where: { email },
     });
 
-    // Always return success to prevent email enumeration
-    // (Don't reveal if email exists or not)
     if (!user) {
       return NextResponse.json(
         {
@@ -39,30 +35,25 @@ export async function POST(req: Request) {
       );
     }
 
-    // Delete any existing reset tokens for this email
     await prisma.passwordResetToken.deleteMany({
       where: { email },
     });
 
-    // Generate secure random token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Hash the token before storing (extra security)
     const hashedToken = crypto
       .createHash("sha256")
       .update(resetToken)
       .digest("hex");
 
-    // Create reset token (expires in 24 hours)
     await prisma.passwordResetToken.create({
       data: {
         email,
         token: hashedToken,
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
       },
     });
 
-    // Generate reset URL
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${resetToken}`;
 
     try {
@@ -74,7 +65,6 @@ export async function POST(req: Request) {
       );
     } catch (emailError) {
       console.error("Failed to send email:", emailError);
-      // Don't throw - still return success to prevent email enumeration
     }
 
     // In development, you can return the URL

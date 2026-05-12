@@ -25,7 +25,6 @@ export function ArgumentThreadItem({
   onClick,
 }: ArgumentThreadItemProps) {
   const { t } = useTranslation();
-  // Safe user data extraction with better fallbacks
   const user = participant?.user;
   const userName = user?.name || user?.email || t("debate.content.unknownUser");
   const userInitial = userName.charAt(0).toUpperCase();
@@ -44,7 +43,6 @@ export function ArgumentThreadItem({
       }}
       onClick={onClick}
       onKeyDown={(e) => {
-        // Handle keyboard interaction (Space or Enter)
         if (e.key === " " || e.key === "Enter") {
           e.preventDefault();
           onClick?.();
@@ -52,7 +50,6 @@ export function ArgumentThreadItem({
       }}
     >
       <div className="p-4 w-full">
-        {/* Header with user info */}
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-3 flex-1">
             <Avatar className="h-6 w-6">
@@ -83,7 +80,6 @@ export function ArgumentThreadItem({
           </div>
         </div>
 
-        {/* Argument content */}
         <div className="prose prose-sm dark:prose-invert max-w-none">
           <SafeContentRenderer content={argument.content} />
         </div>

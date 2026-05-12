@@ -120,7 +120,6 @@ export function DebateContentSection({
     }
   };
 
-  // Handler functions for definition interactions
   const handleDefinitionVote = async (
     definitionId: string,
     support: boolean,
@@ -207,12 +206,10 @@ export function DebateContentSection({
     }
   };
 
-  // Handler for reply button clicks
   const handleReply = (argumentId: string) => {
     setReplyToArgumentId(argumentId);
     setReplyFocusKey((prev) => prev + 1);
 
-    // Scroll to arguments response section
     const responseSection = document.getElementById(
       "arguments-response-section",
     );
@@ -224,14 +221,12 @@ export function DebateContentSection({
     }
   };
 
-  // Handler to clear the reply when arguments are submitted or cancelled
   const handleReplyComplete = () => {
     setReplyToArgumentId(null);
   };
 
   return (
     <div className="flex-1 min-w-0 space-y-6">
-      {/* Arguments & Definitions Tabs */}
       <Tabs
         value={activeTab}
         onValueChange={handleTabChange}

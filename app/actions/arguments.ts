@@ -24,7 +24,6 @@ export async function submitArguments(
       throw new Error("At least one argument is required");
     }
 
-    // Get basic debate info first
     const basicDebate = await prisma.debate.findUnique({
       where: { id: debateId },
       select: {

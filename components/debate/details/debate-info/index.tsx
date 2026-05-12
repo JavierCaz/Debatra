@@ -56,7 +56,6 @@ export function DebateInfo({
   const canJoin =
     currentUser && !isCreator && !isParticipant && debate.status === "OPEN";
 
-  // Role availability logic
   const isProposerTaken = debate.participants.some(
     (p) => p.role === ParticipantRole.PROPOSER,
   );
@@ -152,7 +151,6 @@ export function DebateInfo({
     }
   }, [debouncedSearchQuery, performSearch, currentUser]);
 
-  // Action handlers
   const handleSendInvitation = async (userEmail: string) => {
     if (!currentUser?.email) return;
 
@@ -238,7 +236,6 @@ export function DebateInfo({
           <div>
             <CardTitle className="text-2xl mb-2">{debate.title}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
-              {/* Topics Badges */}
               {debate.topics.map(({ topic }) => (
                 <Badge key={topic} variant="secondary">
                   {t(getTopicTranslationKey(topic as DebateTopic))}
@@ -260,7 +257,6 @@ export function DebateInfo({
 
         <DebateMetadata debate={debate} />
 
-        {/* Participants Section */}
         <div className="pt-6 border-t">
           <div className="flex items-center gap-2 mb-4">
             <Users className="w-5 h-5" />

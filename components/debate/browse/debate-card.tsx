@@ -46,7 +46,6 @@ export function DebateCard({ debate }: DebateCardProps) {
   const { t } = useTranslation();
   const { language } = useLanguage();
 
-  // Limit displayed topics to prevent overflow
   const displayTopics = debate.topics.slice(0, 3);
   const hasMoreTopics = debate.topics.length > 3;
 
@@ -60,12 +59,10 @@ export function DebateCard({ debate }: DebateCardProps) {
                 {debate.title}
               </CardTitle>
               <CardDescription className="flex flex-wrap items-center gap-2">
-                {/* Status Badge */}
                 <Badge className={getStatusBadgeColor(debate.status)}>
                   {t(getStatusTranslationKey(debate.status))}
                 </Badge>
 
-                {/* Topics Badges - removed max-width and truncate */}
                 {displayTopics.map(({ topic }) => (
                   <Badge
                     key={topic}
@@ -76,7 +73,6 @@ export function DebateCard({ debate }: DebateCardProps) {
                   </Badge>
                 ))}
 
-                {/* Show "+X more" if there are additional topics */}
                 {hasMoreTopics && (
                   <Badge variant="outline" className="text-xs">
                     {t("debates.moreTopics", {
@@ -90,7 +86,6 @@ export function DebateCard({ debate }: DebateCardProps) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm text-muted-foreground">
-            {/* Left side - User info and stats */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
               <div className="flex items-center gap-1">
                 <Avatar className="h-5 w-5 sm:h-6 sm:w-6">
@@ -120,7 +115,6 @@ export function DebateCard({ debate }: DebateCardProps) {
               </div>
             </div>
 
-            {/* Right side - Timestamp */}
             <div className="flex justify-end">
               <span className="text-xs sm:text-sm bg-muted px-2 py-1 rounded-md sm:bg-transparent sm:px-0 sm:py-0">
                 {formatDistanceToNow(new Date(debate.createdAt), {

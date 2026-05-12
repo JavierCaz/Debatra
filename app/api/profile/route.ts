@@ -11,13 +11,11 @@ const updateProfileSchema = z.object({
 
 export async function PATCH(request: NextRequest) {
   try {
-    // Check authentication
     const session = await getServerSession();
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get current user
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
     });
@@ -26,7 +24,6 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Parse and validate request body
     const body = await request.json();
     const validationResult = updateProfileSchema.safeParse(body);
 
@@ -42,7 +39,6 @@ export async function PATCH(request: NextRequest) {
 
     const { name, bio, image } = validationResult.data;
 
-    // Update user profile
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
@@ -75,13 +71,11 @@ export async function PATCH(request: NextRequest) {
 
 export async function GET(_request: NextRequest) {
   try {
-    // Check authentication
     const session = await getServerSession();
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get current user with stats
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: {

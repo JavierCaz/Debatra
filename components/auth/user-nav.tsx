@@ -62,7 +62,6 @@ export function UserNav() {
 
   return (
     <div className="flex items-center gap-1">
-      {/* Profile button - hidden on mobile, show on desktop */}
       <Button
         variant="ghost"
         size="sm"
@@ -75,7 +74,6 @@ export function UserNav() {
         </span>
       </Button>
 
-      {/* Mobile profile icon */}
       <Button
         variant="ghost"
         size="icon"

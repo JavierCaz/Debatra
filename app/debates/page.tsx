@@ -22,7 +22,6 @@ export default async function DebatesPage({ searchParams }: PageProps) {
     topic: topic !== "ALL" ? (topic as DebateTopic) : undefined,
   });
 
-  // Create a unique key based on search params to force re-render when filters change
   const debatesKey = `${status}-${search}-${topic}`;
 
   return (
@@ -45,7 +44,6 @@ export default async function DebatesPage({ searchParams }: PageProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Filters Sidebar */}
         <aside className="lg:col-span-1">
           <div className="sticky top-4">
             <DebateFiltersClient
@@ -56,7 +54,6 @@ export default async function DebatesPage({ searchParams }: PageProps) {
           </div>
         </aside>
 
-        {/* Debates List */}
         <main className="lg:col-span-3">
           {!result.success ? (
             <div className="text-center py-12">

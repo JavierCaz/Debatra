@@ -3,7 +3,6 @@ import { prisma } from "@/lib/prisma/client";
 
 export async function GET() {
   try {
-    // Test database connection
     await prisma.$queryRaw`SELECT 1`;
 
     return NextResponse.json({

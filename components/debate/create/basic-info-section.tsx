@@ -59,7 +59,6 @@ export function BasicInfoSection({
     });
   };
 
-  // Available topics that haven't been selected yet
   const availableTopics = ALL_DEBATE_TOPICS.filter(
     (topic) => !formData.topics.includes(topic),
   );
@@ -95,7 +94,6 @@ export function BasicInfoSection({
           {t("debate.create.topic")} <span className="text-destructive">*</span>
         </Label>
 
-        {/* Selected Topics Display */}
         {formData.topics.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {formData.topics.map((topic) => (
@@ -113,16 +111,11 @@ export function BasicInfoSection({
           </div>
         )}
 
-        {/* Topic Selector - Make it full width */}
         <Select onValueChange={handleAddTopic} value="">
           <SelectTrigger id="topics-trigger" className="w-full">
-            {" "}
-            {/* Add w-full here */}
             <SelectValue placeholder={t("debate.create.topicPlaceholder")} />
           </SelectTrigger>
           <SelectContent className="w-full">
-            {" "}
-            {/* Ensure content matches width */}
             {availableTopics.length === 0 ? (
               <div className="px-2 py-1.5 text-sm text-muted-foreground">
                 {t("debate.create.allTopicsSelected")}

@@ -21,7 +21,6 @@ export function TurnCountdown({
   const [isExpired, setIsExpired] = useState(false);
 
   useEffect(() => {
-    // If no time limit or no last argument time, don't run countdown
     if (!turnTimeLimitHours || !lastArgumentTime) {
       setTimeRemaining(0);
       setIsExpired(false);
@@ -83,7 +82,6 @@ export function TurnCountdown({
   const isUrgent = timeRemaining < getUrgentThreshold() && !isExpired;
   const isCritical = timeRemaining < getCriticalThreshold() && !isExpired;
 
-  // Format the urgent warning message
   const getUrgentMessage = () => {
     if (!turnTimeLimitHours) return null;
 
@@ -95,7 +93,6 @@ export function TurnCountdown({
     );
   };
 
-  // No time limit set
   if (!turnTimeLimitHours) {
     return (
       <div className="flex items-center gap-2">
@@ -107,7 +104,6 @@ export function TurnCountdown({
     );
   }
 
-  // No last argument time (debate just started)
   if (!lastArgumentTime) {
     return (
       <div className="flex items-center gap-2">

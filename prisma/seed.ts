@@ -848,7 +848,8 @@ async function main() {
       {
         definitionId: sexEdDef1.id,
         type: ReferenceType.ACADEMIC_PAPER,
-        title: "Defining Comprehensive Sexuality Education: An International Framework",
+        title:
+          "Defining Comprehensive Sexuality Education: An International Framework",
         author: "UNESCO",
         url: "https://example.org/unesco-cse-def",
         publication: "International Journal of Sexual Health",

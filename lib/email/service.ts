@@ -172,16 +172,12 @@ export async function sendEmail({
   }
 }
 
-/**
- * Send a notification email for debate events
- */
 export async function sendNotificationEmail(
   userId: string,
   notificationData: NotificationEmailData,
   locale: Locale = "en",
 ) {
   try {
-    // Get user email and preferences
     const user = await prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -193,11 +189,9 @@ export async function sendNotificationEmail(
 
     if (!user?.email) return;
 
-    // Check if user wants email notifications (default to true if no preference)
     const wantsEmails = user.notificationPreference?.email ?? true;
     if (!wantsEmails) return;
 
-    // Use the React email template
     const emailHtml = await render(
       NotificationEmail({
         title: notificationData.title,
@@ -217,19 +211,14 @@ export async function sendNotificationEmail(
     });
   } catch (error) {
     console.error("Error sending notification email:", error);
-    // Don't throw - email failure shouldn't break the main operation
   }
 }
 
-/**
- * Send notification emails to multiple users
- */
 export async function sendBulkNotificationEmails(
   userIds: string[],
   notificationData: NotificationEmailData,
   locale: Locale = "en",
 ) {
-  // Process emails in background without blocking
   Promise.all(
     userIds.map((userId) =>
       sendNotificationEmail(userId, notificationData, locale),
@@ -239,9 +228,6 @@ export async function sendBulkNotificationEmails(
   });
 }
 
-/**
- * Send notification emails to all debate participants except excluded users
- */
 export async function notifyDebateParticipants(
   debateId: string,
   notificationData: NotificationEmailData,

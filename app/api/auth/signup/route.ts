@@ -12,7 +12,6 @@ const signinSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  // Apply rate limiting
   const rateLimitResponse = await applyRateLimit(req, "registration");
 
   if (rateLimitResponse) {
@@ -24,7 +23,6 @@ export async function POST(req: Request) {
     const { name, email, password } = signinSchema.parse(body);
     const locale = body.locale || "en";
 
-    // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: { email },
     });
@@ -36,10 +34,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Hash password
     const hashedPassword = await hash(password, 12);
 
-    // Create user
     const user = await prisma.user.create({
       data: {
         name,
@@ -58,7 +54,6 @@ export async function POST(req: Request) {
       await sendWelcomeEmail(user.email, user.name || "User", locale);
     } catch (emailError) {
       console.error("Failed to send welcome email:", emailError);
-      // Don't fail registration if email fails
     }
 
     return NextResponse.json(

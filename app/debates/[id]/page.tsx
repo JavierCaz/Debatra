@@ -42,7 +42,6 @@ export default async function DebateDetailPage({
 
   return (
     <div className="container mx-auto py-8 px-4 max-w-7xl">
-      {/* Back Button */}
       <div className="mb-6">
         <Link href="/debates">
           <Button variant="ghost" size="sm">
@@ -52,9 +51,7 @@ export default async function DebateDetailPage({
         </Link>
       </div>
 
-      {/* Horizontal Layout */}
       <div className="flex flex-col lg:flex-row gap-6">
-        {/* Single Combined Info Component */}
         <div className="lg:w-80 lg:flex-shrink-0">
           <DebateInfo
             debate={debate}
@@ -64,7 +61,6 @@ export default async function DebateDetailPage({
           />
         </div>
 
-        {/* Main Content with Arguments & Definitions */}
         <DebateContentSection
           debate={debate}
           currentUserId={currentUserId}

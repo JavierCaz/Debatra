@@ -34,7 +34,6 @@ export function DefinitionsList({
   >(null);
   const [expandedDefinitions, setExpandedDefinitions] = useState<string[]>([]);
 
-  // Group definitions by term and build version history
   const definitionsByTerm = definitions.reduce(
     (acc, definition) => {
       if (!acc[definition.term]) {
@@ -46,7 +45,6 @@ export function DefinitionsList({
     {} as Record<string, Definition[]>,
   );
 
-  // Sort each term's definitions by creation date (newest first)
   Object.keys(definitionsByTerm).forEach((term) => {
     definitionsByTerm[term].sort(
       (a, b) =>
@@ -54,7 +52,6 @@ export function DefinitionsList({
     );
   });
 
-  // Get the current definition to display
   const getCurrentDefinition = (termDefinitions: Definition[]) => {
     if (selectedDefinitionId) {
       const selected = termDefinitions.find(
@@ -68,23 +65,19 @@ export function DefinitionsList({
   const getIsOppositeTeam = (definition: Definition): boolean => {
     if (!currentUserId || !isParticipant) return false;
 
-    // Find current user's participant record
     const currentUserParticipant = debate.participants.find(
       (p) => p.userId === currentUserId,
     );
 
-    // Find definition proposer's participant record
     const definitionProposerParticipant = debate.participants.find(
       (p) => p.userId === definition.proposer.id,
     );
 
     if (!currentUserParticipant || !definitionProposerParticipant) return false;
 
-    // User is on opposite team if their role is different from proposer's role
     return currentUserParticipant.role !== definitionProposerParticipant.role;
   };
 
-  // Expand/Collapse All functions
   const expandAll = () => {
     setExpandedDefinitions(Object.keys(definitionsByTerm));
   };
@@ -99,7 +92,6 @@ export function DefinitionsList({
 
   return (
     <div className="space-y-4">
-      {/* Expand/Collapse Controls */}
       <div className="flex justify-between items-center">
         <div className="text-sm text-muted-foreground">
           {t("debate.definition.termCount", {
@@ -165,7 +157,6 @@ export function DefinitionsList({
                 </div>
               </AccordionTrigger>
 
-              {/* Preview when collapsed */}
               {!isExpanded && (
                 <div className="px-6 pb-4">
                   <DefinitionHeader
@@ -183,7 +174,6 @@ export function DefinitionsList({
 
               <AccordionContent className="px-0">
                 <div className="px-6 pb-6 space-y-4">
-                  {/* Version History Selector */}
                   {hasMultipleVersions && (
                     <VersionSelector
                       versions={termDefinitions}
@@ -192,14 +182,12 @@ export function DefinitionsList({
                     />
                   )}
 
-                  {/* Definition Metadata */}
                   <DefinitionHeader
                     proposer={currentDefinition.proposer}
                     createdAt={currentDefinition.createdAt}
                     referencesCount={currentDefinition.references.length}
                   />
 
-                  {/* Definition Text */}
                   <div>
                     <h4 className="text-sm font-semibold text-muted-foreground mb-2">
                       {t("debate.definition.term")}
@@ -209,7 +197,6 @@ export function DefinitionsList({
                     </p>
                   </div>
 
-                  {/* Action Buttons */}
                   <DefinitionActions
                     definitionId={currentDefinition.id}
                     status={currentDefinition.status}
@@ -223,10 +210,8 @@ export function DefinitionsList({
                     onSupersede={onSupersede}
                   />
 
-                  {/* References */}
                   <ReferenceList references={currentDefinition.references} />
 
-                  {/* Status-specific warnings */}
                   <StatusAlerts
                     status={currentDefinition.status}
                     isSuperseded={!!currentDefinition.supersededBy}

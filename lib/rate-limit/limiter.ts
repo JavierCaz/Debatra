@@ -1,36 +1,30 @@
 import { RateLimiterMemory, type RateLimiterRes } from "rate-limiter-flexible";
 
-// Different rate limiters for different endpoints
 const rateLimiters = {
-  // Authentication endpoints
   auth: new RateLimiterMemory({
     points: 5, // 5 attempts
     duration: 60 * 15, // per 15 minutes
     blockDuration: 60 * 15, // Block for 15 minutes
   }),
 
-  // Password reset (stricter)
   passwordReset: new RateLimiterMemory({
     points: 3, // 3 attempts
     duration: 60 * 60, // per hour
     blockDuration: 60 * 60, // Block for 1 hour
   }),
 
-  // Registration
   registration: new RateLimiterMemory({
     points: 3, // 3 attempts
     duration: 60 * 60, // per hour
     blockDuration: 60 * 60 * 24, // Block for 24 hours
   }),
 
-  // API endpoints (general)
   api: new RateLimiterMemory({
     points: 100, // 100 requests
     duration: 60 * 15, // per 15 minutes
     blockDuration: 60 * 5, // Block for 5 minutes
   }),
 
-  // Email sending
   email: new RateLimiterMemory({
     points: 5, // 5 emails
     duration: 60 * 60, // per hour
@@ -40,12 +34,6 @@ const rateLimiters = {
 
 export type RateLimiterType = keyof typeof rateLimiters;
 
-/**
- * Rate limit check
- * @param identifier - Usually IP address or user ID
- * @param type - Type of rate limiter to use
- * @returns true if allowed, throws error if rate limited
- */
 export async function checkRateLimit(
   identifier: string,
   type: RateLimiterType = "api",
@@ -61,9 +49,6 @@ export async function checkRateLimit(
   }
 }
 
-/**
- * Get remaining points for an identifier
- */
 export async function getRateLimitInfo(
   identifier: string,
   type: RateLimiterType = "api",
@@ -84,9 +69,6 @@ export async function getRateLimitInfo(
   };
 }
 
-/**
- * Reset rate limit for an identifier (useful for admin actions)
- */
 export async function resetRateLimit(
   identifier: string,
   type: RateLimiterType = "api",

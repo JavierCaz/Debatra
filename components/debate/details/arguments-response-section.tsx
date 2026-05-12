@@ -39,7 +39,6 @@ export function ArgumentsResponseSection({
   const [isLoading, setIsLoading] = useState(false);
   const [isForfeit, setIsForfeit] = useState(false);
 
-  // Use the shared hook
   const {
     currentUserParticipant,
     canSubmitArguments,
@@ -50,7 +49,6 @@ export function ArgumentsResponseSection({
     currentUserId: session?.user?.id,
   });
 
-  // Update argumentsList when replyToArgumentId changes
   useEffect(() => {
     if (replyToArgumentId) {
       setArgumentsList((prev) => {
@@ -71,10 +69,8 @@ export function ArgumentsResponseSection({
     }
   }, [replyToArgumentId]);
 
-  // Handle forfeit toggle change
   const handleForfeitToggle = (checked: boolean) => {
     setIsForfeit(checked);
-    // Clear all arguments when switching to forfeit mode
     if (checked) {
       setArgumentsList([
         {
@@ -137,7 +133,6 @@ export function ArgumentsResponseSection({
       }
 
       if (result.success) {
-        // Clear form after successful submission
         setArgumentsList([
           {
             id: Date.now(),
@@ -146,15 +141,12 @@ export function ArgumentsResponseSection({
           },
         ]);
 
-        // Reset forfeit state
         setIsForfeit(false);
 
-        // Notify parent that reply is complete
         if (onReplyComplete) {
           onReplyComplete();
         }
 
-        // Refresh the page to show updated debate state
         router.refresh();
       } else {
         throw new Error(
@@ -217,7 +209,6 @@ export function ArgumentsResponseSection({
             : `Present your arguments for turn ${debate.currentTurnNumber} with supporting evidence and references`}
         </p>
 
-        {/* Add Forfeit Toggle Section */}
         {canSubmitArguments && (
           <div className="flex items-center space-x-2 pt-2">
             <Toggle
@@ -235,7 +226,6 @@ export function ArgumentsResponseSection({
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Always render ArgumentsSubmitter, just pass isForfeit prop */}
         <ArgumentsSubmitter
           initialArguments={argumentsList}
           error={error}
