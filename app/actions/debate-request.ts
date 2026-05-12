@@ -38,18 +38,15 @@ export async function sendJoinRequest(
     return { error: "Debate not found" };
   }
 
-  // Check if user is already a participant
   if (debate.participants.some((p) => p.userId === user.id)) {
     return { error: "You are already a participant" };
   }
 
-  // Check if role is available
   const roleTaken = debate.participants.some((p) => p.role === role);
   if (roleTaken) {
     return { error: `The ${role.toLowerCase()} role is already taken` };
   }
 
-  // Check for existing pending request
   const existingRequest = await prisma.debateRequest.findFirst({
     where: {
       debateId,
@@ -73,7 +70,6 @@ export async function sendJoinRequest(
       },
     });
 
-    // Notify debate creator
     await createNotification({
       userId: debate.creatorId,
       type: "DEBATE_INVITATION",
@@ -87,7 +83,7 @@ export async function sendJoinRequest(
         role,
         debateTitle: debate.title,
       }),
-      sendEmail: true, // Enable email notifications
+      sendEmail: true,
     });
 
     revalidatePath(`/debates/${debateId}`);
@@ -128,7 +124,6 @@ export async function sendInvitation(
     return { error: "Debate not found" };
   }
 
-  // Check if inviter has permission (creator or participant)
   const isCreator = debate.creatorId === inviter.id;
   const isParticipant = debate.participants.some(
     (p) => p.userId === inviter.id,
@@ -146,18 +141,15 @@ export async function sendInvitation(
     return { error: "User not found" };
   }
 
-  // Check if user is already a participant
   if (debate.participants.some((p) => p.userId === invitee.id)) {
     return { error: "This user is already a participant" };
   }
 
-  // Check if role is available
   const roleTaken = debate.participants.some((p) => p.role === role);
   if (roleTaken) {
     return { error: `The ${role.toLowerCase()} role is already taken` };
   }
 
-  // Check for existing pending invitation
   const existingInvitation = await prisma.debateRequest.findFirst({
     where: {
       debateId,
@@ -182,7 +174,6 @@ export async function sendInvitation(
       },
     });
 
-    // Notify invitee
     await createNotification({
       userId: invitee.id,
       type: "DEBATE_INVITATION",
@@ -196,7 +187,7 @@ export async function sendInvitation(
         role,
         debateTitle: debate.title,
       }),
-      sendEmail: true, // Enable email notifications
+      sendEmail: true,
     });
 
     revalidatePath(`/debates/${debateId}`);
@@ -238,14 +229,11 @@ export async function respondToRequest(requestId: string, accept: boolean) {
     return { error: "Request not found" };
   }
 
-  // Check permissions
   if (request.type === "JOIN_REQUEST") {
-    // Only creator can respond to join requests
     if (request.debate.creatorId !== user.id) {
       return { error: "Only the debate creator can respond to join requests" };
     }
   } else {
-    // Only the invited user can respond to invitations
     if (request.userId !== user.id) {
       return { error: "You are not authorized to respond to this invitation" };
     }
@@ -253,7 +241,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
 
   try {
     if (accept) {
-      // Check if role is still available
       const roleTaken = request.debate.participants.some(
         (p) => p.role === request.role,
       );
@@ -268,7 +255,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
         return { error: "This role has already been taken" };
       }
 
-      // Accept the request and create participant
       await prisma.$transaction([
         prisma.debateRequest.update({
           where: { id: requestId },
@@ -288,7 +274,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
         }),
       ]);
 
-      // Check if debate should start (has both PROPOSER and OPPOSER)
       const updatedDebate = await prisma.debate.findUnique({
         where: { id: request.debateId },
         include: { participants: true },
@@ -312,12 +297,11 @@ export async function respondToRequest(requestId: string, accept: boolean) {
           },
         });
 
-        // Cancel all other pending requests for this debate since it's now full
         const otherPendingRequests = await prisma.debateRequest.findMany({
           where: {
             debateId: request.debateId,
             status: "PENDING",
-            id: { not: requestId }, // Exclude the current request that was just accepted
+            id: { not: requestId },
           },
           include: {
             user: true,
@@ -326,7 +310,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
         });
 
         if (otherPendingRequests.length > 0) {
-          // Update all other pending requests to CANCELLED
           await prisma.debateRequest.updateMany({
             where: {
               debateId: request.debateId,
@@ -339,7 +322,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
             },
           });
 
-          // Notify all users whose requests were cancelled
           const notificationPromises = otherPendingRequests.map(
             (cancelledRequest) => {
               let notificationMessage = "";
@@ -375,9 +357,7 @@ export async function respondToRequest(requestId: string, accept: boolean) {
         }
       }
 
-      // Notify relevant parties for the accepted request
       if (request.type === "JOIN_REQUEST") {
-        // Notify the requester
         await createNotification({
           userId: request.userId,
           type: "DEBATE_ACCEPTED",
@@ -394,7 +374,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
           sendEmail: true,
         });
       } else {
-        // Notify the inviter
         if (request.inviterId) {
           await createNotification({
             userId: request.inviterId,
@@ -417,7 +396,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
       revalidatePath(`/debates/${request.debateId}`);
       return { success: true, accepted: true, debateFull: isDebateFull };
     } else {
-      // Decline the request
       await prisma.debateRequest.update({
         where: { id: requestId },
         data: {
@@ -426,7 +404,6 @@ export async function respondToRequest(requestId: string, accept: boolean) {
         },
       });
 
-      // Notify relevant parties
       if (request.type === "JOIN_REQUEST") {
         await createNotification({
           userId: request.userId,
@@ -494,7 +471,6 @@ export async function cancelRequest(requestId: string) {
     return { error: "Request not found" };
   }
 
-  // Check if user owns this request/invitation
   const ownsRequest =
     request.userId === user.id || request.inviterId === user.id;
   if (!ownsRequest) {
@@ -546,17 +522,13 @@ export async function getPendingRequests(debateId: string) {
   const isCreator = debate.creatorId === user.id;
   const isParticipant = debate.participants.some((p) => p.userId === user.id);
 
-  // Get requests relevant to the user
   const requests = await prisma.debateRequest.findMany({
     where: {
       debateId,
       status: "PENDING",
       OR: [
-        // User's own requests/invitations
         { userId: user.id },
-        // If creator, see all join requests
         isCreator ? { type: "JOIN_REQUEST" } : {},
-        // If participant, see invitations they sent
         isParticipant ? { inviterId: user.id } : {},
       ],
     },

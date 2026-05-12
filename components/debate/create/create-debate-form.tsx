@@ -64,12 +64,10 @@ export function CreateDebateForm({
   const handleFormSubmit = (status: string) => {
     const newErrors: Record<string, string> = {};
 
-    // Basic form validation
     if (!formData.title) newErrors.title = t("debate.create.titleRequired");
     if (formData.topics.length === 0)
       newErrors.topics = t("debate.create.topicRequired");
 
-    // Validate initial arguments
     const hasValidArguments = initialArguments.some((arg) => {
       const plainText = arg.content.replace(/<[^>]*>/g, "").trim();
       return plainText && plainText.length >= 10;

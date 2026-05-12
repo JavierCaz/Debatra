@@ -124,7 +124,6 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
 
           {!success && (
             <>
-              {/* In-App Notifications */}
               <div className="flex items-center justify-between space-x-4">
                 <div className="space-y-0.5 flex-1">
                   <Label
@@ -149,7 +148,6 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
 
               <Separator />
 
-              {/* Email Notifications */}
               <div className="flex items-center justify-between space-x-4">
                 <div className="space-y-0.5 flex-1">
                   <Label
@@ -174,7 +172,6 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
 
               <Separator />
 
-              {/* Push Notifications (Future) */}
               <div className="flex items-center justify-between space-x-4 opacity-60">
                 <div className="space-y-0.5 flex-1">
                   <Label
@@ -197,7 +194,6 @@ export function SettingsForm({ initialPreferences }: SettingsFormProps) {
                 />
               </div>
 
-              {/* Help Text */}
               <div className="bg-muted/50 rounded-lg p-4">
                 <p className="text-sm text-muted-foreground">
                   <strong>{t("settings.note")}</strong>{" "}

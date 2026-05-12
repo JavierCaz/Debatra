@@ -16,7 +16,6 @@ const resetPasswordSchema = z.object({
 });
 
 export async function POST(req: Request) {
-  // Apply rate limiting
   const rateLimitResponse = await applyRateLimit(req, "auth");
 
   if (rateLimitResponse) {
@@ -27,10 +26,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { token, password } = resetPasswordSchema.parse(body);
 
-    // Hash the token to match what's stored in database
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // Find valid reset token
     const resetToken = await prisma.passwordResetToken.findUnique({
       where: { token: hashedToken },
     });
@@ -42,9 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // Check if token has expired
     if (resetToken.expires < new Date()) {
-      // Delete expired token
       await prisma.passwordResetToken.delete({
         where: { id: resetToken.id },
       });
@@ -55,7 +50,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // Find user
     const user = await prisma.user.findUnique({
       where: { email: resetToken.email },
     });
@@ -64,21 +58,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Hash new password
     const hashedPassword = await hash(password, 12);
 
-    // Update user password
     await prisma.user.update({
       where: { id: user.id },
       data: { password: hashedPassword },
     });
 
-    // Delete used reset token
     await prisma.passwordResetToken.delete({
       where: { id: resetToken.id },
     });
 
-    // Optional: Delete all other reset tokens for this email
     await prisma.passwordResetToken.deleteMany({
       where: { email: resetToken.email },
     });

@@ -36,7 +36,6 @@ export function DebateMetadata({ debate }: DebateMetadataProps) {
           </div>
         </AccordionTrigger>
         <AccordionContent className="pt-4 pb-2 space-y-6">
-          {/* Description */}
           <div>
             <h3 className="text-sm font-medium mb-2">
               <T k="debate.info.description" />
@@ -46,7 +45,6 @@ export function DebateMetadata({ debate }: DebateMetadataProps) {
             </p>
           </div>
 
-          {/* Debate Parameters */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-start space-x-2">
               <Users className="w-4 h-4 mt-0.5 text-muted-foreground" />
@@ -133,7 +131,6 @@ export function DebateMetadata({ debate }: DebateMetadataProps) {
             )}
           </div>
 
-          {/* Dates */}
           <div className="grid grid-cols-2 gap-4 pt-4 border-t">
             <div className="flex items-start space-x-2">
               <Calendar className="w-4 h-4 mt-0.5 text-muted-foreground" />

@@ -37,7 +37,6 @@ export function ArgumentThreadDialog({
   mode = "thread",
 }: ArgumentThreadDialogProps) {
   const { t } = useTranslation();
-  // Create a map of argument ID to participant (for quick lookup)
   const argumentToParticipantMap = new Map<
     string,
     DebateWithDetails["participants"][0]
@@ -49,12 +48,10 @@ export function ArgumentThreadDialog({
     });
   });
 
-  // Safe participant lookup
   const getParticipant = (argumentId: string) => {
     return argumentToParticipantMap.get(argumentId) ?? null;
   };
 
-  // Get all arguments from all participants
   const allArguments = debate.participants.flatMap((p) => p.arguments);
 
   const getThreadArguments = (targetArgId: string): ThreadItem[] => {
@@ -77,7 +74,6 @@ export function ArgumentThreadDialog({
         .filter((item): item is ThreadItem => item !== null);
     }
 
-    // responses mode
     const responses = allArguments
       .filter((arg) => arg.responseToId === targetArgId)
       .sort(
@@ -96,7 +92,6 @@ export function ArgumentThreadDialog({
   const threadArguments = getThreadArguments(argument.id);
   const currentParticipant = getParticipant(argument.id);
 
-  // Handle clicking on any argument in the thread
   const handleArgumentClick = (argumentId: string) => {
     onOpenChange(false);
     if (onNavigateToArgument) {
@@ -125,7 +120,6 @@ export function ArgumentThreadDialog({
 
   const { icon: Icon, title, description } = dialogConfig;
 
-  // Render the current/reference argument
   const renderCurrentArgument = (label: string) => (
     <div>
       <div className="text-sm font-medium text-muted-foreground mb-2">

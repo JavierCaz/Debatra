@@ -27,20 +27,16 @@ export function DefinitionsResponseSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Check if current user is a participant
   const currentUserParticipant = debate.participants.find(
     (p) => p.userId === session?.user?.id && p.status === "ACTIVE",
   );
 
-  // Find the definition to supersede if provided
   const definitionToSupersede = supersedeDefinitionId
     ? debate.definitions.find((def) => def.id === supersedeDefinitionId)
     : null;
 
-  // Check if it's the current user's turn (same logic as arguments)
   const isCurrentTurn = currentUserParticipant?.role === debate.currentTurnSide;
 
-  // Use useEffect to pre-fill form when superseding
   useEffect(() => {
     if (
       supersedeDefinitionId &&
@@ -65,7 +61,6 @@ export function DefinitionsResponseSection({
     }
   }, [supersedeDefinitionId, definitionToSupersede, definitions.length]);
 
-  // Determine if user can submit definitions (can submit multiple times per turn)
   const canSubmitDefinitions =
     currentUserParticipant && isCurrentTurn && debate.status === "IN_PROGRESS";
 
@@ -80,7 +75,6 @@ export function DefinitionsResponseSection({
 
     try {
       if (supersedeDefinitionId) {
-        // Submit as superseding definition
         const response = await fetch("/api/definitions/supersede", {
           method: "POST",
           headers: {
@@ -101,12 +95,10 @@ export function DefinitionsResponseSection({
               t("debate.definition.failedSubmitImproved"),
           );
         } else {
-          // Success - clear form and call completion callback
           setDefinitions([]);
           onSupersedeComplete?.();
         }
       } else {
-        // Submit as regular new definition
         const submissionPromises = definitions.map((definition) =>
           fetch("/api/definitions/submit", {
             method: "POST",
@@ -127,7 +119,6 @@ export function DefinitionsResponseSection({
         if (hasError) {
           setError(t("debate.definition.someFailed"));
         } else {
-          // Success - clear form and show success message
           setDefinitions([]);
           window.location.reload();
         }

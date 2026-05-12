@@ -92,7 +92,6 @@ export function StatusSummary({
     }
   };
 
-  // Get winning participants count
   const winningParticipantsCount = debate.winCondition?.winningRole
     ? debate.participants.filter(
         (p) => p.role === debate.winCondition?.winningRole,
@@ -102,7 +101,6 @@ export function StatusSummary({
   return (
     <div className="p-3 border rounded-lg bg-muted/50">
       <div className="space-y-3">
-        {/* Status Indicator */}
         <div className="flex items-center gap-2 text-sm">
           <IconComponent className={`w-4 h-4 ${statusConfig.iconColor}`} />
           <span className={`font-medium ${statusConfig.titleColor}`}>
@@ -113,7 +111,6 @@ export function StatusSummary({
           </span>
         </div>
 
-        {/* Progress Bar */}
         {debate.status === "IN_PROGRESS" && (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
@@ -130,7 +127,6 @@ export function StatusSummary({
           </div>
         )}
 
-        {/* Updated winner display for COMPLETED debates */}
         {debate.status === "COMPLETED" && debate.winCondition?.winningRole && (
           <div className="text-xs text-muted-foreground">
             <T k="debate.status.winners" />{" "}
@@ -142,7 +138,6 @@ export function StatusSummary({
           </div>
         )}
 
-        {/* Additional info for OPEN debates */}
         {debate.status === "OPEN" && (
           <div className="text-xs text-muted-foreground">
             <T
@@ -155,7 +150,6 @@ export function StatusSummary({
           </div>
         )}
 
-        {/* Additional info for DRAFT debates */}
         {debate.status === "DRAFT" && (
           <div className="text-xs text-muted-foreground">
             <T k="debate.info.onlyVisibleToCreator" />

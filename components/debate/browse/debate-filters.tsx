@@ -35,7 +35,6 @@ export function DebateFilters({
 
   return (
     <div className="space-y-6">
-      {/* Search */}
       <div className="space-y-2">
         <Label htmlFor="search">{t("debates.searchDebates")}</Label>
         <div className="relative">
@@ -51,7 +50,6 @@ export function DebateFilters({
         </div>
       </div>
 
-      {/* Topic Filter */}
       <div className="space-y-2">
         <Label htmlFor="topic-select">{t("debates.topic")}</Label>
         <Select value={topic} onValueChange={onTopicChange}>
@@ -69,7 +67,6 @@ export function DebateFilters({
         </Select>
       </div>
 
-      {/* Status Filter */}
       <div className="space-y-2">
         <Label>{t("debates.status")}</Label>
         <RadioGroup value={status} onValueChange={onStatusChange}>

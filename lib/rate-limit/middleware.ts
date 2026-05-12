@@ -2,11 +2,7 @@ import { NextResponse } from "next/server";
 import type { RateLimiterRes } from "rate-limiter-flexible";
 import { checkRateLimit, type RateLimiterType } from "./limiter";
 
-/**
- * Get client identifier (IP address)
- */
 export function getClientIdentifier(req: Request): string {
-  // Try to get real IP from headers (for proxies/load balancers)
   const forwarded = req.headers.get("x-forwarded-for");
   const realIp = req.headers.get("x-real-ip");
 
@@ -18,13 +14,9 @@ export function getClientIdentifier(req: Request): string {
     return realIp;
   }
 
-  // Fallback to a generic identifier
   return "unknown";
 }
 
-/**
- * Apply rate limiting to a request
- */
 export async function applyRateLimit(
   req: Request,
   type: RateLimiterType = "api",
@@ -34,7 +26,6 @@ export async function applyRateLimit(
   try {
     await checkRateLimit(identifier, type);
 
-    // No error, continue
     return null;
   } catch (error: unknown) {
     const rateLimiterRes = error as RateLimiterRes;
@@ -61,9 +52,6 @@ export async function applyRateLimit(
   }
 }
 
-/**
- * Rate limit wrapper for API routes
- */
 export function withRateLimit(
   handler: (req: Request) => Promise<NextResponse>,
   type: RateLimiterType = "api",

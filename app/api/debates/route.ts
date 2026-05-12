@@ -28,7 +28,6 @@ export async function POST(request: NextRequest) {
 
     const data = await request.json();
 
-    // Validate required data - updated for multiple topics
     if (
       !data.title ||
       !data.topics ||
@@ -62,13 +61,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create debate with topics, participant, arguments, and definitions in a transaction
     const debate = await prisma.$transaction(async (tx) => {
       const shouldStartWithOpposer =
         data.format === DebateFormat.ONE_VS_ONE ||
         data.format === DebateFormat.ONE_VS_MANY;
 
-      // Create the debate
       const newDebate = await tx.debate.create({
         data: {
           title: data.title,
@@ -85,7 +82,6 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Create debate topics
       await tx.debateTopic.createMany({
         data: data.topics.map((topic: string) => ({
           debateId: newDebate.id,
@@ -93,7 +89,6 @@ export async function POST(request: NextRequest) {
         })),
       });
 
-      // Create participant
       const participant = await tx.debateParticipant.create({
         data: {
           debateId: newDebate.id,
@@ -103,9 +98,7 @@ export async function POST(request: NextRequest) {
         },
       });
 
-      // Create multiple initial arguments with their references
       for (const initialArg of data.initialArguments) {
-        // Validate argument content
         const plainText = initialArg.content.replace(/<[^>]*>/g, "").trim();
         if (!plainText || plainText.length < 10) {
           throw new Error(
@@ -141,10 +134,8 @@ export async function POST(request: NextRequest) {
         });
       }
 
-      // Create definitions with their references if provided
       if (data.initialDefinitions && Array.isArray(data.initialDefinitions)) {
         for (const definition of data.initialDefinitions) {
-          // Validate definition data
           if (!definition.term?.trim() || !definition.definition?.trim()) {
             throw new Error(
               "Each definition must have both term and definition",
@@ -183,7 +174,6 @@ export async function POST(request: NextRequest) {
       return newDebate;
     });
 
-    // Fetch the complete debate with topics, participants, arguments, and definitions
     const completeDebate = await prisma.debate.findUnique({
       where: { id: debate.id },
       include: {

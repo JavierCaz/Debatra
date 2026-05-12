@@ -130,7 +130,6 @@ export async function getNotificationPreferences() {
       },
     });
 
-    // Return defaults if no preferences exist
     return {
       preferences: preferences || {
         inApp: true,
@@ -174,7 +173,6 @@ export async function updateNotificationPreferences(preferences: {
   }
 }
 
-// ENHANCED: Helper function to create notifications with preference checking
 export async function createNotification({
   userId,
   type,
@@ -197,7 +195,6 @@ export async function createNotification({
   sendEmail?: boolean;
 }) {
   try {
-    // Check user preferences for in-app notifications
     const userPreferences = await prisma.userNotificationPreference.findUnique({
       where: { userId },
     });
@@ -205,7 +202,6 @@ export async function createNotification({
     const allowInApp = userPreferences?.inApp ?? true;
 
     if (!allowInApp) {
-      // User has disabled in-app notifications
       return null;
     }
 
@@ -222,14 +218,11 @@ export async function createNotification({
       },
     });
 
-    // Trigger email notification if requested and user allows emails
     if (sendEmail) {
       const allowEmail = userPreferences?.email ?? true;
       if (allowEmail) {
-        // Import dynamically to avoid circular dependencies
         const { sendNotificationEmail } = await import("@/lib/email/service");
 
-        // Send email in background without blocking
         sendNotificationEmail(userId, {
           title,
           message,
@@ -247,7 +240,6 @@ export async function createNotification({
   }
 }
 
-// Bulk notification creation with preferences
 export async function createBulkNotifications({
   userIds,
   type,
@@ -272,7 +264,6 @@ export async function createBulkNotifications({
   try {
     if (userIds.length === 0) return [];
 
-    // Get preferences for all users at once
     const userPreferences = await prisma.userNotificationPreference.findMany({
       where: {
         userId: { in: userIds },
@@ -283,7 +274,6 @@ export async function createBulkNotifications({
       userPreferences.map((pref) => [pref.userId, pref]),
     );
 
-    // Filter users who allow in-app notifications
     const allowedUserIds = userIds.filter((userId) => {
       const prefs = preferencesMap.get(userId);
       return prefs?.inApp ?? true; // Default to true if no preferences
@@ -308,7 +298,6 @@ export async function createBulkNotifications({
       ),
     );
 
-    // Send emails to users who allow them
     if (sendEmail) {
       const { sendBulkNotificationEmails } = await import(
         "@/lib/email/service"
@@ -337,7 +326,6 @@ export async function createBulkNotifications({
   }
 }
 
-// Clean up old notifications (keep only last 100 per user)
 export async function cleanupOldNotifications() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -367,7 +355,6 @@ export async function cleanupOldNotifications() {
   }
 }
 
-// Get notification statistics
 export async function getNotificationStats() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

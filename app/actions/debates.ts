@@ -138,12 +138,10 @@ export async function getDebates(filters: DebateFilters = {}) {
 
     const where: Prisma.DebateWhereInput = {};
 
-    // Filter by status
     if (status && status !== "ALL") {
       where.status = status;
     }
 
-    // Filter by specific topic
     if (topic) {
       where.topics = {
         some: {
@@ -152,7 +150,6 @@ export async function getDebates(filters: DebateFilters = {}) {
       };
     }
 
-    // Search by title, description, or topics
     if (search?.trim()) {
       where.OR = [
         {
@@ -168,7 +165,6 @@ export async function getDebates(filters: DebateFilters = {}) {
           },
         },
         {
-          // Search through topic names (this requires a more complex query)
           topics: {
             some: {
               topic: {
@@ -221,12 +217,10 @@ export async function getDebates(filters: DebateFilters = {}) {
   }
 }
 
-// Helper function to map search terms to topic enums
 function getTopicsFromSearch(search: string): DebateTopic[] {
   const searchLower = search.toLowerCase();
   const matchingTopics: DebateTopic[] = [];
 
-  // Map common search terms to topics
   const topicMappings: Record<string, DebateTopic[]> = {
     politics: [DebateTopic.POLITICS],
     government: [DebateTopic.POLITICS],
@@ -263,13 +257,11 @@ function getTopicsFromSearch(search: string): DebateTopic[] {
     history: [DebateTopic.HISTORY],
   };
 
-  // Check for matching topics
   Object.entries(topicMappings).forEach(([keyword, topics]) => {
     if (searchLower.includes(keyword)) {
       matchingTopics.push(...topics);
     }
   });
 
-  // Remove duplicates
   return [...new Set(matchingTopics)];
 }

@@ -7,7 +7,6 @@ export default function Loading() {
       <Skeleton className="h-10 w-32 mb-6" />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Sidebar Skeleton */}
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
@@ -22,7 +21,6 @@ export default function Loading() {
           </Card>
         </div>
 
-        {/* Main Content Skeleton */}
         <div className="lg:col-span-2">
           <Skeleton className="h-8 w-48 mb-6" />
           <div className="space-y-4">

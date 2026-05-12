@@ -57,7 +57,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        {/* Hero Section */}
         <div className="text-center">
           <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-6">
             {t("home.title")}
@@ -67,7 +66,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Features Section */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex flex-col items-center text-center space-y-1">
             <BookCheck className="h-5 w-5 text-blue-500/70" />
@@ -100,7 +98,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* How It Works Section */}
         <div className="mt-18">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-4">
@@ -112,22 +109,18 @@ export default function Home() {
           </div>
 
           <div className="relative">
-            {/* Connecting line between steps (desktop only) */}
             <div className="hidden md:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-200 via-purple-200 to-amber-200 -translate-y-1/2" />
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
               {steps.map((step, idx) => (
                 <div key={step.title} className="relative">
-                  {/* Step Card */}
                   <Card className="h-full text-center hover:shadow-lg transition-shadow duration-300">
                     <CardHeader>
-                      {/* Icon Circle */}
                       <div className={`flex justify-center mb-4`}>
                         <div className={`${step.bgColor} p-3 rounded-full`}>
                           <step.icon className={`h-8 w-8 ${step.color}`} />
                         </div>
                       </div>
-                      {/* Step Number */}
                       <div className="text-sm font-mono text-muted-foreground mb-2">
                         {"Step "}
                         {step.number}
@@ -141,7 +134,6 @@ export default function Home() {
                     </CardContent>
                   </Card>
 
-                  {/* Arrow between steps (mobile) */}
                   {idx < steps.length - 1 && (
                     <div className="md:hidden flex justify-center">
                       <div className="text-muted-foreground">↓</div>
@@ -152,7 +144,6 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Call to Action after steps */}
           <div className="text-center mt-12">
             <Button asChild size="lg" variant="default">
               <Link href={session ? "/debates" : "/auth/signup"}>

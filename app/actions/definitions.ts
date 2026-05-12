@@ -39,7 +39,6 @@ export async function voteOnDefinition(definitionId: string, support: boolean) {
     }
 
     const _result = await prisma.$transaction(async (tx) => {
-      // Upsert the vote
       const vote = await tx.definitionVote.upsert({
         where: {
           definitionId_userId: {
@@ -98,7 +97,6 @@ export async function endorseDefinition(definitionId: string) {
       throw new Error("You must be logged in to endorse definitions");
     }
 
-    // Check if user is a participant in the debate
     const definition = await prisma.definition.findUnique({
       where: { id: definitionId },
       include: {
@@ -130,7 +128,6 @@ export async function endorseDefinition(definitionId: string) {
     }
 
     const _result = await prisma.$transaction(async (tx) => {
-      // Upsert the endorsement
       const endorsement = await tx.definitionEndorsement.upsert({
         where: {
           definitionId_userId: {
@@ -233,13 +230,11 @@ export async function submitDefinition(
       );
     }
 
-    // Validate definition data
     if (!definitionData.term.trim() || !definitionData.definition.trim()) {
       throw new Error("Term and definition are required");
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      // Create definition
       const definition = await tx.definition.create({
         data: {
           term: definitionData.term.trim(),
@@ -271,7 +266,6 @@ export async function submitDefinition(
         },
       });
 
-      // Send notifications to all other participants
       const otherParticipants = debate.participants.filter(
         (p) => p.userId !== session.user.id,
       );
@@ -366,7 +360,6 @@ export async function acceptDefinition(definitionId: string) {
         });
       }
 
-      // Update definition status to ACCEPTED
       const updatedDefinition = await tx.definition.update({
         where: { id: definitionId },
         data: {
@@ -375,7 +368,6 @@ export async function acceptDefinition(definitionId: string) {
         },
       });
 
-      // Send notification to the definition proposer
       if (definition.proposer.id !== session.user.id) {
         await createNotification({
           userId: definition.proposer.id,
@@ -395,7 +387,6 @@ export async function acceptDefinition(definitionId: string) {
         });
       }
 
-      // Send notifications to all other participants
       const otherParticipants = definition.debate.participants.filter(
         (p) =>
           p.userId !== session.user.id && p.userId !== definition.proposer.id,
@@ -496,7 +487,6 @@ export async function supersedeDefinition(
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      // Create the new definition
       const newDefinition = await tx.definition.create({
         data: {
           term: newDefinitionData.term.trim(),
@@ -531,7 +521,6 @@ export async function supersedeDefinition(
         },
       });
 
-      // Send notification to the original definition proposer
       if (originalDefinition.proposer.id !== session.user.id) {
         await createNotification({
           userId: originalDefinition.proposer.id,
@@ -550,7 +539,6 @@ export async function supersedeDefinition(
         });
       }
 
-      // Send notifications to all other participants
       const otherParticipants = originalDefinition.debate.participants.filter(
         (p) =>
           p.userId !== session.user.id &&

@@ -36,7 +36,6 @@ export function CurrentParticipants({
     return latestArgument.createdAt;
   })();
 
-  // Get current user's participant data
   const currentUserParticipant = debate.participants.find(
     (p) => p.userId === currentUserId,
   );
@@ -47,7 +46,6 @@ export function CurrentParticipants({
     ) &&
     debate.status === "IN_PROGRESS";
 
-  // Group participants by role
   const proposers = debate.participants.filter((p) => p.role === "PROPOSER");
   const opposers = debate.participants.filter((p) => p.role === "OPPOSER");
 
@@ -116,7 +114,6 @@ export function CurrentParticipants({
 
   return (
     <div>
-      {/* Turn Countdown Banner - Only show during active debate */}
       {debate.status === "IN_PROGRESS" && debate.turnTimeLimit && (
         <div className="mb-4">
           <TurnCountdown
@@ -132,7 +129,6 @@ export function CurrentParticipants({
       </h4>
 
       <div className="space-y-4">
-        {/* Proposers Team */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant="default" className="text-xs">
@@ -157,7 +153,6 @@ export function CurrentParticipants({
           </div>
         </div>
 
-        {/* Opposers Team */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Badge variant="secondary" className="text-xs">
@@ -182,7 +177,6 @@ export function CurrentParticipants({
           </div>
         </div>
 
-        {/* Empty state */}
         {debate.participants.length === 0 && (
           <p className="text-sm text-muted-foreground text-center py-4">
             <T k="debate.info.noParticipants" />

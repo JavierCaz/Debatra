@@ -49,7 +49,6 @@ export async function checkDebateTimeouts() {
           data: { status: "FORFEITED" },
         });
 
-        // Find the winning side (opposite of the forfeiting participant's role)
         const winningRole =
           currentTurnParticipant.role === "PROPOSER" ? "OPPOSER" : "PROPOSER";
 

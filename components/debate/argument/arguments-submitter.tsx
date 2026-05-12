@@ -164,7 +164,6 @@ export function ArgumentsSubmitter({
 
   return (
     <div className="space-y-6">
-      {/* Show forfeit warning banner when in forfeit mode */}
       {isForfeit && (
         <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
           <div className="flex items-center gap-2">
@@ -182,7 +181,6 @@ export function ArgumentsSubmitter({
         </div>
       )}
 
-      {/* Accordion Section Header - hide in forfeit mode */}
       {!isForfeit && (
         <AccordionSectionHeader
           config={config}
@@ -208,7 +206,6 @@ export function ArgumentsSubmitter({
             <TiptapEditor
               content={initialArguments[0]?.content || ""}
               onChange={(content) => {
-                // Ensure we have at least one argument
                 if (initialArguments.length === 0) {
                   const newArgument: InitialArgument = {
                     id: Date.now(),
@@ -228,7 +225,6 @@ export function ArgumentsSubmitter({
           </div>
         </div>
       ) : (
-        // Normal mode (not forfeit) - show full accordion interface
         <Accordion
           type="multiple"
           value={expandedItems}
@@ -270,7 +266,6 @@ export function ArgumentsSubmitter({
                 canDelete={initialArguments.length > minArguments}
                 onDelete={removeArgument}
               >
-                {/* Reply Indicator */}
                 {isReplyArgument && (
                   <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 dark:bg-blue-900/20 dark:border-blue-800">
                     <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">

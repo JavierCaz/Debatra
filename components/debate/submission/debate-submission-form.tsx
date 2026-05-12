@@ -9,12 +9,10 @@ import type { InitialArgument } from "@/types/debate";
 import type { InitialDefinition } from "@/types/definitions";
 
 interface DebateSubmissionFormProps {
-  // Arguments
   arguments: InitialArgument[];
   onArgumentsChange: (args: InitialArgument[]) => void;
   argumentsError?: string;
 
-  // Definitions
   definitions: InitialDefinition[];
   onDefinitionsChange: (defs: InitialDefinition[]) => void;
   definitionsError?: string;
@@ -37,7 +35,6 @@ export function DebateSubmissionForm({
     }
   };
 
-  // Count completed items for badge display
   const completedArguments = initialArguments.filter((arg) => {
     const plainText = arg.content.replace(/<[^>]*>/g, "").trim();
     return plainText.length > 0;

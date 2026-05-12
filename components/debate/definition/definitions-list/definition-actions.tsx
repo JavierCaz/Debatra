@@ -89,9 +89,7 @@ export function DefinitionActions({
 
   return (
     <div className="flex items-center justify-between gap-4">
-      {/* Left side: Action buttons */}
       <div className="flex flex-wrap gap-2">
-        {/* Action buttons for PROPOSED definitions */}
         {isParticipant && status === "PROPOSED" && (
           <div className="flex items-center gap-2">
             {onAccept && canAccept && (
@@ -126,7 +124,6 @@ export function DefinitionActions({
         )}
       </div>
 
-      {/* Right side: Voting buttons */}
       {currentUserId && onVote && (
         <div className="flex items-center gap-1">
           <Button

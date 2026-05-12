@@ -33,7 +33,6 @@ export function ResponseIndicator({
   const { t } = useTranslation();
   if (!responseTo) return null;
 
-  // Determine styling and text based on response type
   const isSupport = responseType === "support";
   const bgColor = isSupport ? "bg-green-50" : "bg-blue-50";
   const darkBgColor = isSupport

@@ -44,7 +44,6 @@ export function ArgumentsList({
   const [openTurns, setOpenTurns] = useState<string[]>([]);
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
 
-  // Set initial open accordion based on debate status (only on first load)
   useEffect(() => {
     if (
       turnNumbers.length > 0 &&
@@ -54,10 +53,8 @@ export function ArgumentsList({
       let turnToOpen: number;
 
       if (debate.status === "COMPLETED" || debate.status === "CANCELLED") {
-        // For finished debates, open the first turn
         turnToOpen = turnNumbers[0];
       } else {
-        // For debates in progress, open the last turn
         turnToOpen = turnNumbers[turnNumbers.length - 1];
       }
 
@@ -65,13 +62,11 @@ export function ArgumentsList({
     }
   }, [turnNumbers, openTurns.length, debate.status, hasUserInteracted]);
 
-  // Track user interaction
   const handleAccordionChange = (value: string[]) => {
     setHasUserInteracted(true);
     setOpenTurns(value);
   };
 
-  // Function to open a specific turn
   const handleOpenTurn = (turnNumber: number) => {
     const turnValue = `turn-${turnNumber}`;
     setHasUserInteracted(true);
@@ -80,9 +75,7 @@ export function ArgumentsList({
     }
   };
 
-  // Function to navigate to an argument (opens turn if needed and scrolls)
   const handleNavigateToArgument = (argumentId: string) => {
-    // Find which turn contains the argument
     const targetTurn = turnNumbers.find((turn) => {
       const turnArgs = argumentsByTurn[turn];
       return Object.values(turnArgs).some((participantData) =>
@@ -93,7 +86,6 @@ export function ArgumentsList({
     if (targetTurn) {
       handleOpenTurn(targetTurn);
 
-      // Scroll to the argument after the accordion opens
       setTimeout(() => {
         const targetArgument = document.getElementById(
           `argument-${argumentId}`,
@@ -104,7 +96,6 @@ export function ArgumentsList({
             block: "center",
           });
 
-          // Add highlight effect
           targetArgument.classList.add("bg-yellow-50", "dark:bg-yellow-900/20");
           setTimeout(() => {
             targetArgument.classList.remove(

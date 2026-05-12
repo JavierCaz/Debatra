@@ -7,7 +7,6 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("🌱 Starting seed...");
 
-  // Clear existing data
   await prisma.report.deleteMany();
   await prisma.concession.deleteMany();
   await prisma.argumentQuote.deleteMany();
@@ -25,7 +24,6 @@ async function main() {
 
   console.log("✨ Cleared existing data");
 
-  // Create Users
   const hashedPassword = await hash("password123", 12);
 
   const alice = await prisma.user.create({
@@ -74,7 +72,6 @@ async function main() {
 
   console.log("👥 Created 4 users");
 
-  // Create a debate specifically designed to test thread view with multiple branches
   const threadTestDebate = await prisma.debate.create({
     data: {
       title:
@@ -94,7 +91,6 @@ async function main() {
     },
   });
 
-  // Add topics
   await prisma.debateTopic.createMany({
     data: [
       { debateId: threadTestDebate.id, topic: DebateTopicEnum.TECHNOLOGY },
@@ -103,7 +99,6 @@ async function main() {
     ],
   });
 
-  // Add participants
   const aliceParticipant = await prisma.debateParticipant.create({
     data: {
       debateId: threadTestDebate.id,
@@ -142,12 +137,8 @@ async function main() {
 
   console.log("🎭 Created thread test debate with 4 participants");
 
-  // === COMPLEX THREAD STRUCTURE FOR TESTING ===
-
-  // TURN 1: Root arguments that will spawn multiple branches
   console.log("🔄 Creating complex thread structure...");
 
-  // Alice's root argument
   const aliceRoot = await prisma.argument.create({
     data: {
       content: `<p><strong>Free Speech Foundation:</strong> Social media platforms have become the modern public square. Heavy regulation would undermine free speech principles that are fundamental to democratic societies. The cure of regulation could be worse than the disease of misinformation.</p>`,
@@ -158,7 +149,6 @@ async function main() {
     },
   });
 
-  // Bob's root argument
   const bobRoot = await prisma.argument.create({
     data: {
       content: `<p><strong>Public Harm Prevention:</strong> Unregulated content leads to real-world harm - from vaccine misinformation causing deaths to hate speech inciting violence. Platforms have a moral responsibility to moderate harmful content.</p>`,
@@ -169,7 +159,6 @@ async function main() {
     },
   });
 
-  // Charlie's root argument
   const charlieRoot = await prisma.argument.create({
     data: {
       content: `<p><strong>Market Power Concern:</strong> A few tech giants have unprecedented control over public discourse. Without regulation, they can arbitrarily silence voices and shape political outcomes without accountability.</p>`,
@@ -180,7 +169,6 @@ async function main() {
     },
   });
 
-  // Diana's root argument
   const dianaRoot = await prisma.argument.create({
     data: {
       content: `<p><strong>Practical Implementation:</strong> Content moderation at scale is impossible to do perfectly. Regulation would either be too vague to enforce or so strict it would crush innovation and free expression.</p>`,
@@ -191,9 +179,6 @@ async function main() {
     },
   });
 
-  // === TURN 2: Multiple responses creating branches ===
-
-  // BRANCH 1: Responses to Alice's free speech argument
   const response1ToAlice = await prisma.argument.create({
     data: {
       content: `<p><strong>Counter to Free Speech:</strong> Private platforms aren't bound by First Amendment obligations. They're companies, not governments, and can set their own rules without violating free speech principles.</p>`,
@@ -216,7 +201,6 @@ async function main() {
     },
   });
 
-  // BRANCH 2: Responses to Bob's harm prevention argument
   const response1ToBob = await prisma.argument.create({
     data: {
       content: `<p><strong>Slippery Slope Concern:</strong> Once we accept regulation to prevent "harm," where do we draw the line? Today it's vaccine misinformation, tomorrow it could be legitimate political criticism.</p>`,
@@ -239,7 +223,6 @@ async function main() {
     },
   });
 
-  // BRANCH 3: Responses to Charlie's market power argument
   const response1ToCharlie = await prisma.argument.create({
     data: {
       content: `<p><strong>Competition Solution:</strong> Instead of content regulation, we should focus on antitrust measures to break up tech monopolies. More competition would naturally lead to diverse moderation policies.</p>`,
@@ -262,9 +245,6 @@ async function main() {
     },
   });
 
-  // === TURN 3: Nested responses creating deeper branches ===
-
-  // SUB-BRANCH 1A: Responses to Bob's counter about private platforms
   const nested1ToResponse1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Infrastructure Status:</strong> When platforms reach a certain size and importance, they effectively become public infrastructure and should have corresponding responsibilities.</p>`,
@@ -287,7 +267,6 @@ async function main() {
     },
   });
 
-  // SUB-BRANCH 1B: Responses to Charlie's nuanced support
   const _nested1ToResponse2 = await prisma.argument.create({
     data: {
       content: `<p><strong>Definition Problem:</strong> Who gets to define "harmful misinformation"? This power could be abused by whatever party is in power to silence opponents.</p>`,
@@ -299,7 +278,6 @@ async function main() {
     },
   });
 
-  // SUB-BRANCH 2A: Responses to slippery slope concern
   const nested1ToResponse3 = await prisma.argument.create({
     data: {
       content: `<p><strong>Clear Boundaries:</strong> We already draw lines in other areas - you can't shout fire in a theater. Similar clear, narrow boundaries can be established for online speech.</p>`,
@@ -311,7 +289,6 @@ async function main() {
     },
   });
 
-  // SUB-BRANCH 2B: Responses to EU regulation example
   const _nested1ToResponse4 = await prisma.argument.create({
     data: {
       content: `<p><strong>US Context Difference:</strong> The EU approach works in their legal context but may violate First Amendment protections in the US. We need solutions that respect our constitutional framework.</p>`,
@@ -323,7 +300,6 @@ async function main() {
     },
   });
 
-  // SUB-BRANCH 3A: Responses to competition solution
   const nested1ToResponse5 = await prisma.argument.create({
     data: {
       content: `<p><strong>Network Effects Reality:</strong> Antitrust alone won't work due to powerful network effects. Even if broken up, dominant platforms would likely re-emerge naturally.</p>`,
@@ -335,7 +311,6 @@ async function main() {
     },
   });
 
-  // SUB-BRANCH 3B: Responses to infrastructure argument
   const _nested1ToResponse6 = await prisma.argument.create({
     data: {
       content: `<p><strong>Innovation Risk:</strong> Treating platforms as utilities would stifle the innovation that made them successful in the first place. Heavy-handed regulation kills dynamism.</p>`,
@@ -347,9 +322,6 @@ async function main() {
     },
   });
 
-  // === DEEPER NESTING: Level 4 responses ===
-
-  // Response to the infrastructure status argument
   const _deepNested1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Historical Precedent:</strong> We've regulated other transformative technologies like radio and television without killing innovation. The same balanced approach can work for social media.</p>`,
@@ -361,7 +333,6 @@ async function main() {
     },
   });
 
-  // Response to the contractual freedom argument
   const _deepNested2 = await prisma.argument.create({
     data: {
       content: `<p><strong>Power Imbalance:</strong> Terms of service agreements are take-it-or-leave-it contracts where users have no real negotiating power. This isn't genuine contractual freedom.</p>`,
@@ -373,9 +344,6 @@ async function main() {
     },
   });
 
-  // === CROSS-BRANCH RESPONSES: Connecting different branches ===
-
-  // Connecting the slippery slope and definition problem threads
   const _crossBranch1 = await prisma.argument.create({
     data: {
       content: `<p><strong>Connecting Both Concerns:</strong> Both Alice's slippery slope and definition problem points highlight the same core issue: whoever controls the definitions wields enormous power over public discourse.</p>`,
@@ -383,13 +351,11 @@ async function main() {
       debateId: threadTestDebate.id,
       participantId: dianaParticipant.id,
       authorId: diana.id,
-      responseToId: nested1ToResponse3.id, // Response to clear boundaries
+      responseToId: nested1ToResponse3.id,
     },
   });
 
-  // Add some votes to make it realistic
   const votes = [
-    // Votes for root arguments
     { argumentId: aliceRoot.id, userId: bob.id, support: false },
     { argumentId: aliceRoot.id, userId: charlie.id, support: true },
     { argumentId: bobRoot.id, userId: alice.id, support: false },
@@ -398,14 +364,10 @@ async function main() {
     { argumentId: charlieRoot.id, userId: bob.id, support: false },
     { argumentId: dianaRoot.id, userId: alice.id, support: true },
     { argumentId: dianaRoot.id, userId: charlie.id, support: false },
-
-    // Votes for branch arguments
     { argumentId: response1ToAlice.id, userId: diana.id, support: true },
     { argumentId: response2ToAlice.id, userId: bob.id, support: false },
     { argumentId: response1ToBob.id, userId: charlie.id, support: true },
     { argumentId: response2ToBob.id, userId: alice.id, support: false },
-
-    // Votes for nested arguments
     { argumentId: nested1ToResponse1.id, userId: bob.id, support: true },
     { argumentId: nested2ToResponse1.id, userId: alice.id, support: true },
     { argumentId: nested1ToResponse3.id, userId: diana.id, support: true },
@@ -421,7 +383,6 @@ async function main() {
     });
   }
 
-  // Add some concessions
   await prisma.concession.create({
     data: {
       argumentId: response2ToBob.id,
@@ -448,7 +409,6 @@ async function main() {
   console.log("   - 1 cross-branch connection");
   console.log("   - Multiple bifurcations and conversation paths");
 
-  // Create a simple UBI debate for comparison
   console.log("💰 Creating simple UBI debate for comparison...");
 
   const simpleDebate = await prisma.debate.create({
@@ -489,7 +449,6 @@ async function main() {
     },
   });
 
-  // Simple linear thread
   const _simpleArg1 = await prisma.argument.create({
     data: {
       content: `<p>UBI would reduce poverty and simplify welfare bureaucracy.</p>`,
