@@ -124,24 +124,49 @@ watch -n 15 'curl -s -X GET http://localhost:3000/api/cron/check-timeouts -H "Au
 |---------|-------------|
 | `npm run structure` | Generate project tree → `STRUCTURE.md` |
 
-## 📁 Project Structure
+## 📖 Project Structure
 
 ```
-├── app/                    # Next.js App Router (pages, API routes, server actions)
-├── components/             # React components (organized by feature)
-│   ├── ui/                 # shadcn/ui primitives
-│   ├── debate/             # Debate-specific components
-│   └── auth/               # Authentication components
-├── hooks/                  # Custom React hooks
-├── lib/                    # Core logic (auth, email, prisma, rate limiting)
-├── prisma/                 # Database schema, migrations, seed
-├── types/                  # TypeScript type definitions
-├── .github/workflows/      # CI/CD and cron job workflows
-└── public/                 # Static assets
+app/                    # Next.js App Router
+├── actions/            # Server actions (debates, definitions, notifications)
+├── api/                # API routes (auth, arguments, definitions, profile)
+├── debates/            # Debate pages (browse, detail, create)
+├── auth/               # Authentication pages
+└── profile/            # User profile pages
+
+components/             # React components by domain
+├── debate/             # Core debate UI (arguments, definitions, details, creation)
+├── notification/       # Notification bell & list
+├── profile/            # Profile editing, stats, settings
+├── auth/               # User nav & protected routes
+├── providers/          # React context (session, theme, language)
+└── ui/                 # shadcn/ui primitives
+
+lib/                    # Business logic & services
+├── auth/               # NextAuth config & token cleanup
+├── email/              # Resend email service & React Email templates
+├── jobs/               # Cron job: debate timeout resolution
+├── rate-limit/         # Rate limiter (memory-based)
+└── prisma/             # Database client singleton
+
+prisma/                 # Schema, migrations, seed data
+hooks/                  # Custom hooks (useAuth, useDebateSubmission, useAccordionItems)
+types/                  # TypeScript definitions (debate, definitions, notifications)
+.github/workflows/      # CI pipeline + cron workflow
 ```
 
-> Full tree (213 files) available in [`STRUCTURE.md`](./STRUCTURE.md)
+> Full tree available in [`STRUCTURE.md`](./STRUCTURE.md)
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feat/my-feature`)
+3. Make your changes
+4. Run linting and type checks (`npm run lint && npm run type-check`)
+5. Commit with a descriptive message
+6. Push and open a pull request
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
+
