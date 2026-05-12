@@ -511,6 +511,7 @@
       "collapseAll": "Collapse All",
       "byProposer": "by {{name}}",
       "referencesCount": "{{count}} reference(s)",
+      "referencedBy": "Referenced by {{count}} argument(s)",
       "accepted": "Accepted",
       "proposed": "Proposed",
       "contested": "Contested",
@@ -594,6 +595,11 @@
       "loginRequiredDefinitions": "You must be logged in to supersede definitions",
       "originalDefinitionNotFound": "Original definition not found",
       "participantsOnly": "Only debate participants can supersede definitions"
+    },
+    "winConditionType": {
+      "VOTE_COUNT": "Vote count",
+      "JUDGE_DECISION": "Judge decision",
+      "FORFEIT": "Forfeit"
     },
     "topic": {
       "politics": "Politics",

@@ -124,7 +124,9 @@ export function DebateMetadata({ debate }: DebateMetadataProps) {
                     <T k="debate.info.winCondition" />
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {debate.winCondition.type.replace("_", " ")}
+                    <T
+                      k={`debate.winConditionType.${debate.winCondition.type}`}
+                    />
                   </p>
                 </div>
               </div>

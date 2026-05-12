@@ -54,7 +54,7 @@ export function StatusSummary({
           titleColor: "text-green-800",
           message: <T k="debate.status.completed" />,
           description: debate.winCondition ? (
-            `${debate.winCondition.type.toLowerCase().replace("_", " ")}`
+            <T k={`debate.winConditionType.${debate.winCondition.type}`} />
           ) : (
             <T k="debate.status.completedDesc" />
           ),

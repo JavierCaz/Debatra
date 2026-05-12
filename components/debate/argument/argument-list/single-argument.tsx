@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useDebateSubmission } from "@/hooks/use-debate-submission";
 import type { DebateWithDetails } from "@/types/debate";
+import { ReferenceList } from "../../reference/reference-list";
 import { VotingButtons } from "../../shared/voting-buttons";
-import { ArgumentReferences } from "./argument-references";
 import { ArgumentThreadDialog } from "./argument-thread/argument-thread-dialog";
 import { ResponseIndicator } from "./response-indicator";
 import { SafeContentRenderer } from "./safe-content-renderer";
@@ -226,7 +226,7 @@ export function SingleArgument({
         </div>
 
         {argument.references.length > 0 && (
-          <ArgumentReferences references={argument.references} />
+          <ReferenceList references={argument.references} />
         )}
       </div>
 

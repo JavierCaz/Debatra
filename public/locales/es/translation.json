@@ -418,9 +418,9 @@
       "roleTaken": "Este rol ya está ocupado",
       "currentParticipants": "Participantes actuales",
       "creator": "Creador",
-      "proposers": "Proponentes",
+      "proposers": "Defensores",
       "opposers": "Opositores",
-      "noProposers": "Aún no hay proponentes",
+      "noProposers": "Aún no hay defensores",
       "noOpposers": "Aún no hay opositores",
       "noParticipants": "Aún no hay participantes. Invita usuarios a unirse al debate.",
       "joinDebate": "Unirse a este debate",
@@ -511,6 +511,7 @@
       "collapseAll": "Colapsar todo",
       "byProposer": "por {{name}}",
       "referencesCount": "{{count}} referencia(s)",
+      "referencedBy": "Referenciado por {{count}} argumento(s)",
       "accepted": "Aceptada",
       "proposed": "Propuesta",
       "contested": "Cuestionada",
@@ -594,6 +595,11 @@
       "loginRequiredDefinitions": "Debes iniciar sesión para reemplazar definiciones",
       "originalDefinitionNotFound": "Definición original no encontrada",
       "participantsOnly": "Solo los participantes del debate pueden reemplazar definiciones"
+    },
+    "winConditionType": {
+      "VOTE_COUNT": "Conteo de votos",
+      "JUDGE_DECISION": "Decisión del juez",
+      "FORFEIT": "Abandono"
     },
     "topic": {
       "politics": "Política",
