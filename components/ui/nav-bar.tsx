@@ -1,6 +1,6 @@
 "use client";
 
-import { LayoutDashboard, Menu, MessageSquare } from "lucide-react";
+import { Bug, LayoutDashboard, Menu, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,6 +18,7 @@ import { NotificationBell } from "../notification/notification-bell";
 import { LanguageToggle } from "./language-toggle";
 import { Skeleton } from "./skeleton";
 import { ThemeToggle } from "./theme-toggle";
+import { BugReportForm } from "./bug-report-form";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -117,6 +118,7 @@ export function Navbar() {
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-2">
                 {isAuthenticated && <NotificationBell />}
+                <BugReportForm />
                 <LanguageToggle />
                 <ThemeToggle />
                 <UserNav />
@@ -125,6 +127,7 @@ export function Navbar() {
               {/* Mobile Actions */}
               <div className="flex md:hidden items-center gap-1">
                 {isAuthenticated && <NotificationBell />}
+                <BugReportForm />
                 <LanguageToggle />
                 <ThemeToggle />
                 <UserNav />

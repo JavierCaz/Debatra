@@ -621,6 +621,21 @@
       "history": "Historia"
     }
   },
+  "bugReport": {
+    "trigger": "Reportar un error",
+    "title": "Reportar un Error",
+    "description": "Describe el problema que encontraste. Incluye los pasos para reproducirlo.",
+    "titleLabel": "Título",
+    "titlePlaceholder": "Resumen breve del problema",
+    "descriptionLabel": "Descripción",
+    "descriptionPlaceholder": "¿Qué sucedió? ¿Qué esperabas que sucediera? ¿Cómo podemos reproducirlo?",
+    "cancel": "Cancelar",
+    "submit": "Enviar reporte",
+    "submitting": "Enviando...",
+    "success": "Reporte enviado. ¡Gracias!",
+    "error": "Algo salió mal. Por favor inténtalo de nuevo.",
+    "close": "Cerrar"
+  },
   "common": {
     "loading": "Cargando...",
     "googleLogo": "Logo de Google",

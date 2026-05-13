@@ -621,6 +621,21 @@
       "history": "History"
     }
   },
+  "bugReport": {
+    "trigger": "Report a bug",
+    "title": "Report a Bug",
+    "description": "Describe the issue you encountered. Include steps to reproduce it.",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Brief summary of the issue",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "What happened? What did you expect to happen? How can we reproduce it?",
+    "cancel": "Cancel",
+    "submit": "Submit Report",
+    "submitting": "Submitting...",
+    "success": "Bug report submitted. Thank you!",
+    "error": "Something went wrong. Please try again.",
+    "close": "Close"
+  },
   "common": {
     "loading": "Loading...",
     "googleLogo": "Google Logo",
