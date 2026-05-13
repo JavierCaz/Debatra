@@ -101,9 +101,7 @@ export function BugReportForm() {
             <Bug className="h-5 w-5" />
             {t("bugReport.title")}
           </DialogTitle>
-          <DialogDescription>
-            {t("bugReport.description")}
-          </DialogDescription>
+          <DialogDescription>{t("bugReport.description")}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -166,7 +164,9 @@ export function BugReportForm() {
                 onClick={handleSubmit}
                 disabled={isSubmitting || !title.trim() || !description.trim()}
               >
-                {isSubmitting ? t("bugReport.submitting") : t("bugReport.submit")}
+                {isSubmitting
+                  ? t("bugReport.submitting")
+                  : t("bugReport.submit")}
               </Button>
             </>
           ) : (

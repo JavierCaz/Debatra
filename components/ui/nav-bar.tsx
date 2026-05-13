@@ -1,6 +1,6 @@
 "use client";
 
-import { Bug, LayoutDashboard, Menu, MessageSquare } from "lucide-react";
+import { LayoutDashboard, Menu, MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,10 +15,10 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { UserNav } from "../auth/user-nav";
 import { NotificationBell } from "../notification/notification-bell";
+import { BugReportForm } from "./bug-report-form";
 import { LanguageToggle } from "./language-toggle";
 import { Skeleton } from "./skeleton";
 import { ThemeToggle } from "./theme-toggle";
-import { BugReportForm } from "./bug-report-form";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
