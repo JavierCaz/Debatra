@@ -86,6 +86,7 @@ model User {
   definitionVotes         DefinitionVote[]
   definitionEndorsements  DefinitionEndorsement[]
   notificationPreference UserNotificationPreference?
+  bugReports            BugReport[]
 
   @@index([email])
 }
@@ -467,6 +468,32 @@ model Report {
   reporter   User   @relation(fields: [reporterId], references: [id])
 
   @@index([reporterId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum BugReportStatus {
+  PENDING
+  REVIEWED
+  RESOLVED
+  DISMISSED
+}
+
+model BugReport {
+  id          String          @id @default(cuid())
+  title       String
+  description String          @db.Text
+  page        String?         // URL/page where the bug occurred
+  browserInfo String?         @db.Text // Browser/device/user-agent info
+  status      BugReportStatus @default(PENDING)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relations
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
   @@index([status])
   @@index([createdAt])
 }

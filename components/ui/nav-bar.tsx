@@ -15,6 +15,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { UserNav } from "../auth/user-nav";
 import { NotificationBell } from "../notification/notification-bell";
+import { BugReportForm } from "./bug-report-form";
 import { LanguageToggle } from "./language-toggle";
 import { Skeleton } from "./skeleton";
 import { ThemeToggle } from "./theme-toggle";
@@ -117,6 +118,7 @@ export function Navbar() {
               {/* Desktop Actions */}
               <div className="hidden md:flex items-center gap-2">
                 {isAuthenticated && <NotificationBell />}
+                <BugReportForm />
                 <LanguageToggle />
                 <ThemeToggle />
                 <UserNav />
@@ -125,6 +127,7 @@ export function Navbar() {
               {/* Mobile Actions */}
               <div className="flex md:hidden items-center gap-1">
                 {isAuthenticated && <NotificationBell />}
+                <BugReportForm />
                 <LanguageToggle />
                 <ThemeToggle />
                 <UserNav />
